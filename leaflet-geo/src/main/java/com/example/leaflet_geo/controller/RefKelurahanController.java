@@ -1,6 +1,6 @@
 package com.example.leaflet_geo.controller;
 
-import com.example.leaflet_geo.entity.RefKelurahan;
+import com.example.leaflet_geo.model.RefKelurahan;
 import com.example.leaflet_geo.repository.RefKelurahanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
