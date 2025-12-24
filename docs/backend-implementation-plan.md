@@ -1,58 +1,120 @@
-# 🎯 Backend Refactoring Guide
+# 🎯 Backend Refactoring Guide: leaflet-geo
 
-> **Who is this for?** The backend developer working on `leaflet-geo`  
-> **What will you do?** Clean up the code to match the patterns in `university-backend`
-
----
-
-## 📖 How to Use This Guide
-
-1. Read each phase completely before starting
-2. Do ONE phase at a time
-3. Test after each phase
-4. If something breaks, use the rollback commands
-5. Ask for help if you're stuck!
+> **Untuk siapa?** Backend Developer  
+> **Tujuan:** Merapikan struktur kode `leaflet-geo` mengikuti pola `university-backend`  
+> **Estimasi waktu:** 3-5 hari kerja
 
 ---
 
-## 🚦 Before You Start (REQUIRED)
+# 📋 DAFTAR ISI
 
-### Step 1: Open terminal in the backend folder
+1. [Perbandingan Struktur](#-perbandingan-struktur)
+2. [Persiapan Awal](#-persiapan-awal-wajib)
+3. [Phase 1: Pindahkan Dokumentasi](#-phase-1-pindahkan-dokumentasi)
+4. [Phase 2: Rename entity → model](#-phase-2-rename-entity--model)
+5. [Phase 3: Buat ApiResponse DTO](#-phase-3-buat-apiresponse-dto)
+6. [Phase 4: Refactor Controllers](#-phase-4-refactor-controllers)
+7. [Phase 5: Tambah Javadoc Comments](#-phase-5-tambah-javadoc-comments)
+8. [Phase 6: Testing & Push](#-phase-6-testing--push)
+9. [Troubleshooting](#-troubleshooting)
+
+---
+
+# 📊 PERBANDINGAN STRUKTUR
+
+## Struktur university-backend (YANG BENAR) ✅
+
+```
+src/main/java/com/psdku/lmj/university_backend/
+├── UniversityBackendApplication.java
+├── config/              ← Konfigurasi Spring
+├── controller/          ← REST Controllers
+├── dto/                 ← Data Transfer Objects
+│   └── ApiResponse.java ← ✅ Standard response wrapper
+├── model/               ← ✅ Entity classes (bukan "entity"!)
+├── repository/          ← JPA Repositories
+├── security/            ← Security configuration
+├── service/             ← Business logic
+└── util/                ← Utility classes
+```
+
+## Struktur leaflet-geo (YANG PERLU DIUBAH) ❌
+
+```
+src/main/java/com/example/leaflet_geo/
+├── LeafletGeoApplication.java
+├── config/
+├── controller/          ← Pakai HashMap untuk response (messy!)
+├── dto/                 ← Tidak ada ApiResponse
+├── entity/              ← ❌ Harusnya "model" bukan "entity"!
+├── repository/
+├── service/
+└── util/
+```
+
+## Perubahan yang Akan Dilakukan
+
+| Dari (Sekarang) | Ke (Target) |
+|-----------------|-------------|
+| `entity/` | `model/` (rename folder) |
+| HashMap di controller | ApiResponse DTO |
+| Tidak ada Javadoc | Tambah Javadoc comments |
+| Docs di root | Pindah ke `docs/` folder |
+
+---
+
+# 🚦 PERSIAPAN AWAL (WAJIB!)
+
+## Langkah 1: Buka Terminal
+
+Di VS Code atau IDE, buka terminal.
+
+## Langkah 2: Pindah ke Folder Backend
+
 ```bash
 cd "/media/zpreoz/New Volume/College/POLINEMA/PROJECT/PRODUCTION/gis-tax-refactoring/leaflet-geo"
 ```
 
-### Step 2: Create a new branch (DO NOT skip this!)
+## Langkah 3: Buat Branch Baru
+
+> ⚠️ **WAJIB!** Jangan skip langkah ini!
+
 ```bash
 git checkout -b refactor/backend-cleanup
 ```
 
-**What this does:** Creates a safe copy of the code. If you break something, the original code on `main` branch is still safe.
+**Output yang diharapkan:**
+```
+Switched to a new branch 'refactor/backend-cleanup'
+```
 
-### Step 3: Verify you're on the new branch
+## Langkah 4: Pastikan Branch Benar
+
 ```bash
 git branch
 ```
 
-**You should see:**
+**Output (harus ada bintang di branch baru):**
 ```
   main
-* refactor/backend-cleanup   <-- The star means you're on this branch
+* refactor/backend-cleanup
 ```
 
 ---
 
-## ✅ Phase 1: Move Documentation Files
+# ✅ PHASE 1: PINDAHKAN DOKUMENTASI
 
-### What are we doing?
-Moving markdown (.md) files to a `docs/` folder to keep the root clean.
+## Apa yang Dilakukan?
+Memindahkan file .md ke folder docs/ agar root bersih.
 
-### Step 1: Create the docs folder
+## Langkah 1.1: Buat Folder docs
+
 ```bash
 mkdir -p docs
 ```
 
-### Step 2: Move the files
+## Langkah 1.2: Pindahkan File Markdown
+
 ```bash
 mv DASHBOARD_PENDAPATAN_QUICKSTART.md docs/
 mv DATABASE_SETUP.md docs/
@@ -62,12 +124,13 @@ mv SIMATDA_TARGET_REALISASI_QUERIES.md docs/
 mv WKB_TO_GEOJSON_CONVERSION.md docs/
 ```
 
-### Step 3: Verify files moved
+## Langkah 1.3: Verifikasi
+
 ```bash
 ls docs/
 ```
 
-**You should see:**
+**Output yang diharapkan:**
 ```
 DASHBOARD_PENDAPATAN_QUICKSTART.md
 DATABASE_SETUP.md
@@ -77,7 +140,8 @@ SIMATDA_TARGET_REALISASI_QUERIES.md
 WKB_TO_GEOJSON_CONVERSION.md
 ```
 
-### Step 4: Save your work
+## Langkah 1.4: Commit
+
 ```bash
 git add .
 git commit -m "docs: move markdown files to docs folder"
@@ -85,59 +149,79 @@ git commit -m "docs: move markdown files to docs folder"
 
 ---
 
-## ✅ Phase 2: Rename entity → model
+# ✅ PHASE 2: RENAME entity → model
 
-### What are we doing?
-Renaming the folder from `entity/` to `model/` to match the university-backend pattern.
+## Apa yang Dilakukan?
+Mengubah nama folder `entity` menjadi `model` sesuai university-backend.
 
-### ⚠️ WARNING: This phase changes many files. Be careful!
+## ⚠️ PERINGATAN: Phase ini mengubah banyak file. Hati-hati!
 
 ---
 
-### Step 1: Rename the folder
+## Langkah 2.1: Rename Folder
+
 ```bash
 mv src/main/java/com/example/leaflet_geo/entity src/main/java/com/example/leaflet_geo/model
 ```
 
-### Step 2: Update package declarations in EACH file
+## Langkah 2.2: Update Package Declaration di Setiap File
 
-Open EACH file in `src/main/java/com/example/leaflet_geo/model/` and change the first line:
+**Buka SETIAP file di folder `model/` dan ubah baris pertama:**
 
-**Files to edit:**
-1. `Bidang.java`
-2. `DatObjekPajak.java`
-3. `DatSubjekPajak.java`
-4. `KecamatanWithCount.java`
-5. `KelurahanWithCount.java`
-6. `RefKecamatan.java`
-7. `RefKelurahan.java`
+### File yang perlu di-edit:
+1. `model/Bidang.java`
+2. `model/DatObjekPajak.java`
+3. `model/DatSubjekPajak.java`
+4. `model/KecamatanWithCount.java`
+5. `model/KelurahanWithCount.java`
+6. `model/RefKecamatan.java`
+7. `model/RefKelurahan.java`
 
-**Change this line in EACH file:**
+### Cara edit:
+
+**CARI baris ini di setiap file:**
 ```java
-// BEFORE (old)
 package com.example.leaflet_geo.entity;
+```
 
-// AFTER (new)
+**GANTI menjadi:**
+```java
 package com.example.leaflet_geo.model;
 ```
 
-### Step 3: Update imports in all other files
+## Langkah 2.3: Update Semua Import di File Lain
 
-Use Find and Replace in your IDE (Ctrl+Shift+H in VS Code):
+**Gunakan Find and Replace di IDE (Ctrl + Shift + H di VS Code):**
+
 - **Find:** `com.example.leaflet_geo.entity`
 - **Replace:** `com.example.leaflet_geo.model`
-- Click "Replace All"
+- Klik **"Replace All"**
 
-### Step 4: Test if it compiles
+**Atau cari manual:**
+```bash
+grep -r "leaflet_geo.entity" src/main/java --include="*.java"
+```
+
+## Langkah 2.4: Test Compile
+
 ```bash
 ./mvnw clean compile
 ```
 
-### Step 5: Did it work?
-- ✅ **If BUILD SUCCESS:** Continue to Step 6
-- ❌ **If BUILD FAILURE:** Read the error. Usually means you missed updating an import.
+### Jika BERHASIL:
+```
+[INFO] BUILD SUCCESS
+```
+➡️ Lanjut ke langkah berikutnya.
 
-### Step 6: Save your work
+### Jika GAGAL:
+```
+[ERROR] ...
+```
+➡️ Baca error message dan perbaiki import yang salah.
+
+## Langkah 2.5: Commit
+
 ```bash
 git add .
 git commit -m "refactor: rename entity package to model"
@@ -145,18 +229,16 @@ git commit -m "refactor: rename entity package to model"
 
 ---
 
-## ✅ Phase 3: Create ApiResponse DTO
+# ✅ PHASE 3: BUAT ApiResponse DTO
 
-### What are we doing?
-Creating a helper class to make API responses consistent and reduce repeated code.
+## Apa yang Dilakukan?
+Membuat class ApiResponse untuk standarisasi response API.
 
----
+## Langkah 3.1: Buat File ApiResponse.java
 
-### Step 1: Create the file
+Buat file baru di: `src/main/java/com/example/leaflet_geo/dto/ApiResponse.java`
 
-Create new file: `src/main/java/com/example/leaflet_geo/dto/ApiResponse.java`
-
-### Step 2: Copy this code into the file
+## Langkah 3.2: Copy-Paste Kode Ini
 
 ```java
 package com.example.leaflet_geo.dto;
@@ -167,12 +249,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Standard API response wrapper.
- * Use this for ALL controller responses to keep them consistent.
+ * Standard API Response Wrapper
  * 
- * Example usage:
- *   return ResponseEntity.ok(ApiResponse.success("Data found", myData));
- *   return ResponseEntity.badRequest().body(ApiResponse.error("Not found"));
+ * Gunakan class ini untuk semua response dari controller.
+ * Ini memastikan format response konsisten di seluruh API.
+ * 
+ * Contoh penggunaan:
+ * <pre>
+ * // Success dengan data
+ * return ResponseEntity.ok(ApiResponse.success("Data berhasil diambil", myData));
+ * 
+ * // Success dengan data dan total count
+ * return ResponseEntity.ok(ApiResponse.success("Data berhasil diambil", myList, totalCount));
+ * 
+ * // Error
+ * return ResponseEntity.badRequest().body(ApiResponse.error("Data tidak ditemukan"));
+ * </pre>
+ * 
+ * @param <T> Tipe data yang dikembalikan
  */
 @Data
 @Builder
@@ -181,27 +275,35 @@ import lombok.NoArgsConstructor;
 public class ApiResponse<T> {
     
     /**
-     * true = success, false = error
+     * Menandakan apakah request berhasil atau tidak.
+     * true = berhasil, false = gagal
      */
     private boolean success;
     
     /**
-     * Message describing what happened
+     * Pesan yang menjelaskan hasil operasi.
+     * Contoh: "Data berhasil diambil", "User tidak ditemukan"
      */
     private String message;
     
     /**
-     * The actual data (can be any type)
+     * Data yang dikembalikan (bisa berupa object, list, dll).
+     * Null jika error.
      */
     private T data;
     
     /**
-     * Total count (for paginated results)
+     * Total jumlah data (untuk response yang dipaginasi).
+     * Optional - bisa null jika tidak diperlukan.
      */
     private Long totalCount;
     
     /**
-     * Create a success response with data
+     * Membuat response sukses dengan data.
+     * 
+     * @param message Pesan sukses
+     * @param data Data yang dikembalikan
+     * @return ApiResponse dengan success=true
      */
     public static <T> ApiResponse<T> success(String message, T data) {
         return ApiResponse.<T>builder()
@@ -212,7 +314,13 @@ public class ApiResponse<T> {
     }
     
     /**
-     * Create a success response with data and total count
+     * Membuat response sukses dengan data dan total count.
+     * Gunakan untuk response yang dipaginasi.
+     * 
+     * @param message Pesan sukses
+     * @param data Data yang dikembalikan
+     * @param totalCount Total jumlah data
+     * @return ApiResponse dengan success=true
      */
     public static <T> ApiResponse<T> success(String message, T data, Long totalCount) {
         return ApiResponse.<T>builder()
@@ -224,7 +332,10 @@ public class ApiResponse<T> {
     }
     
     /**
-     * Create an error response
+     * Membuat response error.
+     * 
+     * @param message Pesan error
+     * @return ApiResponse dengan success=false
      */
     public static <T> ApiResponse<T> error(String message) {
         return ApiResponse.<T>builder()
@@ -235,40 +346,44 @@ public class ApiResponse<T> {
 }
 ```
 
-### Step 3: Test if it compiles
+## Langkah 3.3: Test Compile
+
 ```bash
 ./mvnw clean compile
 ```
 
-### Step 4: Save your work
+## Langkah 3.4: Commit
+
 ```bash
 git add .
-git commit -m "feat: add ApiResponse DTO for standardized responses"
+git commit -m "feat: add ApiResponse DTO for standardized API responses"
 ```
 
 ---
 
-## ✅ Phase 4: Refactor ONE Controller (Example)
+# ✅ PHASE 4: REFACTOR CONTROLLERS
 
-### What are we doing?
-Replacing the old HashMap pattern with the new ApiResponse class.
+## Apa yang Dilakukan?
+Mengganti HashMap dengan ApiResponse di setiap controller.
 
-### ⚠️ Do ONE controller, test it, then do the next one!
+## ⚠️ KERJAKAN SATU CONTROLLER PADA SATU WAKTU!
 
 ---
 
-### Step 1: Open RefKecamatanController.java
+## Langkah 4.1: Mulai dengan RefKecamatanController
 
-File: `src/main/java/com/example/leaflet_geo/controller/RefKecamatanController.java`
+Buka file: `src/main/java/com/example/leaflet_geo/controller/RefKecamatanController.java`
 
-### Step 2: Add the import at the top
+## Langkah 4.2: Tambah Import ApiResponse
+
+Tambahkan di bagian import:
 ```java
 import com.example.leaflet_geo.dto.ApiResponse;
 ```
 
-### Step 3: Change ONE method at a time
+## Langkah 4.3: Refactor Satu Method
 
-**BEFORE (old messy code):**
+### SEBELUM (Kode lama - ~20 baris per endpoint):
 ```java
 @GetMapping
 public ResponseEntity<Map<String, Object>> getAllKecamatan() {
@@ -294,7 +409,7 @@ public ResponseEntity<Map<String, Object>> getAllKecamatan() {
 }
 ```
 
-**AFTER (new clean code):**
+### SESUDAH (Kode baru - ~8 baris per endpoint):
 ```java
 @GetMapping
 public ResponseEntity<ApiResponse<List<RefKecamatan>>> getAllKecamatan() {
@@ -313,94 +428,233 @@ public ResponseEntity<ApiResponse<List<RefKecamatan>>> getAllKecamatan() {
 }
 ```
 
-### Step 4: Test after EACH method change
+## Langkah 4.4: Test Compile Setelah Setiap Method
+
 ```bash
 ./mvnw clean compile
 ```
 
-### Step 5: After finishing ONE controller, save
+## Langkah 4.5: Lanjutkan ke Method Lain
+
+Ulangi langkah 4.3-4.4 untuk setiap method di controller.
+
+## Langkah 4.6: Commit Setelah Satu Controller Selesai
+
 ```bash
 git add .
 git commit -m "refactor: use ApiResponse in RefKecamatanController"
 ```
 
-### Step 6: Repeat for other controllers
-Do the same for:
-- [ ] RefKelurahanController.java
-- [ ] BidangController.java
-- [ ] DatObjekPajakController.java
-- [ ] (other controllers...)
+## Langkah 4.7: Lanjut ke Controller Berikutnya
+
+Ulangi untuk controller lain dengan urutan:
+
+1. [ ] `RefKecamatanController.java` ✅ (sudah selesai)
+2. [ ] `RefKelurahanController.java`
+3. [ ] `BidangController.java`
+4. [ ] `DatObjekPajakController.java`
+5. [ ] `DatSubjekPajakController.java`
+6. [ ] `PendapatanController.java`
+7. [ ] `SimatdaController.java`
+8. [ ] `SismiopController.java`
+9. [ ] `BphtbController.java`
+10. [ ] `BprdProxyController.java`
+11. [ ] `EpasirController.java`
+12. [ ] `DatabaseTestController.java`
+
+> 💡 **Tips:** Tidak perlu selesai semua dalam satu hari. Kerjakan 2-3 controller per hari.
 
 ---
 
-## ✅ Phase 5: Test Everything
+# ✅ PHASE 5: TAMBAH JAVADOC COMMENTS
 
-### Step 1: Run the app
+## Apa yang Dilakukan?
+Menambah dokumentasi ke setiap class dan method publik.
+
+## Langkah 5.1: Template Javadoc untuk Controller
+
+```java
+/**
+ * Controller untuk mengelola data Kecamatan.
+ * 
+ * Endpoint yang tersedia:
+ * - GET /api/ref-kecamatan - Ambil semua kecamatan
+ * - GET /api/ref-kecamatan/{id} - Ambil kecamatan by ID
+ * - POST /api/ref-kecamatan - Buat kecamatan baru
+ * 
+ * @author [Nama Kamu]
+ * @since 1.0.0
+ */
+@RestController
+@RequestMapping("/api/ref-kecamatan")
+public class RefKecamatanController {
+    // ...
+}
+```
+
+## Langkah 5.2: Template Javadoc untuk Method
+
+```java
+/**
+ * Mengambil semua data kecamatan.
+ * 
+ * @return ResponseEntity berisi list kecamatan dan total count
+ */
+@GetMapping
+public ResponseEntity<ApiResponse<List<RefKecamatan>>> getAllKecamatan() {
+    // ...
+}
+```
+
+## Langkah 5.3: Commit
+
+```bash
+git add .
+git commit -m "docs: add Javadoc comments to controllers"
+```
+
+---
+
+# ✅ PHASE 6: TESTING & PUSH
+
+## Langkah 6.1: Compile Project
+
+```bash
+./mvnw clean compile
+```
+
+## Langkah 6.2: Jalankan Aplikasi
+
 ```bash
 ./mvnw spring-boot:run
 ```
 
-### Step 2: Test the API endpoints
-Use Postman or browser to test:
+## Langkah 6.3: Test Endpoint dengan Postman/Browser
 
-```
-GET http://localhost:8080/api/ref-kecamatan
-```
+Buka: `http://localhost:8080/api/ref-kecamatan`
 
-**Expected response:**
+**Response yang diharapkan:**
 ```json
 {
-  "success": true,
-  "message": "Data kecamatan berhasil diambil",
-  "data": [...],
-  "totalCount": 10
+    "success": true,
+    "message": "Data kecamatan berhasil diambil",
+    "data": [...],
+    "totalCount": 10
 }
 ```
 
----
+## Langkah 6.4: Checklist Testing
 
-## ✅ Phase 6: Push Your Changes
+- [ ] Semua endpoint mengembalikan format ApiResponse
+- [ ] Tidak ada error di console
+- [ ] Data ditampilkan dengan benar
 
-### Step 1: Push to GitHub
+## Langkah 6.5: Push ke GitHub
+
 ```bash
 git push -u origin refactor/backend-cleanup
 ```
 
-### Step 2: Create Pull Request
-1. Go to: https://github.com/theniswara/gis-tax-refactoring
-2. Click "Compare & pull request"
-3. Write a title: "Backend: Rename entity to model, add ApiResponse"
-4. Click "Create pull request"
-5. Wait for review/approval
+## Langkah 6.6: Buat Pull Request
+
+1. Buka: https://github.com/theniswara/gis-tax-refactoring
+2. Klik "Compare & pull request"
+3. Judul: `Backend: Restructure folders and standardize API responses`
+4. Deskripsi:
+   ```
+   Perubahan:
+   - Pindahkan dokumentasi ke docs/
+   - Rename entity → model
+   - Tambah ApiResponse DTO
+   - Refactor semua controller menggunakan ApiResponse
+   - Tambah Javadoc comments
+   ```
+5. Klik "Create pull request"
 
 ---
 
-## 🔥 IF SOMETHING BREAKS
+# 🔥 TROUBLESHOOTING
 
-### Option 1: Undo all changes (not committed yet)
+## Error: Cannot find symbol 'ApiResponse'
+
+**Penyebab:** Import belum ditambahkan.
+
+**Solusi:** Tambahkan di bagian import:
+```java
+import com.example.leaflet_geo.dto.ApiResponse;
+```
+
+## Error: Package does not exist 'entity'
+
+**Penyebab:** Ada file yang masih import dari entity.
+
+**Solusi:** Cari dan ganti semua import:
+```bash
+grep -r "leaflet_geo.entity" src/main/java --include="*.java"
+```
+
+## Error: BUILD FAILURE
+
+**Solusi umum:**
+1. Baca error message dengan teliti
+2. Cek file dan baris yang disebutkan
+3. Perbaiki error tersebut
+4. Compile ulang
+
+## Error: Semua rusak, mau mulai ulang
+
 ```bash
 git checkout .
 ```
 
-### Option 2: Go back to last commit
-```bash
-git reset --hard HEAD
-```
+## Error: Mau kembali ke main
 
-### Option 3: Go back to main branch (abandon all changes)
 ```bash
 git checkout main
 ```
 
 ---
 
-## ❓ Common Questions
+# 📁 STRUKTUR AKHIR (Target)
 
-**Q: What if `./mvnw clean compile` fails?**
-A: Read the error message. It usually says which file and line has the problem.
+Setelah semua phase selesai:
 
-**Q: What if I changed too many files and got confused?**
-A: Run `git checkout .` to undo all changes and start over.
+```
+src/main/java/com/example/leaflet_geo/
+├── LeafletGeoApplication.java
+├── config/
+│   ├── CorsConfig.java
+│   ├── DatabaseConfig.java
+│   └── ...
+├── controller/          ← ✅ Semua pakai ApiResponse
+│   ├── RefKecamatanController.java
+│   └── ...
+├── dto/
+│   ├── ApiResponse.java  ← ✅ Baru
+│   └── ...
+├── model/               ← ✅ Renamed dari entity
+│   ├── Bidang.java
+│   ├── RefKecamatan.java
+│   └── ...
+├── repository/
+├── service/
+└── util/
+```
 
-**Q: Do I need to do all controllers in one day?**
-A: No! Do one controller, commit, take a break. You can continue tomorrow.
+---
+
+# ✅ CHECKLIST AKHIR
+
+Pastikan semua sudah dilakukan:
+
+- [ ] Branch baru dibuat: `refactor/backend-cleanup`
+- [ ] Dokumentasi dipindah ke `docs/`
+- [ ] Folder `entity/` di-rename menjadi `model/`
+- [ ] Semua import diperbarui
+- [ ] `ApiResponse.java` sudah dibuat
+- [ ] Semua controller menggunakan ApiResponse
+- [ ] Javadoc comments ditambahkan
+- [ ] `./mvnw clean compile` berhasil
+- [ ] Endpoint bisa ditest dan response benar
+- [ ] Semua sudah di-push ke GitHub
+- [ ] Pull Request sudah dibuat
