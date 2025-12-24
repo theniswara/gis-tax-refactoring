@@ -2,102 +2,53 @@
 
 > **Tujuan:** Mengubah struktur folder leaflet-geo-FE agar SAMA PERSIS dengan university-frontend  
 > **Estimasi waktu:** 1-2 minggu  
-> **Tingkat kesulitan:** ⚠️ TINGGI - Banyak file yang harus dipindah dan diubah
+> **Tingkat kesulitan:** ⚠️ TINGGI
 
 ---
 
-# 📊 PERBANDINGAN STRUKTUR LENGKAP
+# ⚠️ PENTING: PENDEKATAN "MOVE ALL AT ONCE"
 
-## university-frontend (TARGET) ✅
+**JANGAN pindahkan folder satu per satu!** Ini akan menyebabkan error import.
+
+**Pendekatan yang benar:**
+1. ✅ Buat SEMUA folder baru dulu
+2. ✅ Copy SEMUA file ke lokasi baru
+3. ✅ Update SEMUA import sekaligus
+4. ✅ Test build
+5. ✅ Hapus folder lama
+
+---
+
+# 📊 PERBANDINGAN STRUKTUR
+
+## SEBELUM (Sekarang) ❌
 ```
 src/app/
-├── admin/               ← Feature module untuk admin
-│   ├── components/
+├── core/
+│   ├── factories/
 │   ├── guards/
+│   ├── helpers/        ← Harusnya "interceptors"
 │   ├── models/
 │   └── services/
-├── components/          ← Komponen UI publik (footer, header, home, dll)
-│   ├── about/
-│   ├── admissions/
-│   ├── footer/
-│   ├── header/
-│   ├── home/
-│   └── ...
-├── guards/              ← Auth guards di ROOT
-│   ├── auth.guard.ts
-│   └── admin.guard.ts
-├── interceptors/        ← HTTP interceptors di ROOT
-│   └── auth.interceptor.ts
-├── models/              ← Interface/types di ROOT
-│   ├── student.model.ts
-│   ├── event.model.ts
-│   └── ...
-├── services/            ← Services di ROOT
-│   ├── auth.service.ts
-│   └── ...
-├── student/             ← Feature module untuk student
-├── app.module.ts
-└── app-routing.module.ts
+├── shared/
+│   └── services/       ← Duplikat, harus digabung
+├── layouts/
+├── pages/
+└── ...
 ```
 
-## leaflet-geo-FE (SEKARANG) ❌
+## SESUDAH (Target) ✅
 ```
 src/app/
-├── account/             → KEEP sebagai feature module
-├── core/                → HAPUS folder ini, pindahkan isinya
-│   ├── factories/       → Pindah ke root
-│   ├── guards/          → Pindah ke root
-│   ├── helpers/         → Rename jadi interceptors/, pindah ke root
-│   ├── models/          → Pindah ke root
-│   └── services/        → Pindah ke root
-├── extraspages/         → KEEP atau rename jadi pages/
-├── layouts/             → Pindah ke components/ atau shared/
-├── pages/               → Rename jadi features/ atau pecah per feature
-│   ├── bidang/
-│   ├── dashboard-pajak/
-│   ├── master-data/
-│   └── setting/
-├── shared/              → KEEP
-├── shared-modules/      → Gabung ke shared/
-├── store/               → KEEP (ini NgRx, tidak ada di university-frontend)
-├── app.module.ts
-└── app-routing.module.ts
-```
-
----
-
-# 🎯 TARGET STRUKTUR AKHIR
-
-```
-src/app/
-├── account/             ← Feature module (login, register)
-├── components/          ← BARU: Komponen UI reusable
-│   ├── layouts/         ← Dipindah dari layouts/
-│   │   ├── footer/
-│   │   ├── header/
-│   │   ├── sidebar/
-│   │   └── topbar/
-│   └── shared/          ← Komponen shared lainnya
-├── guards/              ← DIPINDAH dari core/guards/
-│   ├── auth.guard.ts
-│   └── index.ts
-├── interceptors/        ← RENAMED dari core/helpers/
-│   ├── error.interceptor.ts
-│   ├── http.interceptor.ts
-│   └── index.ts
-├── models/              ← DIPINDAH dari core/models/
-│   └── *.model.ts
-├── services/            ← DIGABUNG dari core/services/ + shared/services/
-│   └── *.service.ts
-├── features/            ← RENAMED dari pages/
-│   ├── bidang/
-│   ├── dashboard-pajak/
-│   ├── dashboard-pendapatan/
-│   ├── master-data/
-│   └── setting/
-├── store/               ← KEEP (NgRx)
-├── app.module.ts
-└── app-routing.module.ts
+├── factories/          ← Dipindah dari core/
+├── guards/             ← Dipindah dari core/
+├── interceptors/       ← Renamed dari core/helpers/
+├── models/             ← Dipindah dari core/
+├── services/           ← Gabungan core/ + shared/
+├── components/
+│   └── layouts/        ← Dipindah dari layouts/
+├── features/           ← Renamed dari pages/
+└── ...
 ```
 
 ---
@@ -114,181 +65,230 @@ cd "/media/zpreoz/New Volume/College/POLINEMA/PROJECT/PRODUCTION/gis-tax-refacto
 git checkout -b refactor/complete-restructure
 ```
 
-## Langkah 3: Pastikan Branch Benar
+## Langkah 3: Verifikasi Branch
 ```bash
 git branch
 ```
 
 ---
 
-# ✅ PHASE 1: PINDAHKAN GUARDS KE ROOT
+# ✅ PHASE 1: BUAT SEMUA FOLDER BARU
 
-## Langkah 1.1: Buat Folder guards/ di Root
 ```bash
+# Buat folder-folder baru di root
+mkdir -p src/app/factories
 mkdir -p src/app/guards
+mkdir -p src/app/interceptors
+mkdir -p src/app/models
+mkdir -p src/app/services
+mkdir -p src/app/components/layouts
+mkdir -p src/app/features
 ```
 
-## Langkah 1.2: Copy File Guard
+**Jangan hapus folder lama dulu!**
+
+---
+
+# ✅ PHASE 2: COPY SEMUA FILE KE LOKASI BARU
+
 ```bash
+# Copy factories
+cp src/app/core/factories/*.ts src/app/factories/
+
+# Copy guards
 cp src/app/core/guards/*.ts src/app/guards/
+
+# Copy helpers → interceptors (rename)
+cp src/app/core/helpers/*.ts src/app/interceptors/
+
+# Copy models (termasuk subfolder)
+cp -r src/app/core/models/* src/app/models/
+
+# Copy services dari core
+cp src/app/core/services/*.ts src/app/services/
+
+# Copy services dari shared (gabung ke services/)
+cp src/app/shared/services/*.ts src/app/services/
+
+# Copy layouts ke components/layouts
+cp -r src/app/layouts/* src/app/components/layouts/
+
+# Copy pages ke features (rename)
+cp -r src/app/pages/* src/app/features/
 ```
 
-## Langkah 1.3: Buat Barrel File
-Buat file `src/app/guards/index.ts`:
+---
+
+# ✅ PHASE 3: UPDATE SEMUA IMPORT (PALING PENTING!)
+
+## 3.1: Update Import di File-File yang Dipindah
+
+**Untuk setiap file yang dipindah, update path import-nya.**
+
+### Contoh: `src/app/guards/auth.guard.ts`
+
+**SEBELUM (path lama):**
+```typescript
+import { AuthenticationService } from '../services/auth.service';
+import { RestApiService } from '../services/rest-api.service';
+import { RemoteConfigService } from '../services/remote-config.service';
+import { setUser } from 'src/app/store/auth/auth.action';
+import { setMenu } from 'src/app/store/menu/menu.action';
+import { MENU } from 'src/app/layouts/sidebar/menu';
+import { selectCurrentUser } from 'src/app/store/auth/auth.selector';
+```
+
+**SESUDAH (path baru):**
+```typescript
+import { AuthenticationService } from '../services/auth.service';  // ✅ Tetap sama
+import { RestApiService } from '../services/rest-api.service';      // ✅ Tetap sama
+import { RemoteConfigService } from '../services/remote-config.service'; // ✅ Tetap sama
+import { setUser } from 'src/app/store/auth/auth.action';          // ✅ Tetap sama
+import { setMenu } from 'src/app/store/menu/menu.action';          // ✅ Tetap sama
+import { MENU } from 'src/app/components/layouts/sidebar/menu';    // ⚠️ UBAH!
+import { selectCurrentUser } from 'src/app/store/auth/auth.selector'; // ✅ Tetap sama
+```
+
+---
+
+## 3.2: Update Import di SELURUH Project
+
+Gunakan **Find and Replace** di VS Code (Ctrl+Shift+H):
+
+### Replace 1: core/guards → guards
+- **Find:** `from './core/guards/`
+- **Replace:** `from './guards/`
+- Klik "Replace All"
+
+- **Find:** `from '../core/guards/`
+- **Replace:** `from '../guards/`
+- Klik "Replace All"
+
+- **Find:** `from '../../core/guards/`
+- **Replace:** `from '../../guards/`
+- Klik "Replace All"
+
+### Replace 2: core/helpers → interceptors
+- **Find:** `from './core/helpers/`
+- **Replace:** `from './interceptors/`
+
+- **Find:** `from '../core/helpers/`
+- **Replace:** `from '../interceptors/`
+
+### Replace 3: core/models → models
+- **Find:** `from './core/models/`
+- **Replace:** `from './models/`
+
+- **Find:** `from '../core/models/`
+- **Replace:** `from '../models/`
+
+- **Find:** `from '../../core/models/`
+- **Replace:** `from '../../models/`
+
+### Replace 4: core/services → services
+- **Find:** `from './core/services/`
+- **Replace:** `from './services/`
+
+- **Find:** `from '../core/services/`
+- **Replace:** `from '../services/`
+
+- **Find:** `from '../../core/services/`
+- **Replace:** `from '../../services/`
+
+### Replace 5: shared/services → services
+- **Find:** `from './shared/services/`
+- **Replace:** `from './services/`
+
+- **Find:** `from '../shared/services/`
+- **Replace:** `from '../services/`
+
+### Replace 6: core/factories → factories
+- **Find:** `from './core/factories/`
+- **Replace:** `from './factories/`
+
+### Replace 7: layouts → components/layouts
+- **Find:** `from './layouts/`
+- **Replace:** `from './components/layouts/`
+
+- **Find:** `from '../layouts/`
+- **Replace:** `from '../components/layouts/`
+
+### Replace 8: pages → features
+- **Find:** `from './pages/`
+- **Replace:** `from './features/`
+
+- **Find:** `from '../pages/`
+- **Replace:** `from '../features/`
+
+---
+
+## 3.3: Update Module Imports
+
+### Update `app.module.ts`:
+
+```typescript
+// SEBELUM
+import { LayoutsModule } from './layouts/layouts.module';
+import { PagesModule } from './pages/pages.module';
+import { HttpInterceptorService } from './core/helpers/http.interceptor';
+import { ErrorInterceptor } from './core/helpers/error.interceptor';
+import { fetchUserInitializer } from './core/factories/fetch-user.factory';
+import { RestApiService } from './core/services/rest-api.service';
+
+// SESUDAH
+import { LayoutsModule } from './components/layouts/layouts.module';
+import { FeaturesModule } from './features/features.module';  // Renamed!
+import { HttpInterceptorService } from './interceptors/http.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
+import { fetchUserInitializer } from './factories/fetch-user.factory';
+import { RestApiService } from './services/rest-api.service';
+```
+
+### Update `app-routing.module.ts`:
+
+Ganti semua path `pages` → `features`.
+
+### Rename `pages.module.ts` → `features.module.ts`:
+
+```bash
+mv src/app/features/pages.module.ts src/app/features/features.module.ts
+```
+
+Update isi file:
+```typescript
+// SEBELUM
+export class PagesModule { }
+
+// SESUDAH
+export class FeaturesModule { }
+```
+
+---
+
+# ✅ PHASE 4: BUAT BARREL FILES
+
+## 4.1: `src/app/guards/index.ts`
 ```typescript
 export * from './auth.guard';
 ```
 
-## Langkah 1.4: Update Semua Import
-Cari dan ganti semua import:
-```
-CARI:    from './core/guards/
-GANTI:   from './guards/
-
-CARI:    from '../core/guards/
-GANTI:   from '../guards/
-
-CARI:    from '../../core/guards/
-GANTI:   from '../../guards/
-```
-
-## Langkah 1.5: Test Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 1.6: Hapus Folder Lama
-```bash
-rm -rf src/app/core/guards
-```
-
-## Langkah 1.7: Commit
-```bash
-git add .
-git commit -m "refactor: move guards to root level"
-```
-
----
-
-# ✅ PHASE 2: PINDAHKAN MODELS KE ROOT
-
-## Langkah 2.1: Buat Folder models/ di Root
-```bash
-mkdir -p src/app/models
-```
-
-## Langkah 2.2: Copy Semua File Model
-```bash
-cp -r src/app/core/models/* src/app/models/
-```
-
-## Langkah 2.3: Buat Barrel File
-Buat file `src/app/models/index.ts`:
-```typescript
-export * from './auth.models';
-export * from './countdown-event.model';
-export * from './master.models';
-export * from './pendapatan.model';
-// Tambahkan file lain yang ada
-```
-
-## Langkah 2.4: Update Semua Import
-```
-CARI:    from './core/models/
-GANTI:   from './models/
-
-CARI:    from '../core/models/
-GANTI:   from '../models/
-
-CARI:    from '../../core/models/
-GANTI:   from '../../models/
-```
-
-## Langkah 2.5: Test Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 2.6: Hapus Folder Lama
-```bash
-rm -rf src/app/core/models
-```
-
-## Langkah 2.7: Commit
-```bash
-git add .
-git commit -m "refactor: move models to root level"
-```
-
----
-
-# ✅ PHASE 3: RENAME helpers → interceptors
-
-## Langkah 3.1: Buat Folder interceptors/
-```bash
-mkdir -p src/app/interceptors
-```
-
-## Langkah 3.2: Copy File
-```bash
-cp src/app/core/helpers/*.ts src/app/interceptors/
-```
-
-## Langkah 3.3: Buat Barrel File
-Buat file `src/app/interceptors/index.ts`:
+## 4.2: `src/app/interceptors/index.ts`
 ```typescript
 export * from './error.interceptor';
 export * from './http.interceptor';
 ```
 
-## Langkah 3.4: Update Semua Import
-```
-CARI:    from './core/helpers/
-GANTI:   from './interceptors/
-
-CARI:    from '../core/helpers/
-GANTI:   from '../interceptors/
-```
-
-## Langkah 3.5: Test Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 3.6: Hapus Folder Lama
-```bash
-rm -rf src/app/core/helpers
-```
-
-## Langkah 3.7: Commit
-```bash
-git add .
-git commit -m "refactor: rename helpers to interceptors at root level"
-```
-
----
-
-# ✅ PHASE 4: GABUNG SERVICES KE ROOT
-
-## Langkah 4.1: Buat Folder services/ di Root
-```bash
-mkdir -p src/app/services
-```
-
-## Langkah 4.2: Copy Services dari core/services/
-```bash
-cp src/app/core/services/*.ts src/app/services/
-```
-
-## Langkah 4.3: Copy Services dari shared/services/
-```bash
-cp src/app/shared/services/*.ts src/app/services/
-```
-
-## Langkah 4.4: Buat Barrel File
-Buat file `src/app/services/index.ts`:
+## 4.3: `src/app/models/index.ts`
 ```typescript
-// Core Services
+export * from './auth.models';
+export * from './countdown-event.model';
+export * from './master.models';
+export * from './pendapatan.model';
+```
+
+## 4.4: `src/app/services/index.ts`
+```typescript
+// From core/services
 export * from './auth.service';
 export * from './bidang.service';
 export * from './bprd-api.service';
@@ -301,7 +301,7 @@ export * from './remote-config.service';
 export * from './rest-api.service';
 export * from './translation-sync.service';
 
-// Shared Services (dipindahkan)
+// From shared/services
 export * from './listjs.service';
 export * from './modal.service';
 export * from './pagination.service';
@@ -309,305 +309,126 @@ export * from './toast-service';
 export * from './utilities.service';
 ```
 
-## Langkah 4.5: Update Semua Import
-```
-CARI:    from './core/services/
-GANTI:   from './services/
-
-CARI:    from '../core/services/
-GANTI:   from '../services/
-
-CARI:    from './shared/services/
-GANTI:   from './services/
-
-CARI:    from '../shared/services/
-GANTI:   from '../services/
+## 4.5: `src/app/factories/index.ts`
+```typescript
+export * from './fetch-user.factory';
 ```
 
-## Langkah 4.6: Test Build
+---
+
+# ✅ PHASE 5: TEST BUILD
+
 ```bash
 ng build --configuration development
 ```
 
-## Langkah 4.7: Hapus Folder Lama
+## Jika ADA ERROR:
+1. Baca error message
+2. Cari file yang error
+3. Perbaiki import path-nya
+4. Build lagi
+
+## Jika SUKSES:
+Lanjut ke Phase 6.
+
+---
+
+# ✅ PHASE 6: HAPUS FOLDER LAMA
+
+**⚠️ Hanya hapus SETELAH build sukses!**
+
 ```bash
-rm -rf src/app/core/services
+rm -rf src/app/core
+rm -rf src/app/layouts
+rm -rf src/app/pages
 rm -rf src/app/shared/services
 ```
 
-## Langkah 4.8: Commit
-```bash
-git add .
-git commit -m "refactor: consolidate all services to root level"
-```
-
 ---
 
-# ✅ PHASE 5: PINDAHKAN FACTORIES KE ROOT
+# ✅ PHASE 7: TEST FINAL
 
-## Langkah 5.1: Buat Folder factories/
 ```bash
-mkdir -p src/app/factories
-```
-
-## Langkah 5.2: Copy File
-```bash
-cp src/app/core/factories/*.ts src/app/factories/
-```
-
-## Langkah 5.3: Update Import
-```
-CARI:    from './core/factories/
-GANTI:   from './factories/
-```
-
-## Langkah 5.4: Test Build
-```bash
+# Build lagi
 ng build --configuration development
-```
 
-## Langkah 5.5: Hapus Folder Lama
-```bash
-rm -rf src/app/core/factories
-```
-
-## Langkah 5.6: Hapus Folder core/ (Sekarang Kosong)
-```bash
-rm -rf src/app/core
-```
-
-## Langkah 5.7: Commit
-```bash
-git add .
-git commit -m "refactor: move factories to root and remove empty core folder"
-```
-
----
-
-# ✅ PHASE 6: ORGANISASI LAYOUTS → COMPONENTS
-
-## Langkah 6.1: Buat Folder components/
-```bash
-mkdir -p src/app/components
-```
-
-## Langkah 6.2: Pindahkan Layouts ke Components
-```bash
-mv src/app/layouts src/app/components/layouts
-```
-
-## Langkah 6.3: Update LayoutsModule Path
-Edit file `src/app/components/layouts/layouts.module.ts` dan update import paths jika perlu.
-
-## Langkah 6.4: Update Import di app.module.ts
-```typescript
-// SEBELUM
-import { LayoutsModule } from './layouts/layouts.module';
-
-// SESUDAH
-import { LayoutsModule } from './components/layouts/layouts.module';
-```
-
-## Langkah 6.5: Test Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 6.6: Commit
-```bash
-git add .
-git commit -m "refactor: move layouts into components folder"
-```
-
----
-
-# ✅ PHASE 7: RENAME pages → features
-
-## Langkah 7.1: Rename Folder
-```bash
-mv src/app/pages src/app/features
-```
-
-## Langkah 7.2: Update Semua Import
-```
-CARI:    from './pages/
-GANTI:   from './features/
-
-CARI:    from '../pages/
-GANTI:   from '../features/
-```
-
-## Langkah 7.3: Update Routing
-Edit `src/app/app-routing.module.ts` dan file routing lainnya.
-
-## Langkah 7.4: Test Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 7.5: Commit
-```bash
-git add .
-git commit -m "refactor: rename pages to features"
-```
-
----
-
-# ✅ PHASE 8: CLEANUP & BARREL FILES
-
-## Langkah 8.1: Gabung shared-modules ke shared
-```bash
-cp -r src/app/shared-modules/* src/app/shared/
-rm -rf src/app/shared-modules
-```
-
-## Langkah 8.2: Buat Barrel Files untuk Semua Folder
-
-**src/app/guards/index.ts**
-**src/app/interceptors/index.ts**
-**src/app/models/index.ts**
-**src/app/services/index.ts**
-**src/app/factories/index.ts**
-
-## Langkah 8.3: Test Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 8.4: Commit
-```bash
-git add .
-git commit -m "refactor: cleanup and add barrel files"
-```
-
----
-
-# ✅ PHASE 9: UPDATE app.module.ts
-
-## Langkah 9.1: Update Import Paths
-
-```typescript
-import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi, withXsrfConfiguration } from '@angular/common/http';
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { Router } from '@angular/router';
-
-// ============================================
-// ROUTING
-// ============================================
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-
-// ============================================
-// FEATURE MODULES
-// ============================================
-import { LayoutsModule } from './components/layouts/layouts.module';  // UPDATED PATH
-import { FeaturesModule } from './features/features.module';          // RENAMED dari PagesModule
-import { SharedModule } from './shared/shared.module';
-
-// ============================================
-// INTERCEPTORS (dari interceptors/)
-// ============================================
-import { HttpInterceptorService, ErrorInterceptor } from './interceptors';
-
-// ============================================
-// SERVICES (dari services/)
-// ============================================
-import { RestApiService } from './services';
-
-// ============================================
-// FACTORIES (dari factories/)
-// ============================================
-import { fetchUserInitializer } from './factories/fetch-user.factory';
-
-// ... rest of the module
-```
-
----
-
-# ✅ PHASE 10: FINAL TESTING
-
-## Langkah 10.1: Full Build
-```bash
-ng build --configuration development
-```
-
-## Langkah 10.2: Run App
-```bash
+# Run app
 npm run start
 ```
 
-## Langkah 10.3: Test di Browser
-- [ ] Login works
-- [ ] Dashboard loads
-- [ ] Map displays correctly
-- [ ] All pages accessible
-- [ ] No console errors
+Buka browser: http://localhost:4200
 
-## Langkah 10.4: Push
+---
+
+# ✅ PHASE 8: COMMIT & PUSH
+
 ```bash
+git add .
+git commit -m "refactor: restructure folders following university-frontend pattern"
 git push -u origin refactor/complete-restructure
 ```
-
-## Langkah 10.5: Create Pull Request
 
 ---
 
 # 📁 STRUKTUR AKHIR
 
-Setelah semua phase selesai:
-
 ```
 src/app/
 ├── account/             ✅
-├── components/          ✅ BARU
-│   └── layouts/         ✅ DIPINDAH
-├── factories/           ✅ DIPINDAH dari core/
-├── features/            ✅ RENAMED dari pages/
-│   ├── bidang/
-│   ├── dashboard-pajak/
-│   └── ...
-├── guards/              ✅ DIPINDAH dari core/
-├── interceptors/        ✅ RENAMED dari core/helpers/
-├── models/              ✅ DIPINDAH dari core/
-├── services/            ✅ GABUNGAN core/ + shared/
-├── shared/              ✅ 
+├── components/          ✅
+│   └── layouts/         ✅ (dipindah dari layouts/)
+├── extraspages/         ✅
+├── factories/           ✅ (dipindah dari core/)
+├── features/            ✅ (renamed dari pages/)
+├── guards/              ✅ (dipindah dari core/)
+├── interceptors/        ✅ (renamed dari core/helpers/)
+├── models/              ✅ (dipindah dari core/)
+├── services/            ✅ (gabungan core/ + shared/)
+├── shared/              ✅ (tanpa services/)
 ├── store/               ✅
-├── app.module.ts        ✅ UPDATED
-└── app-routing.module.ts ✅ UPDATED
+├── app.module.ts        ✅
+└── app-routing.module.ts ✅
 ```
 
 ---
 
 # 🔥 TROUBLESHOOTING
 
-## Error: Cannot find module
-Cek path import, pastikan sudah diupdate sesuai lokasi baru.
+## Error: Cannot find module '...'
+Path import salah. Cek dan perbaiki path.
 
-## Error: Circular dependency
-Cek barrel files, mungkin ada circular import.
+## Error: PagesModule not found
+Rename `PagesModule` → `FeaturesModule` di:
+- `features.module.ts`
+- `app.module.ts`
+- `app-routing.module.ts`
 
-## Build gagal total
+## Error: MENU not found
+Update import:
+```typescript
+// SEBELUM
+import { MENU } from 'src/app/layouts/sidebar/menu';
+// SESUDAH
+import { MENU } from 'src/app/components/layouts/sidebar/menu';
+```
+
+## Mau mulai ulang dari awal
 ```bash
 git checkout .
 ```
-Mulai ulang dari phase terakhir yang berhasil.
 
 ---
 
-# ✅ CHECKLIST AKHIR
+# ✅ CHECKLIST FINAL
 
-- [ ] guards/ di root level
-- [ ] interceptors/ di root level (bukan helpers)
-- [ ] models/ di root level
-- [ ] services/ di root level (gabungan)
-- [ ] factories/ di root level
-- [ ] components/layouts/ (layouts dipindah)
-- [ ] features/ (renamed dari pages/)
-- [ ] core/ folder sudah dihapus
-- [ ] Semua barrel files ada
-- [ ] app.module.ts sudah diupdate
-- [ ] Build sukses
-- [ ] App berjalan normal
+- [ ] Semua folder baru dibuat
+- [ ] Semua file di-copy ke lokasi baru
+- [ ] Semua import di-update
+- [ ] pages.module.ts di-rename ke features.module.ts
+- [ ] PagesModule di-rename ke FeaturesModule
+- [ ] Barrel files (index.ts) dibuat
+- [ ] `ng build` sukses
+- [ ] Folder lama dihapus
+- [ ] `ng build` sukses lagi
+- [ ] App berjalan di browser
+- [ ] Push ke GitHub
