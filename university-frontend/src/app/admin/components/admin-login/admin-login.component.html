@@ -1,0 +1,70 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Admin Login</h1>
+      <p>Access the administrative dashboard</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+      </svg>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Login Form -->
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="credentials.username"
+          (input)="clearError()"
+          class="form-control"
+          placeholder="Enter admin username"
+          required
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="credentials.password"
+          (input)="clearError()"
+          class="form-control"
+          placeholder="Enter password"
+          required
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading" class="loading-spinner">
+          <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+          Logging in...
+        </span>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p class="text-muted">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+        </svg>
+        Protected admin area. Authorized personnel only.
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,191 @@
+<div class="bg-gray-50 min-h-screen py-16">
+  <div class="max-w-7xl mx-auto px-4">
+    
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold text-gray-900 mb-4">About Excellence University</h1>
+      <p class="text-xl text-gray-600">75 years of transforming lives through education</p>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      <div class="bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl shadow-lg p-8">
+        <lucide-icon [img]="Target" [size]="48" class="mb-4"></lucide-icon>
+        <h2 class="text-3xl font-bold mb-4">Our Mission</h2>
+        <p class="text-lg leading-relaxed">To provide transformative education that empowers students to become leaders, innovators, and responsible global citizens through excellence in teaching, research, and service to society.</p>
+      </div>
+      <div class="bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-2xl shadow-lg p-8">
+        <lucide-icon [img]="Eye" [size]="48" class="mb-4"></lucide-icon>
+        <h2 class="text-3xl font-bold mb-4">Our Vision</h2>
+        <p class="text-lg leading-relaxed">To be a world-class institution recognized for academic excellence, groundbreaking research, and preparing graduates who make meaningful contributions to their communities and the world.</p>
+      </div>
+    </div>
+
+    <!-- History Timeline -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Our Journey</h2>
+      <div class="space-y-6">
+        <div *ngFor="let milestone of milestones" class="flex gap-6 items-start">
+          <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-xl p-4 min-w-[100px] text-center shadow-lg">
+            <div class="text-2xl font-bold">{{ milestone.year }}</div>
+          </div>
+          <div class="flex-1 bg-gray-50 rounded-xl p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ milestone.event }}</h3>
+            <p class="text-gray-600">{{ milestone.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Values -->
+    <div class="bg-gradient-to-br from-blue-900 to-purple-900 text-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold mb-8 text-center">Our Core Values</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div *ngFor="let value of coreValues" 
+             class="bg-white bg-opacity-10 rounded-xl p-6 backdrop-blur-sm hover:bg-opacity-20 transition-all text-center">
+          <lucide-icon [img]="value.icon" [size]="48" class="mx-auto mb-4"></lucide-icon>
+          <h3 class="text-xl font-bold mb-3">{{ value.title }}</h3>
+          <p class="text-sm text-blue-100">{{ value.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">By the Numbers</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="text-center">
+          <div class="text-5xl font-bold text-blue-600 mb-2">25,000+</div>
+          <div class="text-gray-600">Students Enrolled</div>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl font-bold text-green-600 mb-2">2,500+</div>
+          <div class="text-gray-600">Faculty Members</div>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl font-bold text-purple-600 mb-2">100,000+</div>
+          <div class="text-gray-600">Alumni Worldwide</div>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl font-bold text-orange-600 mb-2">400+</div>
+          <div class="text-gray-600">Acres of Campus</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leadership -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">University Leadership</h2>
+      <div class="grid md:grid-cols-4 gap-6">
+        <div *ngFor="let leader of leadership" class="text-center">
+          <div class="w-32 h-32 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4 shadow-lg">
+            {{ leader.image }}
+          </div>
+          <h3 class="font-bold text-gray-900 text-lg">{{ leader.name }}</h3>
+          <p class="text-gray-600">{{ leader.title }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accreditations -->
+    <div class="bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold mb-6 text-center">Accreditations & Memberships</h2>
+      <p class="text-center text-green-100 mb-8">Excellence University is accredited by leading organizations</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let accreditation of accreditations" 
+             class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur text-center font-semibold">
+          {{ accreditation }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Campus Locations -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Our Campuses</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div *ngFor="let campus of campuses" 
+             class="border-2 border-gray-200 rounded-xl overflow-hidden hover:border-blue-500 hover:shadow-lg transition-all">
+          <img [src]="campus.image" [alt]="campus.name" class="w-full h-48 object-cover" />
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ campus.name }}</h3>
+            <div class="space-y-2 text-sm text-gray-600">
+              <p class="flex items-center">
+                <lucide-icon [img]="MapPin" [size]="16" class="mr-2 text-blue-600"></lucide-icon>
+                {{ campus.location }}
+              </p>
+              <p class="flex items-center">
+                <lucide-icon [img]="Globe" [size]="16" class="mr-2 text-blue-600"></lucide-icon>
+                {{ campus.area }}
+              </p>
+              <p class="flex items-center">
+                <lucide-icon [img]="BookOpen" [size]="16" class="mr-2 text-blue-600"></lucide-icon>
+                {{ campus.buildings }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Facts -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Quick Facts</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Founded</span>
+            <span class="text-blue-600 font-bold">1950</span>
+          </div>
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Type</span>
+            <span class="text-blue-600 font-bold">Private Research University</span>
+          </div>
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Academic Calendar</span>
+            <span class="text-blue-600 font-bold">Semester System</span>
+          </div>
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Student-Faculty Ratio</span>
+            <span class="text-blue-600 font-bold">10:1</span>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Undergraduate Programs</span>
+            <span class="text-blue-600 font-bold">150+</span>
+          </div>
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Graduate Programs</span>
+            <span class="text-blue-600 font-bold">50+</span>
+          </div>
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Research Funding</span>
+            <span class="text-blue-600 font-bold">$150M+ annually</span>
+          </div>
+          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <span class="font-semibold text-gray-700">Employment Rate</span>
+            <span class="text-blue-600 font-bold">95% within 6 months</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg p-8 text-center">
+      <h2 class="text-3xl font-bold mb-4">Visit Excellence University</h2>
+      <p class="text-xl text-blue-100 mb-8">We'd love to show you around our campus</p>
+      <div class="flex gap-4 justify-center flex-wrap">
+        <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all">
+          Schedule a Tour
+        </button>
+        <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all">
+          Contact Us
+        </button>
+        <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all">
+          Request Information
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

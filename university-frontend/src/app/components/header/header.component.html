@@ -1,0 +1,79 @@
+<header class="bg-white shadow-md sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <!-- Top Bar -->
+    <div class="hidden md:flex items-center justify-between py-2 text-sm border-b border-gray-200">
+      <div class="flex items-center gap-4 text-gray-600">
+        <a href="mailto:info@excellence.edu" class="hover:text-blue-600 flex items-center">
+          <lucide-icon [img]="Mail" [size]="16" class="mr-1"></lucide-icon>
+          info"&#64;"excellence.edu
+        </a>
+        <a href="tel:+15551234567" class="hover:text-blue-600 flex items-center">
+          <lucide-icon [img]="Phone" [size]="16" class="mr-1"></lucide-icon>
+          +1 (555) 123-4567
+        </a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-gray-600 hover:text-blue-600">Alumni</a>
+        <a href="#" class="text-gray-600 hover:text-blue-600">Parents</a>
+        <a href="#" class="text-gray-600 hover:text-blue-600">Faculty & Staff</a>
+        <div class="flex gap-2">
+          <lucide-icon [img]="Facebook" [size]="16" class="text-gray-600 hover:text-blue-600 cursor-pointer"></lucide-icon>
+          <lucide-icon [img]="Twitter" [size]="16" class="text-gray-600 hover:text-blue-600 cursor-pointer"></lucide-icon>
+          <lucide-icon [img]="Instagram" [size]="16" class="text-gray-600 hover:text-blue-600 cursor-pointer"></lucide-icon>
+          <lucide-icon [img]="Linkedin" [size]="16" class="text-gray-600 hover:text-blue-600 cursor-pointer"></lucide-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <div class="flex items-center justify-between h-20">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center cursor-pointer">
+        <div class="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-lg">
+          <lucide-icon [img]="GraduationCap" [size]="32" class="text-white"></lucide-icon>
+        </div>
+        <div class="ml-3">
+          <div class="text-2xl font-bold text-gray-900">Excellence University</div>
+          <div class="text-xs text-gray-600">Est. 1950</div>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden lg:flex items-center space-x-1">
+        <a *ngFor="let item of navigation"
+           [routerLink]="item.path"
+           routerLinkActive="bg-blue-600 text-white"
+           [routerLinkActiveOptions]="{exact: item.path === '/'}"
+           class="px-4 py-2 rounded-lg font-semibold transition-all text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+          {{ item.name }}
+        </a>
+        <a routerLink="/portal"
+           class="ml-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all">
+          Portal
+        </a>
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <button class="lg:hidden p-2" (click)="toggleMobileMenu()">
+        <lucide-icon [img]="mobileMenuOpen ? X : Menu" [size]="24"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div *ngIf="mobileMenuOpen" class="lg:hidden py-4 border-t">
+      <a *ngFor="let item of navigation"
+         [routerLink]="item.path"
+         (click)="closeMobileMenu()"
+         routerLinkActive="text-blue-600 bg-blue-50"
+         [routerLinkActiveOptions]="{exact: item.path === '/'}"
+         class="block w-full text-left px-4 py-3 font-semibold text-gray-700 hover:bg-gray-50">
+        {{ item.name }}
+      </a>
+      <a routerLink="/portal"
+         (click)="closeMobileMenu()"
+         class="block w-full text-left px-4 py-3 font-semibold text-white bg-blue-600 mt-2 rounded-lg">
+        Student Portal
+      </a>
+    </div>
+  </div>
+</header>

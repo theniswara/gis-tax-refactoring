@@ -1,0 +1,211 @@
+<div class="bg-gray-50 min-h-screen py-16">
+  <div class="max-w-7xl mx-auto px-4">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold text-gray-900 mb-4">Academic Programs</h1>
+      <p class="text-xl text-gray-600">Explore our diverse range of undergraduate and graduate programs</p>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-8" *ngIf="!selectedProgram">
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Search Programs</label>
+          <div class="relative">
+            <lucide-icon [img]="Search" [size]="20" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></lucide-icon>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()"
+              placeholder="Search by name or keyword..."
+              class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Degree Level</label>
+          <select 
+            [(ngModel)]="filterDegree"
+            (ngModelChange)="onDegreeChange()"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="all">All Degrees</option>
+            <option value="Bachelor">Bachelor's</option>
+            <option value="Master">Master's</option>
+            <option value="Doctor">Doctorate</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Field of Study</label>
+          <select 
+            [(ngModel)]="filterField"
+            (ngModelChange)="onFieldChange()"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="all">All Fields</option>
+            <option value="Technology">Technology</option>
+            <option value="Business">Business</option>
+            <option value="Health Sciences">Health Sciences</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Arts">Arts</option>
+            <option value="Social Sciences">Social Sciences</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-gray-600">
+        Showing <span class="font-bold text-blue-600">{{ filteredPrograms.length }}</span> programs
+      </div>
+    </div>
+
+    <!-- Program Detail View -->
+    <div *ngIf="selectedProgram" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="relative h-80">
+        <img [src]="selectedProgram.image" [alt]="selectedProgram.name" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
+          <button 
+            (click)="backToList()"
+            class="mb-4 text-white hover:text-blue-300 flex items-center">
+            <lucide-icon [img]="ArrowRight" [size]="20" class="rotate-180 mr-1"></lucide-icon>
+            Back to Programs
+          </button>
+          <h1 class="text-4xl font-bold mb-2">{{ selectedProgram.name }}</h1>
+          <p class="text-xl">{{ selectedProgram.degree }}</p>
+        </div>
+      </div>
+
+      <div class="p-8">
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-blue-50 rounded-xl p-6 text-center">
+            <lucide-icon [img]="Clock" [size]="32" class="text-blue-600 mx-auto mb-2"></lucide-icon>
+            <div class="text-2xl font-bold text-gray-900">{{ selectedProgram.duration }}</div>
+            <div class="text-sm text-gray-600">Duration</div>
+          </div>
+          <div class="bg-green-50 rounded-xl p-6 text-center">
+            <lucide-icon [img]="BookOpen" [size]="32" class="text-green-600 mx-auto mb-2"></lucide-icon>
+            <div class="text-2xl font-bold text-gray-900">{{ selectedProgram.credits }}</div>
+            <div class="text-sm text-gray-600">Credits</div>
+          </div>
+          <div class="bg-purple-50 rounded-xl p-6 text-center">
+            <lucide-icon [img]="Award" [size]="32" class="text-purple-600 mx-auto mb-2"></lucide-icon>
+            <div class="text-2xl font-bold text-gray-900">{{ selectedProgram.employmentRate }}%</div>
+            <div class="text-sm text-gray-600">Employment Rate</div>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Program Overview</h2>
+            <p class="text-gray-700 mb-6 leading-relaxed">{{ selectedProgram.description }}</p>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Key Highlights</h3>
+            <ul class="space-y-2 mb-6">
+              <li *ngFor="let highlight of selectedProgram.highlights" class="flex items-start">
+                <lucide-icon [img]="CheckCircle" [size]="20" class="text-green-500 mr-2 flex-shrink-0 mt-0.5"></lucide-icon>
+                <span class="text-gray-700">{{ highlight }}</span>
+              </li>
+            </ul>
+
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">Tuition & Fees</h3>
+              <div class="text-3xl font-bold text-blue-600 mb-2">{{ selectedProgram.tuition }}</div>
+              <p class="text-sm text-gray-600">Financial aid and scholarships available</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Career Opportunities</h3>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+              <div *ngFor="let career of selectedProgram.careers" class="bg-blue-50 rounded-lg p-4 text-center">
+                <div class="font-semibold text-gray-900 text-sm">{{ career }}</div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl p-8 text-white mb-6">
+              <h3 class="text-2xl font-bold mb-4">Ready to Apply?</h3>
+              <p class="mb-6">Join {{ selectedProgram.students }} students already enrolled in this program</p>
+              <button 
+                (click)="startApplication()"
+                class="w-full bg-white text-blue-600 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all">
+                Start Application
+              </button>
+            </div>
+
+            <div class="border-2 border-gray-200 rounded-xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 mb-4">Need More Information?</h3>
+              <button 
+                (click)="downloadBrochure()"
+                class="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-all mb-2 flex items-center justify-center">
+                <lucide-icon [img]="Download" [size]="16" class="mr-2"></lucide-icon>
+                Download Brochure
+              </button>
+              <button 
+                (click)="contactAdvisor()"
+                class="w-full border-2 border-gray-900 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all">
+                Contact Advisor
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Programs Grid View -->
+    <div *ngIf="!selectedProgram" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div 
+        *ngFor="let program of filteredPrograms" 
+        (click)="selectProgram(program)"
+        class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer">
+        <div class="relative">
+          <img [src]="program.image" [alt]="program.name" class="w-full h-56 object-cover" />
+          <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-gray-900 flex items-center shadow-lg">
+            <lucide-icon [img]="Star" [size]="16" class="text-yellow-400 fill-current mr-1"></lucide-icon>
+            {{ program.rating }}
+          </div>
+          <div class="absolute top-4 left-4">
+            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
+              {{ program.field }}
+            </span>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ program.name }}</h3>
+          <p class="text-blue-600 font-semibold mb-3">{{ program.degree }}</p>
+          <p class="text-gray-600 mb-4 line-clamp-2">{{ program.description }}</p>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500 flex items-center">
+                <lucide-icon [img]="Clock" [size]="16" class="mr-1"></lucide-icon>
+                {{ program.duration }}
+              </span>
+              <span class="text-gray-500 flex items-center">
+                <lucide-icon [img]="Users" [size]="16" class="mr-1"></lucide-icon>
+                {{ program.students }} students
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500">{{ program.credits }} credits</span>
+              <span class="text-green-600 font-semibold">{{ program.employmentRate }}% employed</span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gray-100">
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-bold text-gray-900">{{ program.tuition }}</span>
+              <button class="text-blue-600 font-bold flex items-center hover:text-blue-800">
+                View Details
+                <lucide-icon [img]="ArrowRight" [size]="16" class="ml-1"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="!selectedProgram && filteredPrograms.length === 0" class="text-center py-16">
+      <lucide-icon [img]="BookOpen" [size]="64" class="text-gray-300 mx-auto mb-4"></lucide-icon>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">No programs found</h3>
+      <p class="text-gray-600">Try adjusting your search or filters</p>
+    </div>
+  </div>
+</div>

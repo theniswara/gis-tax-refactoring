@@ -1,0 +1,201 @@
+<div class="bg-gray-50 min-h-screen py-16">
+  <div class="max-w-7xl mx-auto px-4">
+    
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold text-gray-900 mb-4">Campus Life</h1>
+      <p class="text-xl text-gray-600">Experience vibrant student life and endless opportunities</p>
+    </div>
+
+    <!-- Student Organizations -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Student Organizations</h2>
+      <p class="text-gray-600 mb-8">Join over 200 student clubs and organizations across various interests</p>
+      <div class="grid md:grid-cols-4 gap-6">
+        <div *ngFor="let category of organizationCategories" 
+             class="text-center p-6 border-2 rounded-xl hover:shadow-lg transition-all cursor-pointer"
+             [ngClass]="'bg-' + category.color + '-50 border-' + category.color + '-200'">
+          <lucide-icon [img]="category.icon" [size]="48" 
+                       [ngClass]="'text-' + category.color + '-600'" 
+                       class="mx-auto mb-4"></lucide-icon>
+          <h3 class="font-bold text-gray-900 mb-2 text-lg">{{ category.name }}</h3>
+          <span class="text-3xl font-bold text-gray-900">{{ category.count }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campus Facilities -->
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+      <div *ngFor="let facility of facilities" 
+           class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all">
+        <img [src]="facility.image" [alt]="facility.title" class="w-full h-56 object-cover" />
+        <div class="p-6">
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">{{ facility.title }}</h3>
+          <p class="text-gray-600 mb-4">{{ facility.desc }}</p>
+          <ul class="space-y-2">
+            <li *ngFor="let feature of facility.features" class="flex items-center text-sm text-gray-700">
+              <lucide-icon [img]="CheckCircle" [size]="16" class="text-green-500 mr-2"></lucide-icon>
+              {{ feature }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dining Options -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Dining Options</h2>
+      <p class="text-gray-600 mb-8">Variety of meal plans and dining venues to suit every taste</p>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div *ngFor="let dining of diningOptions" 
+             class="border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-md transition-all">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">{{ dining.name }}</h3>
+          <div class="space-y-2 text-sm text-gray-600">
+            <div class="flex justify-between">
+              <span class="font-semibold">Type:</span>
+              <span>{{ dining.type }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold">Hours:</span>
+              <span>{{ dining.hours }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold">Cuisine:</span>
+              <span>{{ dining.cuisine }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campus Events -->
+    <div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg p-8 mb-12 text-white">
+      <h2 class="text-3xl font-bold mb-6">Campus Events</h2>
+      <p class="text-blue-100 mb-8">Year-round activities and events for all interests</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let event of campusEvents" 
+             class="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm hover:bg-opacity-20 transition-all">
+          <h3 class="font-bold mb-2">{{ event.name }}</h3>
+          <p class="text-sm text-blue-100 mb-2">{{ event.description }}</p>
+          <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">{{ event.frequency }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Life Statistics -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Student Life by the Numbers</h2>
+      <div class="grid md:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">200+</div>
+          <div class="text-gray-600">Student Organizations</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-green-600 mb-2">50+</div>
+          <div class="text-gray-600">Campus Events/Month</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-purple-600 mb-2">98%</div>
+          <div class="text-gray-600">Student Satisfaction</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-orange-600 mb-2">24/7</div>
+          <div class="text-gray-600">Campus Resources</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Housing Options -->
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">On-Campus Housing</h2>
+        <div class="space-y-4">
+          <div class="border-l-4 border-blue-600 pl-4">
+            <h3 class="font-bold text-gray-900 mb-1">Freshman Halls</h3>
+            <p class="text-sm text-gray-600">Traditional residence halls with shared bathrooms and common areas</p>
+          </div>
+          <div class="border-l-4 border-green-600 pl-4">
+            <h3 class="font-bold text-gray-900 mb-1">Suite-Style Living</h3>
+            <p class="text-sm text-gray-600">Semi-private bathrooms and living rooms shared between 4-6 students</p>
+          </div>
+          <div class="border-l-4 border-purple-600 pl-4">
+            <h3 class="font-bold text-gray-900 mb-1">Apartment-Style</h3>
+            <p class="text-sm text-gray-600">Full kitchens, private bedrooms, and living spaces for upperclassmen</p>
+          </div>
+          <div class="border-l-4 border-orange-600 pl-4">
+            <h3 class="font-bold text-gray-900 mb-1">Special Interest Housing</h3>
+            <p class="text-sm text-gray-600">Themed communities for honors students, language learners, and more</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl shadow-lg p-8 text-white">
+        <h2 class="text-2xl font-bold mb-6">Campus Resources</h2>
+        <div class="space-y-3">
+          <div class="bg-white bg-opacity-10 rounded-lg p-3 backdrop-blur flex items-start">
+            <lucide-icon [img]="CheckCircle" [size]="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+            <div>
+              <h3 class="font-bold text-sm">Health & Wellness Center</h3>
+              <p class="text-xs text-green-100">Medical care, counseling, and fitness programs</p>
+            </div>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-3 backdrop-blur flex items-start">
+            <lucide-icon [img]="CheckCircle" [size]="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+            <div>
+              <h3 class="font-bold text-sm">Career Services</h3>
+              <p class="text-xs text-green-100">Resume help, job search, internship placement</p>
+            </div>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-3 backdrop-blur flex items-start">
+            <lucide-icon [img]="CheckCircle" [size]="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+            <div>
+              <h3 class="font-bold text-sm">Academic Support</h3>
+              <p class="text-xs text-green-100">Tutoring, writing center, study groups</p>
+            </div>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-3 backdrop-blur flex items-start">
+            <lucide-icon [img]="CheckCircle" [size]="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+            <div>
+              <h3 class="font-bold text-sm">Transportation</h3>
+              <p class="text-xs text-green-100">Free shuttle service, bike rentals, parking</p>
+            </div>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-3 backdrop-blur flex items-start">
+            <lucide-icon [img]="CheckCircle" [size]="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+            <div>
+              <h3 class="font-bold text-sm">Campus Safety</h3>
+              <p class="text-xs text-green-100">24/7 security, emergency phones, escort service</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Testimonials -->
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">What Students Say</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div *ngFor="let testimonial of testimonials" 
+             class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-blue-100">
+          <div class="flex items-center mb-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+              {{ getInitials(testimonial.name) }}
+            </div>
+            <div class="ml-4">
+              <div class="font-bold text-gray-900">{{ testimonial.name }}</div>
+              <div class="text-sm text-gray-600">{{ testimonial.major }}</div>
+            </div>
+          </div>
+          <p class="text-gray-700 italic leading-relaxed mb-3">"{{ testimonial.quote }}"</p>
+          <div class="flex">
+            <lucide-icon *ngFor="let star of getStarArray(testimonial.rating)" 
+                         [img]="Star" 
+                         [size]="16" 
+                         class="text-yellow-400 fill-current"></lucide-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

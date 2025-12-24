@@ -1,0 +1,162 @@
+<div class="bg-gray-50 min-h-screen py-16">
+  <div class="max-w-7xl mx-auto px-4">
+    
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold text-gray-900 mb-4">Research & Innovation</h1>
+      <p class="text-xl text-gray-600">Advancing knowledge and solving global challenges</p>
+    </div>
+
+    <!-- Research Impact Stats -->
+    <div class="grid md:grid-cols-4 gap-6 mb-12">
+      <div *ngFor="let stat of stats" 
+           class="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-all transform hover:scale-105">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+             [ngClass]="'bg-' + stat.color + '-100'">
+          <lucide-icon [img]="stat.icon" [size]="32" 
+                       [ngClass]="'text-' + stat.color + '-600'"></lucide-icon>
+        </div>
+        <div class="text-4xl font-bold text-gray-900 mb-2">{{ stat.value }}</div>
+        <div class="text-gray-600">{{ stat.label }}</div>
+      </div>
+    </div>
+
+    <!-- Research Centers & Labs -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8">Research Centers & Labs</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let center of researchCenters" 
+             class="border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer">
+          <h3 class="text-xl font-bold text-gray-900 mb-3">{{ center.name }}</h3>
+          <p class="text-gray-600 text-sm mb-4">{{ center.focus }}</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Active Projects:</span>
+              <span class="font-bold text-blue-600">{{ center.projects }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Annual Funding:</span>
+              <span class="font-bold text-green-600">{{ center.funding }}</span>
+            </div>
+          </div>
+          <button class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all">
+            Learn More
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Research Projects -->
+    <div class="bg-gradient-to-br from-blue-900 to-purple-900 text-white rounded-2xl p-8 mb-12">
+      <h2 class="text-3xl font-bold mb-8">Featured Research Projects</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div *ngFor="let project of featuredProjects" 
+             class="bg-white bg-opacity-10 rounded-xl p-6 backdrop-blur-sm hover:bg-opacity-20 transition-all cursor-pointer">
+          <span class="text-xs font-bold text-blue-300 bg-blue-900 bg-opacity-50 px-3 py-1 rounded-full">
+            {{ project.category }}
+          </span>
+          <h3 class="text-xl font-bold mt-3 mb-2">{{ project.title }}</h3>
+          <p class="text-sm text-blue-100 mb-3">{{ project.description }}</p>
+          <span class="text-xs font-bold px-2 py-1 rounded-full"
+                [ngClass]="getImpactClass(project.impact)">
+            {{ project.impact }} Impact
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Areas Grid -->
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      
+      <!-- Research Excellence -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Research Excellence</h2>
+        <div class="space-y-4">
+          <div class="flex items-start">
+            <div class="bg-blue-100 rounded-full p-2 mr-4">
+              <lucide-icon [img]="TrendingUp" [size]="24" class="text-blue-600"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-1">Cutting-Edge Facilities</h3>
+              <p class="text-gray-600 text-sm">State-of-the-art laboratories equipped with the latest technology and equipment</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="bg-green-100 rounded-full p-2 mr-4">
+              <lucide-icon [img]="Users" [size]="24" class="text-green-600"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-1">Collaborative Environment</h3>
+              <p class="text-gray-600 text-sm">Interdisciplinary teams working together on groundbreaking projects</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="bg-purple-100 rounded-full p-2 mr-4">
+              <lucide-icon [img]="Award" [size]="24" class="text-purple-600"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-1">Award-Winning Research</h3>
+              <p class="text-gray-600 text-sm">Multiple international awards and recognition for research contributions</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="bg-orange-100 rounded-full p-2 mr-4">
+              <lucide-icon [img]="FileText" [size]="24" class="text-orange-600"></lucide-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-1">Published Research</h3>
+              <p class="text-gray-600 text-sm">Over 500 peer-reviewed publications annually in top-tier journals</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Research Opportunities -->
+      <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-3xl font-bold mb-6">Student Research Opportunities</h2>
+        <p class="text-blue-100 mb-6">Get involved in cutting-edge research as an undergraduate or graduate student</p>
+        <div class="space-y-4 mb-6">
+          <div class="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
+            <h3 class="font-bold mb-1">Undergraduate Research Program</h3>
+            <p class="text-sm text-blue-100">Work alongside faculty on real research projects</p>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
+            <h3 class="font-bold mb-1">Graduate Assistantships</h3>
+            <p class="text-sm text-blue-100">Funded positions with stipends and tuition support</p>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
+            <h3 class="font-bold mb-1">Summer Research Fellowship</h3>
+            <p class="text-sm text-blue-100">Intensive 10-week paid research experience</p>
+          </div>
+          <div class="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
+            <h3 class="font-bold mb-1">Research Conference Travel Grants</h3>
+            <p class="text-sm text-blue-100">Present your work at national and international conferences</p>
+          </div>
+        </div>
+        <button class="w-full bg-white text-blue-600 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all">
+          Apply for Research Positions
+        </button>
+      </div>
+    </div>
+
+    <!-- Research Impact Stories -->
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Real-World Impact</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="border-l-4 border-blue-600 pl-4">
+          <div class="text-3xl font-bold text-blue-600 mb-2">1M+</div>
+          <p class="text-gray-700">Patients benefited from our medical research discoveries</p>
+        </div>
+        <div class="border-l-4 border-green-600 pl-4">
+          <div class="text-3xl font-bold text-green-600 mb-2">50+</div>
+          <p class="text-gray-700">Startups launched based on university research innovations</p>
+        </div>
+        <div class="border-l-4 border-purple-600 pl-4">
+          <div class="text-3xl font-bold text-purple-600 mb-2">15</div>
+          <p class="text-gray-700">Nobel Prize winners affiliated with our research programs</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

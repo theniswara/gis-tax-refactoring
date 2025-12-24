@@ -1,0 +1,255 @@
+<!-- src/app/components/student-portal/student-portal.component.html -->
+
+<div class="bg-gray-50 min-h-screen py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    
+    <!-- Login Form -->
+    <div *ngIf="!isAuthenticated" class="bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto">
+      <div class="text-center mb-8">
+        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <lucide-icon [img]="GraduationCap" [size]="48" class="text-blue-600"></lucide-icon>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Student Portal</h1>
+        <p class="text-gray-600">Access your courses, grades, and university services</p>
+      </div>
+      
+      <form (ngSubmit)="onLogin()" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Student ID</label>
+          <input 
+            type="text" 
+            [(ngModel)]="studentId"
+            name="studentId"
+            placeholder="Enter your student ID" 
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          />
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Password</label>
+          <input 
+            type="password" 
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Enter your password" 
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          />
+        </div>
+        
+        <div *ngIf="loginError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {{ loginError }}
+        </div>
+        
+        <button 
+          type="submit"
+          class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg font-bold text-lg hover:shadow-xl transition-all">
+          Login to Portal
+        </button>
+        
+        <div class="text-center text-sm space-y-2">
+          <a href="#" class="text-blue-600 hover:underline block">Forgot Password?</a>
+          <a href="#" class="text-blue-600 hover:underline block">First Time User? Register Here</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Portal Dashboard -->
+    <div *ngIf="isAuthenticated && currentStudent">
+      
+      <!-- Portal Header -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-blue-600 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              {{ getInitials(currentStudent.name) }}
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ currentStudent.name }}!</h1>
+              <p class="text-gray-600">Student ID: {{ currentStudent.id }} | {{ currentStudent.major }} | {{ currentStudent.year }}</p>
+            </div>
+          </div>
+          <button 
+            (click)="onLogout()"
+            class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-all">
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="grid md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-6 shadow-lg">
+          <lucide-icon [img]="Award" [size]="40" class="mb-3"></lucide-icon>
+          <div class="text-4xl font-bold mb-1">{{ currentStudent.gpa }}</div>
+          <div class="text-sm text-blue-100">Current GPA</div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl p-6 shadow-lg">
+          <lucide-icon [img]="BookOpen" [size]="40" class="mb-3"></lucide-icon>
+          <div class="text-4xl font-bold mb-1">{{ currentStudent.credits }}/{{ currentStudent.totalCredits }}</div>
+          <div class="text-sm text-green-100">Credits Earned</div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl p-6 shadow-lg">
+          <lucide-icon [img]="Users" [size]="40" class="mb-3"></lucide-icon>
+          <div class="text-4xl font-bold mb-1">{{ currentStudent.currentCourses?.length || 0 }}</div>
+          <div class="text-sm text-purple-100">Current Courses</div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg">
+          <lucide-icon [img]="CheckCircle" [size]="40" class="mb-3"></lucide-icon>
+          <div class="text-4xl font-bold mb-1">{{ currentStudent.attendance }}%</div>
+          <div class="text-sm text-orange-100">Attendance Rate</div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column - Courses (2 columns) -->
+        <div class="lg:col-span-2 space-y-6">
+          
+          <!-- Current Courses -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <lucide-icon [img]="BookOpen" [size]="24" class="mr-2 text-blue-600"></lucide-icon>
+              Current Courses
+            </h2>
+            <div class="space-y-4">
+              <div *ngFor="let course of currentStudent.currentCourses || []" 
+                   class="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-md transition-all">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 class="text-lg font-bold text-gray-900">{{ course.code }}: {{ course.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ course.instructor }} | {{ course.credits }} Credits</p>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-3xl font-bold text-blue-600">{{ course.grade }}</div>
+                    <div class="text-xs text-gray-500">Current Grade</div>
+                  </div>
+                </div>
+                <div class="mb-3 text-sm text-gray-600">
+                  <div class="flex items-center mb-1">
+                    <lucide-icon [img]="Clock" [size]="16" class="mr-2"></lucide-icon>
+                    {{ course.schedule }}
+                  </div>
+                  <div class="flex items-center">
+                    <lucide-icon [img]="MapPin" [size]="16" class="mr-2"></lucide-icon>
+                    {{ course.room }}
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>Course Progress</span>
+                    <span class="font-semibold">{{ course.progress }}%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all"
+                      [style.width]="getProgressWidth(course.progress)">
+                    </div>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button 
+                    (click)="viewCourseMaterials(course)"
+                    class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all">
+                    View Materials
+                  </button>
+                  <button 
+                    (click)="viewAssignments(course)"
+                    class="flex-1 border-2 border-blue-600 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition-all">
+                    Assignments
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="grid md:grid-cols-3 gap-4">
+            <div 
+              *ngFor="let action of quickActions"
+              class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer">
+              <lucide-icon [img]="action.icon" [size]="32" class="text-blue-600 mb-2"></lucide-icon>
+              <h3 class="font-bold text-gray-900 text-sm">{{ action.title }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column - Sidebar (1 column) -->
+        <div class="space-y-6">
+          
+          <!-- Upcoming Assignments -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <lucide-icon [img]="FileText" [size]="20" class="mr-2 text-blue-600"></lucide-icon>
+              Upcoming Assignments
+            </h3>
+            <div class="space-y-3">
+              <div *ngFor="let assignment of currentStudent.upcomingAssignments || []" 
+                   class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-4">
+                <div class="text-xs text-yellow-700 font-semibold mb-1">{{ assignment.course }}</div>
+                <div class="font-bold text-gray-900 text-sm mb-2">{{ assignment.title }}</div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-600 flex items-center">
+                    <lucide-icon [img]="Calendar" [size]="12" class="mr-1"></lucide-icon>
+                    Due: {{ assignment.dueDate | date:'shortDate' }}
+                  </span>
+                  <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full font-semibold">
+                    {{ getDaysUntilDue(assignment.dueDate) }} days
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcements -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <lucide-icon [img]="Bell" [size]="20" class="mr-2 text-blue-600"></lucide-icon>
+              Announcements
+            </h3>
+            <div class="space-y-3">
+              <div *ngFor="let announcement of currentStudent.announcements"
+                   [ngClass]="{
+                     'bg-red-50 border-l-4 border-red-500 rounded-lg p-4': announcement.important,
+                     'bg-gray-50 border-l-4 border-gray-300 rounded-lg p-4': !announcement.important
+                   }">
+                <div *ngIf="announcement.important" class="text-xs text-red-600 font-bold mb-1 flex items-center">
+                  <lucide-icon [img]="Bell" [size]="12" class="mr-1"></lucide-icon>
+                  IMPORTANT
+                </div>
+                <div class="font-bold text-gray-900 text-sm mb-1">{{ announcement.title }}</div>
+                <div class="text-xs text-gray-500">{{ announcement.date }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Overview -->
+          <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl p-6">
+            <h3 class="text-xl font-bold mb-4">Degree Progress</h3>
+            <div class="mb-4">
+              <div class="flex justify-between text-sm mb-2">
+                <span>Credits Completed</span>
+                <span class="font-bold">{{ currentStudent.credits }}/{{ currentStudent.totalCredits }}</span>
+              </div>
+              <div class="w-full bg-white bg-opacity-30 rounded-full h-3">
+                <div 
+                  class="bg-white h-3 rounded-full transition-all"
+                  [style.width]="getProgressWidth((currentStudent.credits / currentStudent.totalCredits) * 100)">
+                </div>
+              </div>
+            </div>
+            <div class="text-sm space-y-2">
+              <div class="flex justify-between">
+                <span>Expected Graduation:</span>
+                <span class="font-bold">Spring 2026</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Remaining Credits:</span>
+                <span class="font-bold">{{ currentStudent.totalCredits - currentStudent.credits }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
