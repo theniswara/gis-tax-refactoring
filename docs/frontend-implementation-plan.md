@@ -1,88 +1,127 @@
-# 🎯 Frontend Refactoring Guide
+# 🎯 Frontend Refactoring Guide (leaflet-geo-FE)
 
-> **Who is this for?** The frontend developer working on `leaflet-geo-FE`  
-> **What will you do?** Clean up the code to match the patterns in `university-frontend`
-
----
-
-## 📖 How to Use This Guide
-
-1. Read each phase completely before starting
-2. Do ONE phase at a time
-3. Test after each phase
-4. If something breaks, use the rollback commands
-5. Ask for help if you're stuck!
+> **Siapa yang harus baca ini?** Frontend developer  
+> **Apa yang akan kamu kerjakan?** Merapikan kode `leaflet-geo-FE` mengikuti pola dari `university-frontend`  
+> **Berapa lama?** Sekitar 2-3 hari kerja
 
 ---
 
-## 🚦 Before You Start (REQUIRED)
+# 📋 DAFTAR ISI
 
-### Step 1: Open terminal in the frontend folder
+1. [Persiapan Awal](#-persiapan-awal-wajib)
+2. [Phase 1: Membuat Barrel File](#-phase-1-membuat-barrel-file)
+3. [Phase 2: Menambah Komentar di app.module.ts](#-phase-2-menambah-komentar-di-appmodulets)
+4. [Phase 3: Testing](#-phase-3-testing)
+5. [Phase 4: Push ke GitHub](#-phase-4-push-ke-github)
+6. [Jika Ada Error](#-jika-ada-error-baca-ini)
+
+---
+
+# 🚦 PERSIAPAN AWAL (WAJIB!)
+
+## Langkah 1: Buka Terminal
+
+**Di VS Code:**
+1. Klik menu `Terminal` di atas
+2. Klik `New Terminal`
+3. Terminal akan muncul di bawah
+
+## Langkah 2: Pindah ke Folder Frontend
+
+**Copy-paste perintah ini ke terminal, lalu tekan Enter:**
 ```bash
 cd "/media/zpreoz/New Volume/College/POLINEMA/PROJECT/PRODUCTION/gis-tax-refactoring/leaflet-geo-FE"
 ```
 
-### Step 2: Create a new branch (DO NOT skip this!)
+**Cara mengecek sudah benar:**
+```bash
+pwd
+```
+
+**Hasilnya harus:**
+```
+/media/zpreoz/New Volume/College/POLINEMA/PROJECT/PRODUCTION/gis-tax-refactoring/leaflet-geo-FE
+```
+
+## Langkah 3: Buat Branch Baru
+
+> ⚠️ **PENTING:** JANGAN SKIP langkah ini! Ini untuk melindungi kode asli kalau ada error.
+
+**Copy-paste perintah ini:**
 ```bash
 git checkout -b refactor/frontend-cleanup
 ```
 
-**What this does:** Creates a safe copy of the code. If you break something, the original code on `main` branch is still safe.
+**Hasilnya:**
+```
+Switched to a new branch 'refactor/frontend-cleanup'
+```
 
-### Step 3: Verify you're on the new branch
+## Langkah 4: Pastikan Branch Sudah Benar
+
 ```bash
 git branch
 ```
 
-**You should see:**
+**Hasilnya harus seperti ini (ada tanda bintang di branch baru):**
 ```
   main
-* refactor/frontend-cleanup   <-- The star means you're on this branch
+* refactor/frontend-cleanup
 ```
 
+## Langkah 5: Install Dependencies (Jika Belum)
+
+```bash
+npm install
+```
+
+Tunggu sampai selesai (bisa 2-5 menit).
+
 ---
 
-## ✅ Phase 1: Documentation Cleanup (ALREADY DONE)
+# ✅ PHASE 1: MEMBUAT BARREL FILE
 
-This phase was completed. The markdown files were moved to `docs/` folder.
+## Apa itu Barrel File?
 
-**Nothing to do here. Move to Phase 2.**
+Barrel file adalah file `index.ts` yang mengumpulkan semua export dalam satu tempat.
 
----
-
-## ✅ Phase 2: Create Barrel Files
-
-### What is a barrel file?
-A barrel file (`index.ts`) lets you import multiple things from one place instead of many files.
-
-**Before (messy):**
+**Contoh SEBELUM (ribet):**
 ```typescript
 import { AuthService } from '../../core/services/auth.service';
 import { RestApiService } from '../../core/services/rest-api.service';
 import { BidangService } from '../../core/services/bidang.service';
 ```
 
-**After (clean):**
+**Contoh SESUDAH (rapi):**
 ```typescript
 import { AuthService, RestApiService, BidangService } from '../../core/services';
 ```
 
 ---
 
-### Step 1: Go to the services folder
-```bash
-cd src/app/core/services
-```
+## Langkah 1.1: Buka Folder Services di VS Code
 
-### Step 2: Create the barrel file
-Create a new file called `index.ts` with this content:
+1. Di panel kiri VS Code, cari folder ini:
+   ```
+   src/app/core/services/
+   ```
+2. Klik kanan pada folder `services`
+3. Pilih `New File`
+4. Ketik nama file: `index.ts`
+5. Tekan Enter
+
+## Langkah 1.2: Copy-Paste Kode Ini ke File index.ts
 
 ```typescript
-// src/app/core/services/index.ts
-// This file exports all services from one place
+/**
+ * Barrel file untuk core services
+ * File ini mengexport semua service dari folder core/services
+ * 
+ * Cara pakai:
+ * import { AuthService, RestApiService } from '../../core/services';
+ */
 
 export * from './auth.service';
-export * from './rest-api.service';
 export * from './bidang.service';
 export * from './bprd-api.service';
 export * from './csrf.service';
@@ -91,152 +130,464 @@ export * from './language.service';
 export * from './master.service';
 export * from './pendapatan.service';
 export * from './remote-config.service';
+export * from './rest-api.service';
 export * from './translation-sync.service';
 ```
 
-### Step 3: Go back to root and test
+## Langkah 1.3: Simpan File
+
+Tekan `Ctrl + S` untuk menyimpan.
+
+## Langkah 1.4: Test Apakah Berhasil
+
+**Di terminal, jalankan:**
 ```bash
-cd ../../../..
 ng build --configuration development
 ```
 
-### Step 4: Did it work?
-- ✅ **If build succeeds:** Continue to Step 5
-- ❌ **If build fails:** Check the error message. Usually it means a file name is wrong.
+**Tunggu prosesnya selesai (1-3 menit).**
 
-### Step 5: Save your work
+### Jika BERHASIL, hasilnya seperti ini:
+```
+✔ Browser application bundle generation complete.
+✔ Copying assets complete.
+✔ Index html generation complete.
+
+Build at: 2024-xx-xx - Chunk Files ...
+```
+
+➡️ **Lanjut ke Langkah 1.5**
+
+### Jika GAGAL, hasilnya ada tulisan ERROR:
+```
+Error: ...
+```
+
+➡️ **Baca bagian [JIKA ADA ERROR](#-jika-ada-error-baca-ini)**
+
+## Langkah 1.5: Simpan Perubahan ke Git
+
+**Jalankan perintah ini satu per satu:**
+
 ```bash
 git add .
+```
+
+```bash
 git commit -m "feat: add barrel file for core services"
+```
+
+**Hasilnya:**
+```
+[refactor/frontend-cleanup xxxxxxx] feat: add barrel file for core services
+ 1 file changed, xx insertions(+)
+ create mode 100644 src/app/core/services/index.ts
 ```
 
 ---
 
-## ✅ Phase 3: Add Comments to app.module.ts
+## Langkah 1.6: Buat Barrel File untuk Shared Services
 
-### What are we doing?
-Adding section comments to organize the code better (like university-frontend does).
+1. Buka folder `src/app/shared/services/`
+2. Klik kanan → `New File`
+3. Nama file: `index.ts`
+4. Copy-paste kode ini:
 
-### Step 1: Open this file in your editor
-```
-src/app/app.module.ts
-```
-
-### Step 2: Add section comments
-Look at the `@NgModule` section and add comments like this:
-
-**Example:**
 ```typescript
-@NgModule({
-  declarations: [
-    AppComponent,
-    
-    // ============================================
-    // LAYOUT COMPONENTS
-    // ============================================
-    
-    // ============================================
-    // PAGE COMPONENTS
-    // ============================================
-  ],
-  imports: [
-    // ============================================
-    // ANGULAR CORE MODULES
-    // ============================================
-    BrowserModule,
-    BrowserAnimationsModule,
-    
-    // ============================================
-    // FEATURE MODULES
-    // ============================================
-    AppRoutingModule,
-    LayoutsModule,
-    PagesModule,
-    
-    // ============================================
-    // THIRD PARTY MODULES
-    // ============================================
-    NgxSpinnerModule,
-    // ...
-  ],
-  // ...
-})
+/**
+ * Barrel file untuk shared services
+ */
+
+export * from './event.service';
+export * from './listjs.service';
+export * from './modal.service';
+export * from './pagination.service';
+export * from './toast-service';
+export * from './utilities.service';
 ```
 
-### Step 3: Test
+5. Simpan (`Ctrl + S`)
+
+## Langkah 1.7: Test Lagi
+
 ```bash
 ng build --configuration development
 ```
 
-### Step 4: Save your work
+## Langkah 1.8: Commit
+
 ```bash
 git add .
+```
+
+```bash
+git commit -m "feat: add barrel file for shared services"
+```
+
+---
+
+# ✅ PHASE 2: MENAMBAH KOMENTAR DI app.module.ts
+
+## Apa yang Akan Kita Lakukan?
+
+Menambah komentar pemisah agar kode lebih mudah dibaca.
+
+## Langkah 2.1: Buka File app.module.ts
+
+1. Di VS Code, buka file:
+   ```
+   src/app/app.module.ts
+   ```
+
+## Langkah 2.2: Ganti Isi File
+
+**HAPUS semua isi file, lalu GANTI dengan kode di bawah ini:**
+
+```typescript
+import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { NgPipesModule } from 'ngx-pipes';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { LayoutsModule } from './layouts/layouts.module';
+import { PagesModule } from './pages/pages.module';
+import {
+  HttpClient,
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXsrfConfiguration,
+} from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { environment } from '../environments/environment';
+
+// ============================================
+// INTERCEPTORS
+// ============================================
+import { HttpInterceptorService } from './core/helpers/http.interceptor';
+import { ErrorInterceptor } from './core/helpers/error.interceptor';
+
+// ============================================
+// TRANSLATION / LANGUAGE
+// ============================================
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
+
+// ============================================
+// NGRX STORE (STATE MANAGEMENT)
+// ============================================
+import { Store, StoreModule } from '@ngrx/store';
+import { rootReducer } from './store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { EffectsModule } from '@ngrx/effects';
+
+// ============================================
+// THIRD PARTY MODULES
+// ============================================
+import { NgxSpinnerModule } from 'ngx-spinner';
+
+// ============================================
+// CORE SERVICES & FACTORIES
+// ============================================
+import { fetchUserInitializer } from './core/factories/fetch-user.factory'
+import { Router } from '@angular/router';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { RestApiService } from './core/services/rest-api.service';
+import { SharedModule } from './shared/shared.module';
+
+/**
+ * Translation Initializer
+ * Fungsi ini memuat file terjemahan saat aplikasi pertama kali dibuka
+ */
+export function translationInitializer(translate: TranslateService) {
+  return () => new Promise<void>((resolve) => {
+    translate.setDefaultLang('en');
+    translate.use('en').subscribe(() => {
+      console.log('Translations loaded!');
+      resolve();
+    });
+  });
+}
+
+/**
+ * Translation Loader Factory
+ * Fungsi ini membuat loader untuk file terjemahan
+ */
+export function createTranslateLoader(http: HttpClient): any {
+  return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
+}
+
+@NgModule({
+  // ============================================
+  // DECLARATIONS
+  // Komponen yang didaftarkan di module ini
+  // ============================================
+  declarations: [
+    AppComponent
+  ],
+
+  // ============================================
+  // BOOTSTRAP
+  // Komponen utama yang dijalankan pertama kali
+  // ============================================
+  bootstrap: [AppComponent],
+
+  // ============================================
+  // IMPORTS
+  // Module-module yang dibutuhkan
+  // ============================================
+  imports: [
+    // --- Angular Core Modules ---
+    BrowserModule,
+    BrowserAnimationsModule,
+    
+    // --- Routing ---
+    AppRoutingModule,
+    
+    // --- Feature Modules ---
+    LayoutsModule,
+    PagesModule,
+    SharedModule,
+    
+    // --- Translation Module ---
+    TranslateModule.forRoot({
+      defaultLanguage: 'en',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: createTranslateLoader,
+        deps: [HttpClient],
+      },
+    }),
+    
+    // --- State Management (NgRx) ---
+    StoreModule.forRoot(rootReducer),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
+    EffectsModule.forRoot(),
+    
+    // --- Third Party Modules ---
+    NgPipesModule,
+    NgxSpinnerModule,
+  ],
+
+  // ============================================
+  // SCHEMAS
+  // ============================================
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+
+  // ============================================
+  // PROVIDERS
+  // Services dan konfigurasi yang disediakan
+  // ============================================
+  providers: [
+    // --- Pipes ---
+    DecimalPipe,
+    DatePipe,
+    
+    // --- HTTP Interceptors ---
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true },
+    
+    // --- App Initializers ---
+    {
+      provide: APP_INITIALIZER,
+      useFactory: translationInitializer,
+      deps: [TranslateService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: fetchUserInitializer,
+      deps: [Store, RestApiService, Router],
+      multi: true,
+    },
+    
+    // --- HTTP Client Configuration ---
+    provideHttpClient(
+      withInterceptorsFromDi(),
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',
+        headerName: 'X-XSRF-TOKEN',
+      })
+    ),
+  ],
+})
+export class AppModule {}
+```
+
+## Langkah 2.3: Simpan File
+
+Tekan `Ctrl + S`
+
+## Langkah 2.4: Test
+
+```bash
+ng build --configuration development
+```
+
+**Jika BERHASIL, lanjut ke langkah berikutnya.**
+
+## Langkah 2.5: Commit
+
+```bash
+git add .
+```
+
+```bash
 git commit -m "style: add section comments to app.module.ts"
 ```
 
 ---
 
-## ✅ Phase 4: Test Everything
+# ✅ PHASE 3: TESTING
 
-### Step 1: Run the app
+## Langkah 3.1: Jalankan Aplikasi
+
 ```bash
 npm run start
 ```
 
-### Step 2: Open in browser
-Go to: http://localhost:4200
+**Tunggu sampai muncul:**
+```
+** Angular Live Development Server is listening on localhost:4200 **
+```
 
-### Step 3: Test these features
-- [ ] Login page works
-- [ ] Map loads correctly
-- [ ] Dashboard shows data
-- [ ] Settings page works
-- [ ] No errors in browser console (Press F12 to check)
+## Langkah 3.2: Buka Browser
+
+Buka browser (Chrome/Firefox), ketik di address bar:
+```
+http://localhost:4200
+```
+
+## Langkah 3.3: Checklist Testing
+
+Cek satu per satu:
+
+- [ ] Halaman login muncul
+- [ ] Bisa login dengan akun test
+- [ ] Setelah login, dashboard muncul
+- [ ] Peta (map) bisa dimuat
+- [ ] Menu di sidebar bisa diklik
+- [ ] Tidak ada error merah di console (tekan F12 untuk buka console)
 
 ---
 
-## ✅ Phase 5: Push Your Changes
+# ✅ PHASE 4: PUSH KE GITHUB
 
-### Step 1: Push to GitHub
+## Langkah 4.1: Stop Server
+
+Di terminal, tekan `Ctrl + C` untuk stop server.
+
+## Langkah 4.2: Push ke GitHub
+
 ```bash
 git push -u origin refactor/frontend-cleanup
 ```
 
-### Step 2: Create Pull Request
-1. Go to: https://github.com/theniswara/gis-tax-refactoring
-2. Click "Compare & pull request" (yellow banner)
-3. Write a title: "Frontend: Add barrel files and section comments"
-4. Click "Create pull request"
-5. Wait for review/approval
+**Hasilnya:**
+```
+ * [new branch]      refactor/frontend-cleanup -> refactor/frontend-cleanup
+Branch 'refactor/frontend-cleanup' set up to track remote branch ...
+```
+
+## Langkah 4.3: Buat Pull Request di GitHub
+
+1. Buka browser
+2. Pergi ke: https://github.com/theniswara/gis-tax-refactoring
+3. Akan muncul banner kuning: "refactor/frontend-cleanup had recent pushes"
+4. Klik tombol hijau **"Compare & pull request"**
+5. Isi:
+   - **Title:** `Frontend: Add barrel files and organize app.module.ts`
+   - **Description:** 
+     ```
+     Perubahan:
+     - Menambah barrel file (index.ts) di core/services
+     - Menambah barrel file (index.ts) di shared/services  
+     - Menambah komentar section di app.module.ts
+     ```
+6. Klik **"Create pull request"**
+7. Tunggu review dari team
 
 ---
 
-## 🔥 IF SOMETHING BREAKS
+# 🔥 JIKA ADA ERROR (BACA INI!)
 
-### Option 1: Undo all changes (not committed yet)
+## Error 1: "Cannot find module..."
+
+**Contoh error:**
+```
+Error: Cannot find module './auth.service'
+```
+
+**Penyebab:** Nama file salah di barrel file.
+
+**Solusi:**
+1. Cek nama file di folder tersebut
+2. Pastikan nama di `index.ts` sama persis dengan nama file (termasuk huruf besar/kecil)
+
+---
+
+## Error 2: Build gagal setelah edit app.module.ts
+
+**Solusi:** Kembalikan file ke versi sebelumnya:
+
+```bash
+git checkout src/app/app.module.ts
+```
+
+Lalu coba lagi dengan lebih hati-hati.
+
+---
+
+## Error 3: Semua rusak, mau mulai ulang
+
+**Kembalikan SEMUA file ke kondisi sebelum diubah:**
+
 ```bash
 git checkout .
 ```
 
-### Option 2: Go back to last commit
-```bash
-git reset --hard HEAD
-```
+---
 
-### Option 3: Go back to main branch (abandon all changes)
+## Error 4: Mau pindah ke branch main (abaikan semua perubahan)
+
 ```bash
 git checkout main
 ```
 
 ---
 
-## ❓ Common Questions
+# ❓ FAQ (Pertanyaan yang Sering Muncul)
 
-**Q: What if `ng build` fails?**
-A: Read the error message carefully. It usually tells you which file has the problem.
+**Q: Apa bedanya `git add .` dan `git commit`?**
+- `git add .` = Tandai file yang mau disimpan
+- `git commit` = Simpan perubahan dengan pesan
 
-**Q: What if I'm not sure about something?**
-A: Ask! Don't guess and break things.
+**Q: Kenapa harus buat branch baru?**
+- Supaya kalau ada error, kode asli di branch `main` tidak rusak
 
-**Q: Can I skip the git commands?**
-A: NO! Always commit after each phase so you can undo if needed.
+**Q: Saya sudah selesai, apa selanjutnya?**
+- Tunggu Pull Request diapprove
+- Setelah diapprove, kode akan digabung ke branch `main`
+
+**Q: Terminal saya tidak mau jalan, gimana?**
+- Tutup VS Code
+- Buka lagi
+- Buka terminal baru
+
+---
+
+# ✅ CHECKLIST AKHIR
+
+Sebelum selesai, pastikan semua ini sudah dilakukan:
+
+- [ ] Branch baru sudah dibuat
+- [ ] Barrel file `core/services/index.ts` sudah dibuat
+- [ ] Barrel file `shared/services/index.ts` sudah dibuat
+- [ ] `app.module.ts` sudah ditambah komentar
+- [ ] `ng build` berhasil tanpa error
+- [ ] Aplikasi bisa jalan di browser
+- [ ] Semua commit sudah dipush
+- [ ] Pull Request sudah dibuat di GitHub
