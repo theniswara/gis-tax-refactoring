@@ -265,20 +265,34 @@ export class FeaturesModule { }
 
 ---
 
-# ✅ PHASE 4: BUAT BARREL FILES
+# ⏭️ PHASE 4: BUAT BARREL FILES
 
-## 4.1: `src/app/guards/index.ts`
+---
+## 🟡 OPTIONAL - BISA DISKIP!
+
+**Barrel files TIDAK WAJIB.** App akan tetap jalan tanpa barrel files.
+
+Barrel files hanya untuk merapikan import. Tim bisa menambahkan nanti setelah refactoring selesai.
+
+**Jika ingin skip:** Langsung lanjut ke PHASE 5.
+
+---
+
+<details>
+<summary>📦 Klik untuk melihat cara buat Barrel Files (OPTIONAL)</summary>
+
+### 4.1: `src/app/guards/index.ts`
 ```typescript
 export * from './auth.guard';
 ```
 
-## 4.2: `src/app/interceptors/index.ts`
+### 4.2: `src/app/interceptors/index.ts`
 ```typescript
 export * from './error.interceptor';
 export * from './http.interceptor';
 ```
 
-## 4.3: `src/app/models/index.ts`
+### 4.3: `src/app/models/index.ts`
 ```typescript
 export * from './auth.models';
 export * from './countdown-event.model';
@@ -286,33 +300,20 @@ export * from './master.models';
 export * from './pendapatan.model';
 ```
 
-## 4.4: `src/app/services/index.ts`
+### 4.4: `src/app/services/index.ts`
 ```typescript
-// From core/services
 export * from './auth.service';
 export * from './bidang.service';
-export * from './bprd-api.service';
-export * from './csrf.service';
-export * from './event.service';
-export * from './language.service';
-export * from './master.service';
-export * from './pendapatan.service';
-export * from './remote-config.service';
 export * from './rest-api.service';
-export * from './translation-sync.service';
-
-// From shared/services
-export * from './listjs.service';
-export * from './modal.service';
-export * from './pagination.service';
-export * from './toast-service';
-export * from './utilities.service';
+// ... tambahkan file lainnya
 ```
 
-## 4.5: `src/app/factories/index.ts`
+### 4.5: `src/app/factories/index.ts`
 ```typescript
 export * from './fetch-user.factory';
 ```
+
+</details>
 
 ---
 
@@ -426,7 +427,7 @@ git checkout .
 - [ ] Semua import di-update
 - [ ] pages.module.ts di-rename ke features.module.ts
 - [ ] PagesModule di-rename ke FeaturesModule
-- [ ] Barrel files (index.ts) dibuat
+- [ ] Barrel files (index.ts) dibuat *(OPTIONAL)*
 - [ ] `ng build` sukses
 - [ ] Folder lama dihapus
 - [ ] `ng build` sukses lagi
