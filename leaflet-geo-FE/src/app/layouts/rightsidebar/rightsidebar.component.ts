@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, TemplateRef, ViewChild } from '@angular/core';
-import { EventService } from '../../core/services/event.service';
+import { EventService } from '../../services/event.service';
 import { NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { RootReducerState } from 'src/app/store';
 import { Store } from '@ngrx/store';

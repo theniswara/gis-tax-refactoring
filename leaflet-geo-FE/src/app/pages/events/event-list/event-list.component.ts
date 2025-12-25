@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { firstValueFrom, Subscription, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ModalService } from 'src/app/shared/services/modal.service';
-import { RestApiService } from 'src/app/core/services/rest-api.service';
+import { RestApiService } from 'src/app/services/rest-api.service';
 
 // Models
 import { IEvent, ICreateEventRequest, IEventSearchParams } from '../models/event.model';

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
 import { clearUser, setUser } from 'src/app/store/auth/auth.action';
 import { selectCurrentUser } from 'src/app/store/auth/auth.selector';
 
@@ -77,17 +77,17 @@ export class AuthenticationService {
 
     userHasRole(roles: string[] = []): boolean {
       let userRoles: string[] = [];
-  
+
       // Get user roles from store
       this.store.select(selectCurrentUser).subscribe(user => {
           userRoles = (user?.roles_name as string[]) || [];
       });
-  
+
       const lowerCaseUserRoles = userRoles.map(role => role.toLowerCase());
-  
+
       return roles.some(role => lowerCaseUserRoles.includes(role.toLowerCase()));
   }
-  
+
 
     deleteCookie(name: string): void {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;

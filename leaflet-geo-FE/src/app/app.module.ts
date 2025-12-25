@@ -33,7 +33,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { fetchUserInitializer } from './core/factories/fetch-user.factory'
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { RestApiService } from './core/services/rest-api.service';
+import { RestApiService } from './services/rest-api.service';
 import { SharedModule } from './shared/shared.module';
 
 // New Translation Initializer

@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { RestApiService } from 'src/app/core/services/rest-api.service';
+import { RestApiService } from 'src/app/services/rest-api.service';
 import { setUser, setUserForApp } from 'src/app/store/auth/auth.action';
 import { firstValueFrom, catchError, of, map } from 'rxjs';
 
@@ -9,7 +9,7 @@ export function fetchUserInitializer(store: Store, restApiService: RestApiServic
     firstValueFrom(
       restApiService.getLoggedInUser().pipe(
         map((response: any) => {
-          if (response && response.data) {            
+          if (response && response.data) {
             store.dispatch(setUser({ user: response.data })); // Store user
             // store.dispatch(setUserForApp({ appName: 'fsb', user: response.data })); // Store user
           }

@@ -6,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 
 import { PaginationService } from 'src/app/shared/services/pagination.service';
-import { RestApiService } from 'src/app/core/services/rest-api.service';
+import { RestApiService } from 'src/app/services/rest-api.service';
 import { UtilitiesService } from 'src/app/shared/services/utilities.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 
@@ -58,7 +58,7 @@ export class AppListComponent implements OnInit, OnDestroy {
     public utilitiesService: UtilitiesService,
     public translate: TranslateService,
     private shepherdService: ShepherdService,
-    public toastService: ToastService, 
+    public toastService: ToastService,
     private router: Router,
     private modalService: ModalService,
     private spinner: NgxSpinnerService,
@@ -89,7 +89,7 @@ export class AppListComponent implements OnInit, OnDestroy {
     this.breadCrumbItems = [
       { label: this.translate.instant('APPPAGE.APPLIST.BREADCRUMB.LABEL1'), active: true }
     ];
-    this.breadCrumbTitle =  this.translate.instant('APPPAGE.APPLIST.TITLE'); 
+    this.breadCrumbTitle =  this.translate.instant('APPPAGE.APPLIST.TITLE');
   }
 
   /**
@@ -137,7 +137,7 @@ export class AppListComponent implements OnInit, OnDestroy {
   getMoreNamesTimeline(users: any[]): string {
     // Get the names of the users after the first three
     const additionalUsers = users.slice(3);
-    
+
     // Map the array to contain only names, and join them with \n
     return additionalUsers.map(user => user.employee_name).join('\n');
   }

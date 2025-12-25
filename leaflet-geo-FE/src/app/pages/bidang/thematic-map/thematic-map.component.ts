@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { RestApiService } from '../../../core/services/rest-api.service';
-import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../core/services/bprd-api.service';
+import { RestApiService } from '../../../services/rest-api.service';
+import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
 import * as L from 'leaflet';
 
 // Interface for BPRD Bidang Detail Response

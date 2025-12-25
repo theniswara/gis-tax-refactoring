@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RestApiService } from '../../../core/services/rest-api.service';
+import { RestApiService } from '../../../services/rest-api.service';
 
 @Component({
   selector: 'app-bidang-list',
@@ -11,10 +11,10 @@ import { RestApiService } from '../../../core/services/rest-api.service';
   styleUrls: ['./bidang-list.component.scss']
 })
 export class BidangListComponent implements OnInit {
-  
+
   // Data
   bidangData: any[] = [];
-  
+
   // Pagination
   currentPage = 0;
   pageSize = 20;
@@ -22,11 +22,11 @@ export class BidangListComponent implements OnInit {
   totalPages = 0;
   hasNext = false;
   hasPrev = false;
-  
+
   // Loading state
   isLoading = false;
   errorMessage = '';
-  
+
   // Search and filters
   searchTerm = '';
   selectedProvince = '';

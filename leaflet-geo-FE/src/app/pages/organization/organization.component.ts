@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { RestApiService } from 'src/app/core/services/rest-api.service';
+import { RestApiService } from 'src/app/services/rest-api.service';
 import { ModalService } from 'src/app/shared/services/modal.service';
 import { UtilitiesService } from 'src/app/shared/services/utilities.service';
 import { ORGANIZATION_DATA, OrganizationNode, transformApiData, cleanOrganizationData, ApiOrganizationNode } from './organization-data';
