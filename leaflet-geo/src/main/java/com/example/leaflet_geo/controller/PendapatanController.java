@@ -25,6 +25,7 @@ public class PendapatanController {
 
     /**
      * Get Dashboard Summary
+     * GET /api/pendapatan/summary?tahun=2025
      */
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<DashboardSummaryDTO>> getDashboardSummary(
@@ -41,6 +42,7 @@ public class PendapatanController {
 
     /**
      * Get Target vs Realisasi per Jenis Pajak
+     * GET /api/pendapatan/target-realisasi?tahun=2025
      */
     @GetMapping("/target-realisasi")
     public ResponseEntity<ApiResponse<List<TargetRealisasiDTO>>> getTargetRealisasi(
@@ -58,6 +60,7 @@ public class PendapatanController {
 
     /**
      * Get Trend Bulanan (Kumulatif)
+     * GET /api/pendapatan/trend-bulanan?tahun=2025
      */
     @GetMapping("/trend-bulanan")
     public ResponseEntity<ApiResponse<List<TrendBulananDTO>>> getTrendBulanan(
@@ -75,6 +78,7 @@ public class PendapatanController {
 
     /**
      * Get Top Kontributor
+     * GET /api/pendapatan/top-kontributor?tahun=2025&limit=10
      */
     @GetMapping("/top-kontributor")
     public ResponseEntity<ApiResponse<List<TopKontributorDTO>>> getTopKontributor(
@@ -93,6 +97,7 @@ public class PendapatanController {
 
     /**
      * Get Realisasi by Jenis Pajak (Detail)
+     * GET /api/pendapatan/realisasi-by-jenis?tahun=2025&jenisPajakId=1
      */
     @GetMapping("/realisasi-by-jenis")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getRealisasiByJenis(
