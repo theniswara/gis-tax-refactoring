@@ -1,10 +1,10 @@
 package com.example.leaflet_geo.controller;
 
+import com.example.leaflet_geo.dto.ApiResponse;
 import com.example.leaflet_geo.service.BphtbService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,86 +21,79 @@ public class BphtbController {
 
     /**
      * Test koneksi database BPHTB
-     * GET /api/bphtb/test
      */
     @GetMapping("/test")
-    public ResponseEntity<Map<String, String>> testConnection() {
+    public ResponseEntity<ApiResponse<String>> testConnection() {
         try {
             String result = bphtbService.testConnection();
-            Map<String, String> response = new HashMap<>();
-            response.put("status", "success");
-            response.put("message", result);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(
+                    ApiResponse.success("Connection test successful", result));
         } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("status", "error");
-            response.put("message", e.getMessage());
-            return ResponseEntity.internalServerError().body(response);
+            return ResponseEntity.internalServerError().body(
+                    ApiResponse.error("Connection test failed: " + e.getMessage()));
         }
     }
 
     /**
      * Get list of all tables
-     * GET /api/bphtb/tables
      */
     @GetMapping("/tables")
-    public ResponseEntity<List<Map<String, Object>>> getAllTables() {
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAllTables() {
         try {
             List<Map<String, Object>> tables = bphtbService.getAllTables();
-            return ResponseEntity.ok(tables);
+            return ResponseEntity.ok(
+                    ApiResponse.success("Tables retrieved successfully", tables, (long) tables.size()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(
+                    ApiResponse.error("Failed to get tables: " + e.getMessage()));
         }
     }
 
     /**
      * Get table structure
-     * GET /api/bphtb/tables/{tableName}/structure
      */
     @GetMapping("/tables/{tableName}/structure")
-    public ResponseEntity<List<Map<String, Object>>> getTableStructure(@PathVariable String tableName) {
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTableStructure(@PathVariable String tableName) {
         try {
             List<Map<String, Object>> structure = bphtbService.getTableStructure(tableName);
-            return ResponseEntity.ok(structure);
+            return ResponseEntity.ok(
+                    ApiResponse.success("Structure for table " + tableName + " retrieved", structure,
+                            (long) structure.size()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(
+                    ApiResponse.error("Failed to get table structure: " + e.getMessage()));
         }
     }
 
     /**
      * Get table row count
-     * GET /api/bphtb/tables/{tableName}/count
      */
     @GetMapping("/tables/{tableName}/count")
-    public ResponseEntity<Map<String, Object>> getTableRowCount(@PathVariable String tableName) {
+    public ResponseEntity<ApiResponse<Long>> getTableRowCount(@PathVariable String tableName) {
         try {
             Long count = bphtbService.getTableRowCount(tableName);
-            Map<String, Object> response = new HashMap<>();
-            response.put("table_name", tableName);
-            response.put("row_count", count);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(
+                    ApiResponse.success("Row count for table " + tableName + " retrieved", count));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(
+                    ApiResponse.error("Failed to get row count: " + e.getMessage()));
         }
     }
 
     /**
      * Get sample data from table
-     * GET /api/bphtb/tables/{tableName}/sample?limit=10
      */
     @GetMapping("/tables/{tableName}/sample")
-    public ResponseEntity<List<Map<String, Object>>> getSampleData(
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getSampleData(
             @PathVariable String tableName,
             @RequestParam(defaultValue = "10") int limit) {
         try {
             List<Map<String, Object>> data = bphtbService.getSampleData(tableName, limit);
-            return ResponseEntity.ok(data);
+            return ResponseEntity.ok(
+                    ApiResponse.success("Sample data from " + tableName + " retrieved", data, (long) data.size()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(
+                    ApiResponse.error("Failed to get sample data: " + e.getMessage()));
         }
     }
 }

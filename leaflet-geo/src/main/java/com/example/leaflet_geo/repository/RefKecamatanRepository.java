@@ -1,6 +1,6 @@
 package com.example.leaflet_geo.repository;
 
-import com.example.leaflet_geo.entity.RefKecamatan;
+import com.example.leaflet_geo.model.RefKecamatan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;

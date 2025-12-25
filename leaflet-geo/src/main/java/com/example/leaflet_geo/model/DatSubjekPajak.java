@@ -1,4 +1,4 @@
-package com.example.leaflet_geo.entity;
+package com.example.leaflet_geo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class DatSubjekPajak {
     private String statusPekerjaanWp;
     private String npwpd;
     private String email;
-    
+
     // Reference data
     private String nmKecamatan;
     private String nmKelurahan;

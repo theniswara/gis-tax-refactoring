@@ -1,6 +1,6 @@
 package com.example.leaflet_geo.repository;
 
-import com.example.leaflet_geo.entity.Bidang;
+import com.example.leaflet_geo.model.Bidang;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

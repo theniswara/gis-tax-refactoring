@@ -1,4 +1,4 @@
-package com.example.leaflet_geo.entity;
+package com.example.leaflet_geo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,7 +45,7 @@ public class DatObjekPajak {
     private String keteranganSpop;
     private String latitude;
     private String longitude;
-    
+
     // Reference data
     private String nmKecamatan;
     private String nmKelurahan;
