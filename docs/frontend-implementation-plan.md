@@ -587,6 +587,14 @@ git push -u origin refactor/complete-restructure
 ```
 
 ## Langkah 10.5: Create Pull Request
+1. Buka repository di GitHub/GitLab
+2. Masuk ke tab **Pull Requests**
+3. Klik **New Pull Request**
+4. Pilih `base: main` ← `compare: refactor/complete-restructure`
+5. Judul: `refactor: restructure frontend folders to match university-frontend`
+6. Deskripsi: Jelaskan perubahan yang dilakukan (move guards, services, etc)
+7. Request review dari tim
+8. Tunggu approval & Merge
 
 ---
 
