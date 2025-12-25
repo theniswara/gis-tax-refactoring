@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { PendapatanService } from '../../core/services/pendapatan.service';
+import { PendapatanService } from '../../services/pendapatan.service';
 import { DashboardSummary, TargetRealisasi, TrendBulanan, TopKontributor } from '../../core/models/pendapatan.model';
 
 @Component({

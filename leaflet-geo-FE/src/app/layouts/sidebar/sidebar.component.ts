@@ -6,7 +6,7 @@ import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { RestApiService } from 'src/app/core/services/rest-api.service';
+import { RestApiService } from 'src/app/services/rest-api.service';
 import { Store } from '@ngrx/store';
 import { selectMenuItems } from 'src/app/store/menu/menu.selector';
 import { cloneDeep } from 'lodash';

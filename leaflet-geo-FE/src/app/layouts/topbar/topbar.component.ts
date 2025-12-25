@@ -4,12 +4,12 @@ import { EventService } from '../../shared/services/event.service';
 
 //Logout
 import { environment } from '../../../environments/environment';
-import { AuthenticationService } from '../../core/services/auth.service';
+import { AuthenticationService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 // Language
 import { CookieService } from 'ngx-cookie-service';
-import { LanguageService } from '../../core/services/language.service';
+import { LanguageService } from '../../services/language.service';
 import { TranslateService } from '@ngx-translate/core';
 import { allNotification, messages } from './data'
 import { CartModel } from './topbar.model';
@@ -17,7 +17,7 @@ import { cartData } from './data';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
-import { TranslationSyncService } from 'src/app/core/services/translation-sync.service';
+import { TranslationSyncService } from 'src/app/services/translation-sync.service';
 
 @Component({
   selector: 'app-topbar',

@@ -5,10 +5,10 @@ import { from, Observable, of } from 'rxjs';
 import { map, switchMap, catchError, take } from 'rxjs/operators';
 
 // Auth Services
-import { AuthenticationService } from '../../services/auth.service';
-import { RestApiService } from 'src/app/services/rest-api.service';
+import { AuthenticationService } from '../services/auth.service';
+import { RestApiService } from '../services/rest-api.service';
 import { setUser } from 'src/app/store/auth/auth.action';
-import { RemoteConfigService } from '../../services/remote-config.service';
+import { RemoteConfigService } from '../services/remote-config.service';
 import { setMenu } from 'src/app/store/menu/menu.action';
 import { MENU } from 'src/app/layouts/sidebar/menu';
 import { selectCurrentUser } from 'src/app/store/auth/auth.selector';

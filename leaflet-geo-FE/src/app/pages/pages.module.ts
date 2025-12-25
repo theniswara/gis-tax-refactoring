@@ -35,7 +35,6 @@ import { SubSectionComponent } from './master-data/sub-section/sub-section.compo
 import { OrganizationComponent as OrganizationMasterComponent } from './master-data/organization/organization.component';
 import { EmailRecipientComponent } from './master-data/email-recipient/email-recipient.component';
 
-
 @NgModule({
   declarations: [
     AppListComponent,

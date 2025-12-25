@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layouts/layout.component';
 
 // Auth
-import { AuthGuard } from './core/guards/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   {
