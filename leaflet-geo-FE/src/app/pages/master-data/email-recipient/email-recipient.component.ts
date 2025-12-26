@@ -5,7 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { firstValueFrom, Observable, Subscription, Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
-import { MasterEmailRecipient } from 'src/app/core/models/master';
+import { MasterEmailRecipient } from 'src/app/models/master';
 import { RestApiService } from 'src/app/services/rest-api.service';
 import { ListjsService } from 'src/app/shared/services/listjs.service';
 import { ModalService } from 'src/app/shared/services/modal.service';

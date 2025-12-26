@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { DashboardSummary, TargetRealisasi, TrendBulanan, TopKontributor } from '../core/models/pendapatan.model';
+import { DashboardSummary, TargetRealisasi, TrendBulanan, TopKontributor } from '../models/pendapatan.model';
 
 @Injectable({
   providedIn: 'root'

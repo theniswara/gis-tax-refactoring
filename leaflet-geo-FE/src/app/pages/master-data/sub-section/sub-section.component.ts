@@ -11,7 +11,7 @@ import {
   CreateSubSectionRequest,
   MasterLine,
   MasterGroup
-} from 'src/app/core/models/master';
+} from 'src/app/models/master';
 import { RestApiService } from 'src/app/services/rest-api.service';
 import { ListjsService } from 'src/app/shared/services/listjs.service';
 import { ModalService } from 'src/app/shared/services/modal.service';

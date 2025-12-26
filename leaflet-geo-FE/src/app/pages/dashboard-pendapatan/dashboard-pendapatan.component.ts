@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { PendapatanService } from '../../services/pendapatan.service';
-import { DashboardSummary, TargetRealisasi, TrendBulanan, TopKontributor } from '../../core/models/pendapatan.model';
+import { DashboardSummary, TargetRealisasi, TrendBulanan, TopKontributor } from '../../models/pendapatan.model';
 
 @Component({
   selector: 'app-dashboard-pendapatan',
