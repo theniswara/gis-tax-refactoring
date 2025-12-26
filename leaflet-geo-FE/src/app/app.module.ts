@@ -3,8 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgPipesModule } from 'ngx-pipes';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LayoutsModule } from './components/layouts/layouts.module';
-import { PagesModule } from './pages/pages.module';
+import { LayoutsModule } from './layouts/layouts.module';
+import { PagesModule } from './features/pages.module';
 import {
   HttpClient,
   HTTP_INTERCEPTORS,
