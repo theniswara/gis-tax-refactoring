@@ -1,4 +1,4 @@
-package com.example.leaflet_geo.dto;
+package com.example.leaflet_geo.dto.auth;
 
 import lombok.Builder;
 import lombok.Data;
