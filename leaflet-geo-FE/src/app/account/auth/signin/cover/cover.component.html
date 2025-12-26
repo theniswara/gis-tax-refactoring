@@ -77,20 +77,18 @@
             <!-- Login Form -->
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
               <div class="mb-3">
-                <label class="form-label text-muted" for="employeeCode">Employee Code:</label>
+                <label class="form-label text-muted" for="username">Username:</label>
                 <input type="text"
                        class="form-control"
-                       id="employeeCode"
-                       formControlName="employeeCode"
-                       [ngClass]="{ 'is-invalid': submitted && f['employeeCode'].errors }"
-                       placeholder="Enter your employee code"
+                       id="username"
+                       formControlName="username"
+                       [ngClass]="{ 'is-invalid': submitted && f['username'].errors }"
+                       placeholder="Enter your username"
                        style="border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 14px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 4px 15px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3); transition: all 0.2s ease;">
-                @if (submitted && f['employeeCode'].errors) {
+                @if (submitted && f['username'].errors) {
                   <div class="invalid-feedback">
-                    @if(f['employeeCode'].errors['required']){
-                      <div>employee code is required</div>}
-                    @if(f['employeeCode'].errors['employeeCode']){
-                      <div>employee code must be a valid</div>}
+                    @if(f['username'].errors['required']){
+                      <div>Username is required</div>}
                   </div>
                 }
               </div>
