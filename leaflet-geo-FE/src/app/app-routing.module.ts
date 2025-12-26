@@ -10,6 +10,7 @@ const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [AuthGuard],  // Added AuthGuard here
     children: [
       { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./features/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
@@ -17,8 +18,8 @@ const routes: Routes = [
       { path: '', loadChildren: () => import('./features/pages.module').then(m => m.PagesModule) }
     ]
   },
-  { path: 'auth', loadChildren: () => import('./account/account.module').then(m => m.AccountModule)  },
-  { path: 'pages', loadChildren: () => import('./extraspages/extraspages.module').then(m => m.ExtraspagesModule)},
+  { path: 'auth', loadChildren: () => import('./account/account.module').then(m => m.AccountModule) },
+  { path: 'pages', loadChildren: () => import('./extraspages/extraspages.module').then(m => m.ExtraspagesModule) },
   {
     path: 'countdown-display',
     loadChildren: () => import('./features/countdown-display/countdown-display.module').then(m => m.CountdownDisplayModule)
