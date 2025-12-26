@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { MENU } from './layouts/sidebar/menu';
+import { MENU } from './components/layouts/sidebar/menu';
 import { setMenu } from './store/menu/menu.action';
 import { firstValueFrom } from 'rxjs';
 import { RestApiService } from './services/rest-api.service';
