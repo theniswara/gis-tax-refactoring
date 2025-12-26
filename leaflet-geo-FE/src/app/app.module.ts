@@ -16,8 +16,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from '../environments/environment';
 
 // Interceptor
-import { HttpInterceptorService } from './core/helpers/http.interceptor';
-import { ErrorInterceptor } from './core/helpers/error.interceptor';
+import { HttpInterceptorService } from './interceptors/http.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 // Language
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
