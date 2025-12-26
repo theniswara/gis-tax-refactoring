@@ -25,7 +25,7 @@ import lottie from 'lottie-web';
 import { PagesRoutingModule } from "./pages-routing.module";
 import { SharedModule } from "../shared/shared.module";
 import { AppListComponent } from './app-list/app-list.component';
-import { FeatherIconsModule } from '../shared-modules/feather-icons.module';
+import { FeatherIconsModule } from '../shared/feather-icons.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { OrganizationComponent } from './organization/organization.component';
 import { GroupComponent } from './master-data/group/group.component';
