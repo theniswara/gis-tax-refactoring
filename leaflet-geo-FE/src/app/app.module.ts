@@ -30,7 +30,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { fetchUserInitializer } from './core/factories/fetch-user.factory'
+import { fetchUserInitializer } from './factories/fetch-user.factory'
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RestApiService } from './services/rest-api.service';
