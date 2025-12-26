@@ -1,9 +1,9 @@
-import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule, Component } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgPipesModule } from 'ngx-pipes';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LayoutsModule } from './layouts/layouts.module';
+import { LayoutsModule } from './components/layouts/layouts.module';
 import { PagesModule } from './pages/pages.module';
 import {
   HttpClient,

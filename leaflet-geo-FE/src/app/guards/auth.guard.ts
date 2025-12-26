@@ -10,7 +10,7 @@ import { RestApiService } from '../services/rest-api.service';
 import { setUser } from 'src/app/store/auth/auth.action';
 import { RemoteConfigService } from '../services/remote-config.service';
 import { setMenu } from 'src/app/store/menu/menu.action';
-import { MENU } from 'src/app/layouts/sidebar/menu';
+import { MENU } from 'src/app/components/layouts/sidebar/menu';
 import { selectCurrentUser } from 'src/app/store/auth/auth.selector';
 
 @Injectable({ providedIn: 'root' })
