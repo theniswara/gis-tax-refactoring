@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { trigger, state, style, transition, animate, query, stagger, keyframes } from '@angular/animations';
 import { RestApiService } from '../../services/rest-api.service';
-import { CountdownEvent } from '../../core/models/countdown-event.model';
+import { CountdownEvent } from '../../models/countdown-event.model';
 import { interval, Subscription } from 'rxjs';
 import Swiper from 'swiper';
 import { Autoplay } from 'swiper/modules';

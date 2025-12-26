@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { firstValueFrom, Observable, Subscription, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { MasterLine } from 'src/app/core/models/master';
+import { MasterLine } from 'src/app/models/master';
 import { RestApiService } from 'src/app/services/rest-api.service';
 import { ListjsService } from 'src/app/shared/services/listjs.service';
 import { ModalService } from 'src/app/shared/services/modal.service';
