@@ -570,14 +570,15 @@ public class BidangController {
     }
 
     /**
-     * Get kecamatan with count from PostgreSQL and names from Oracle
+     * Get kecamatan with count from PostgreSQL
+     * Uses system.kecamatan for names and sig.bidang for counts
      */
     @GetMapping("/kecamatan-with-count/{kdProp}/{kdDati2}")
     public ResponseEntity<Map<String, Object>> getKecamatanWithCount(
             @PathVariable String kdProp,
             @PathVariable String kdDati2) {
         try {
-            // Step 1: Get count from PostgreSQL
+            // Step 1: Get count from sig.bidang
             List<Map<String, Object>> countData = postgresJdbcTemplate.queryForList(
                     "SELECT kd_kec, COUNT(*) as jumlah_bidang FROM sig.bidang WHERE kd_prop = ? AND kd_dati2 = ? AND is_active = true GROUP BY kd_kec ORDER BY kd_kec",
                     kdProp, kdDati2);
@@ -587,25 +588,25 @@ public class BidangController {
             for (Map<String, Object> row : countData) {
                 String kdKec = (String) row.get("kd_kec");
                 Integer count = ((Number) row.get("jumlah_bidang")).intValue();
-                countMap.put(kdKec, count);
+                countMap.put(kdKec.trim(), count);
             }
 
-            // Step 2: Get names from Oracle
-            List<Map<String, Object>> kecamatanData = oracleJdbcTemplate.queryForList(
-                    "SELECT KD_PROPINSI, KD_DATI2, KD_KECAMATAN, NM_KECAMATAN FROM SYSTEM.REF_KECAMATAN WHERE KD_PROPINSI = ? AND KD_DATI2 = ? ORDER BY KD_KECAMATAN",
+            // Step 2: Get names from PostgreSQL system.kecamatan
+            List<Map<String, Object>> kecamatanData = postgresJdbcTemplate.queryForList(
+                    "SELECT kd_prop, kd_dati2, kd_kec, nama FROM system.kecamatan WHERE kd_prop = ? AND kd_dati2 = ? AND is_active = true ORDER BY kd_kec",
                     kdProp, kdDati2);
 
-            // Step 3: Combine data with logic
+            // Step 3: Combine data
             List<Map<String, Object>> result = new ArrayList<>();
             for (Map<String, Object> kecamatan : kecamatanData) {
-                String kdKec = (String) kecamatan.get("KD_KECAMATAN");
+                String kdKec = ((String) kecamatan.get("kd_kec")).trim();
                 Integer count = countMap.getOrDefault(kdKec, 0);
 
                 Map<String, Object> combined = new HashMap<>();
-                combined.put("kdPropinsi", kecamatan.get("KD_PROPINSI"));
-                combined.put("kdDati2", kecamatan.get("KD_DATI2"));
+                combined.put("kdPropinsi", ((String) kecamatan.get("kd_prop")).trim());
+                combined.put("kdDati2", ((String) kecamatan.get("kd_dati2")).trim());
                 combined.put("kdKecamatan", kdKec);
-                combined.put("nmKecamatan", kecamatan.get("NM_KECAMATAN"));
+                combined.put("nmKecamatan", kecamatan.get("nama"));
                 combined.put("jumlahBidang", count);
 
                 result.add(combined);
@@ -624,7 +625,8 @@ public class BidangController {
     }
 
     /**
-     * Get kelurahan with count from PostgreSQL and names from Oracle
+     * Get kelurahan with count from PostgreSQL
+     * Uses system.kelurahan for names and sig.bidang for counts
      */
     @GetMapping("/kelurahan-with-count/{kdProp}/{kdDati2}/{kdKec}")
     public ResponseEntity<Map<String, Object>> getKelurahanWithCount(
@@ -632,7 +634,7 @@ public class BidangController {
             @PathVariable String kdDati2,
             @PathVariable String kdKec) {
         try {
-            // Step 1: Get count from PostgreSQL
+            // Step 1: Get count from sig.bidang
             List<Map<String, Object>> countData = postgresJdbcTemplate.queryForList(
                     "SELECT kd_kel, COUNT(*) as jumlah_bidang FROM sig.bidang WHERE kd_prop = ? AND kd_dati2 = ? AND kd_kec = ? AND is_active = true GROUP BY kd_kel ORDER BY kd_kel",
                     kdProp, kdDati2, kdKec);
@@ -642,26 +644,26 @@ public class BidangController {
             for (Map<String, Object> row : countData) {
                 String kdKel = (String) row.get("kd_kel");
                 Integer count = ((Number) row.get("jumlah_bidang")).intValue();
-                countMap.put(kdKel, count);
+                countMap.put(kdKel.trim(), count);
             }
 
-            // Step 2: Get names from Oracle
-            List<Map<String, Object>> kelurahanData = oracleJdbcTemplate.queryForList(
-                    "SELECT KD_PROPINSI, KD_DATI2, KD_KECAMATAN, KD_KELURAHAN, NM_KELURAHAN FROM SYSTEM.REF_KELURAHAN WHERE KD_PROPINSI = ? AND KD_DATI2 = ? AND KD_KECAMATAN = ? ORDER BY KD_KELURAHAN",
+            // Step 2: Get names from PostgreSQL system.kelurahan
+            List<Map<String, Object>> kelurahanData = postgresJdbcTemplate.queryForList(
+                    "SELECT kd_prop, kd_dati2, kd_kec, kd_kel, nama FROM system.kelurahan WHERE kd_prop = ? AND kd_dati2 = ? AND kd_kec = ? AND is_active = true ORDER BY kd_kel",
                     kdProp, kdDati2, kdKec);
 
-            // Step 3: Combine data with logic
+            // Step 3: Combine data
             List<Map<String, Object>> result = new ArrayList<>();
             for (Map<String, Object> kelurahan : kelurahanData) {
-                String kdKel = (String) kelurahan.get("KD_KELURAHAN");
+                String kdKel = ((String) kelurahan.get("kd_kel")).trim();
                 Integer count = countMap.getOrDefault(kdKel, 0);
 
                 Map<String, Object> combined = new HashMap<>();
-                combined.put("kdPropinsi", kelurahan.get("KD_PROPINSI"));
-                combined.put("kdDati2", kelurahan.get("KD_DATI2"));
-                combined.put("kdKecamatan", kelurahan.get("KD_KECAMATAN"));
+                combined.put("kdPropinsi", ((String) kelurahan.get("kd_prop")).trim());
+                combined.put("kdDati2", ((String) kelurahan.get("kd_dati2")).trim());
+                combined.put("kdKecamatan", ((String) kelurahan.get("kd_kec")).trim());
                 combined.put("kdKelurahan", kdKel);
-                combined.put("nmKelurahan", kelurahan.get("NM_KELURAHAN"));
+                combined.put("nmKelurahan", kelurahan.get("nama"));
                 combined.put("jumlahBidang", count);
 
                 result.add(combined);
