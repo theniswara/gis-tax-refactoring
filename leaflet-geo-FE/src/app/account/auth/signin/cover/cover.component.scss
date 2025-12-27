@@ -1,5 +1,5 @@
 // SIG PBB Login Page Styles
-// Clean, professional government theme
+// Uses theme colors: primary (#155034) and success (#0ab39c)
 
 .auth-page-wrapper {
   min-height: 100vh;
@@ -10,13 +10,13 @@
   min-height: 100vh;
 }
 
-// Form inputs
+// Form inputs - use theme colors
 .form-control {
   transition: all 0.2s ease;
 
   &:focus {
-    border-color: #159895 !important;
-    box-shadow: 0 0 0 3px rgba(21, 152, 149, 0.15) !important;
+    border-color: var(--vz-primary) !important;
+    box-shadow: 0 0 0 3px rgba(var(--vz-primary-rgb), 0.15) !important;
   }
 
   &::placeholder {
@@ -30,7 +30,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(26, 95, 122, 0.5) !important;
+    box-shadow: 0 6px 20px rgba(21, 80, 52, 0.5) !important;
   }
 
   &:active {
@@ -48,6 +48,7 @@
     opacity: 0;
     transform: translate(-50%, -20px);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -64,6 +65,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -93,7 +95,7 @@
   }
 
   .col-lg-6:last-child {
-    background: linear-gradient(180deg, #1a5f7a 0%, #159895 30%, #f8f9fa 30%) !important;
+    background: linear-gradient(180deg, #155034 0%, #0ab39c 30%, #f8f9fa 30%) !important;
   }
 }
 
@@ -104,5 +106,5 @@
 
 // Form control focus within
 .position-relative:focus-within .form-control {
-  border-color: #159895 !important;
+  border-color: var(--vz-primary) !important;
 }

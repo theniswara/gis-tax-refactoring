@@ -22,7 +22,7 @@
 
         <!-- Left Column - Map/Branding Section -->
         <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center position-relative"
-          style="background: linear-gradient(135deg, #1a5f7a 0%, #159895 50%, #57c5b6 100%);">
+          style="background: linear-gradient(135deg, #155034 0%, #0ab39c 100%);">
 
           <!-- Background Pattern -->
           <div class="position-absolute w-100 h-100" style="opacity: 0.1;">
@@ -50,13 +50,6 @@
               <small>Badan Pendapatan Daerah</small>
             </p>
 
-            <!-- Map Preview Image -->
-            <div class="mx-auto mb-4"
-              style="max-width: 350px; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-              <img src="assets/images/map-preview.png" alt="Map Preview" class="w-100"
-                style="height: 180px; object-fit: cover;" onerror="this.style.display='none'">
-            </div>
-
             <p class="small" style="opacity: 0.7;">
               Pemetaan Objek Pajak Berbasis GIS
             </p>
@@ -71,11 +64,11 @@
             <!-- Logo & Title -->
             <div class="text-center mb-5">
               <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
-                <img src="assets/images/logo-pemda.png" alt="Logo Pemda" style="height: 60px; width: auto;"
-                  onerror="this.src='assets/images/favicon.ico'">
+                <!-- Use project's logo -->
+                <img src="assets/images/logo-sm.png" alt="Logo" style="height: 50px; width: auto;">
                 <div class="text-start">
-                  <h5 class="mb-0 fw-bold text-dark">BPRD</h5>
-                  <small class="text-muted">Kabupaten Lumajang</small>
+                  <h5 class="mb-0 fw-bold" style="color: #155034;">SIG PBB</h5>
+                  <small class="text-muted">Sistem Informasi Geografis</small>
                 </div>
               </div>
               <hr class="my-4">
@@ -128,10 +121,10 @@
                 </div>
               </div>
 
-              <!-- Login Button -->
+              <!-- Login Button - Uses primary green color -->
               <div class="mb-4">
                 <button class="btn btn-lg w-100 text-white fw-semibold" type="submit"
-                  style="background: linear-gradient(135deg, #1a5f7a 0%, #159895 100%); border: none; border-radius: 10px; padding: 14px; font-size: 16px; box-shadow: 0 4px 15px rgba(26, 95, 122, 0.4); transition: all 0.3s ease;">
+                  style="background: linear-gradient(135deg, #155034 0%, #0ab39c 100%); border: none; border-radius: 10px; padding: 14px; font-size: 16px; box-shadow: 0 4px 15px rgba(21, 80, 52, 0.4); transition: all 0.3s ease;">
                   <i class="ri-login-box-line me-2"></i> Masuk
                 </button>
               </div>
@@ -141,7 +134,7 @@
             <!-- Footer -->
             <div class="text-center mt-5">
               <p class="text-muted small mb-1">
-                <i class="ri-copyright-line"></i> {{ year }} BPRD Kabupaten Lumajang
+                <i class="ri-copyright-line"></i> {{ year }} Badan Pendapatan Daerah
               </p>
               <p class="text-muted small mb-0" style="font-size: 11px;">
                 Sistem Informasi Geografis PBB v2.0
