@@ -11,7 +11,7 @@ import { MasterOrganization, PagingModel } from '../models/master.models';
 export class RestApiService {
     apiUrl = environment.apiUrl + "api/";
     public baseUrl = environment.apiUrl;
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     downloadFile(url: string): Observable<Blob> {
         return this.http.get(url, { responseType: "blob" });
@@ -29,9 +29,8 @@ export class RestApiService {
         const params = new HttpParams({ fromObject: query });
 
         // Use template literals for constructing the URL
-        const fullUrl = `${this.apiUrl}menu${
-            params.toString() ? "?" + params.toString() : ""
-        }`;
+        const fullUrl = `${this.apiUrl}menu${params.toString() ? "?" + params.toString() : ""
+            }`;
 
         return this.http.get(fullUrl);
     }
@@ -40,9 +39,8 @@ export class RestApiService {
         const params = new HttpParams({ fromObject: query });
 
         // Use template literals for constructing the URL
-        const fullUrl = `${this.apiUrl}remote-app${
-            params.toString() ? "?" + params.toString() : ""
-        }`;
+        const fullUrl = `${this.apiUrl}remote-app${params.toString() ? "?" + params.toString() : ""
+            }`;
 
         return this.http.get(fullUrl);
     }
@@ -605,4 +603,153 @@ export class RestApiService {
             .pipe(map((response) => response));
     }
 
+    // =====================================
+    // KECAMATAN ENDPOINTS (New Map Controllers)
+    // =====================================
+
+    /**
+     * GET /api/kecamatan/list?option=true|false
+     * @param option 'true' untuk dropdown, 'false' untuk data lengkap dengan geometry
+     */
+    getKecamatanList(option: string = 'true'): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `kecamatan/list?option=${option}`);
+    }
+
+    /**
+     * GET /api/kecamatan/view?id=xxx
+     */
+    getKecamatanView(id: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `kecamatan/view?id=${id}`);
+    }
+
+    // =====================================
+    // KELURAHAN ENDPOINTS (New Map Controllers)
+    // =====================================
+
+    /**
+     * GET /api/kelurahan/list?kd_kec=xxx&option=true|false
+     */
+    getKelurahanListByKec(kdKec: string, option: string = 'true'): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `kelurahan/list?kd_kec=${kdKec}&option=${option}`);
+    }
+
+    /**
+     * GET /api/kelurahan/view?id=xxx
+     */
+    getKelurahanView(id: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `kelurahan/view?id=${id}`);
+    }
+
+    // =====================================
+    // BLOK ENDPOINTS (New Map Controllers)
+    // =====================================
+
+    /**
+     * GET /api/blok/list?kd_kec=xxx&kd_kel=yyy
+     */
+    getBlokList(kdKec: string, kdKel: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `blok/list?kd_kec=${kdKec}&kd_kel=${kdKel}`);
+    }
+
+    /**
+     * GET /api/blok/view?id=xxx
+     */
+    getBlokView(id: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `blok/view?id=${id}`);
+    }
+
+    // =====================================
+    // PEMDA ENDPOINTS (New Map Controllers)
+    // =====================================
+
+    /**
+     * GET /api/pemda/defaultview
+     * Mengembalikan koordinat default peta
+     */
+    getPemdaDefaultView(): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `pemda/defaultview`);
+    }
+
+    // =====================================
+    // MAP ENDPOINTS (New Map Controllers)
+    // =====================================
+
+    /**
+     * GET /api/map/carinop?nop=xxx
+     * Cari bidang berdasarkan NOP
+     */
+    searchByNop(nop: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `map/carinop?nop=${encodeURIComponent(nop)}`);
+    }
+
+    /**
+     * GET /api/map/infonop
+     * Detail bidang dari Oracle SISMIOP
+     */
+    getInfoNop(params: {
+        id: string;
+        kd_prop: string;
+        kd_dati2: string;
+        kd_kec: string;
+        kd_kel: string;
+        kd_blok: string;
+        no_urut: string;
+        kd_jns_op: string;
+    }): Observable<any> {
+        let httpParams = new HttpParams();
+        Object.keys(params).forEach(key => {
+            httpParams = httpParams.set(key, (params as any)[key]);
+        });
+        return this.http.get<any>(this.apiUrl + `map/infonop`, { params: httpParams });
+    }
+
+    /**
+     * POST /api/map/newnop
+     * Buat bidang baru
+     */
+    createNewNop(nop: string, geometry: string): Observable<any> {
+        return this.http.post<any>(this.apiUrl + `map/newnop`, { nop, geometry });
+    }
+
+    /**
+     * POST /api/map/updatenop
+     * Update geometry bidang
+     */
+    updateNopGeometry(geometries: Array<{ id: string; geom: string }>): Observable<any> {
+        return this.http.post<any>(this.apiUrl + `map/updatenop`, { geometry: geometries });
+    }
+
+    /**
+     * POST /api/map/updatekecamatan
+     * Update geometry kecamatan
+     */
+    updateKecamatanGeometry(id: string, geom: string): Observable<any> {
+        return this.http.post<any>(this.apiUrl + `map/updatekecamatan`, { id, geom });
+    }
+
+    /**
+     * POST /api/map/updatekelurahan
+     * Update geometry kelurahan
+     */
+    updateKelurahanGeometry(id: string, geom: string): Observable<any> {
+        return this.http.post<any>(this.apiUrl + `map/updatekelurahan`, { id, geom });
+    }
+
+    /**
+     * POST /api/map/updateblok
+     * Update geometry blok
+     */
+    updateBlokGeometry(id: string, geom: string): Observable<any> {
+        return this.http.post<any>(this.apiUrl + `map/updateblok`, { id, geom });
+    }
+
+    /**
+     * GET /api/bidang/list?kd_kec=&kd_kel=&kd_blok=
+     * List bidang by kec+kel+blok (legacy format)
+     */
+    getBidangListLegacy(kdKec: string, kdKel: string, kdBlok: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `bidang/list?kd_kec=${kdKec}&kd_kel=${kdKel}&kd_blok=${kdBlok}`);
+    }
+
 }
+
