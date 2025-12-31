@@ -1,150 +1,57 @@
-<div class="auth-page-wrapper">
-  <!-- Floating Alert -->
-  <div *ngIf="alertMessage"
-    class="alert position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg text-white d-flex align-items-center justify-content-between gap-3"
-    [ngClass]="{
-      'bg-success border-success': alertType === 'success',
-      'bg-danger border-danger': alertType === 'danger'
-    }" role="alert" style="z-index: 1055; min-width: 320px; max-width: 90vw;">
-    <div class="d-flex align-items-center">
-      <strong *ngIf="alertType === 'success'">Berhasil!</strong>
-      <strong *ngIf="alertType === 'danger'">Gagal!</strong>
-      <span> - {{ alertMessage }}</span>
-    </div>
-    <button type="button" class="btn-close btn-close-white ms-2" aria-label="Close"
-      (click)="alertMessage = null"></button>
-  </div>
+<div class="auth-wrapper">
+  <div class="row g-0 min-vh-100">
 
-  <!-- Main Content -->
-  <div class="auth-page-content">
-    <div class="container-fluid p-0">
-      <div class="row g-0 min-vh-100">
+    <!-- LEFT -->
+    <div class="col-lg-6 d-none d-lg-flex position-relative auth-left">
+      <div class="overlay"></div>
 
-        <!-- Left Column - Map/Branding Section -->
-        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center position-relative"
-          style="background: linear-gradient(135deg, #155034 0%, #0ab39c 100%);">
-
-          <!-- Background Pattern -->
-          <div class="position-absolute w-100 h-100" style="opacity: 0.1;">
-            <div
-              style="position: absolute; top: 10%; left: 5%; width: 200px; height: 200px; border: 3px solid white; border-radius: 50%;">
-            </div>
-            <div
-              style="position: absolute; top: 60%; right: 10%; width: 150px; height: 150px; border: 2px solid white; border-radius: 50%;">
-            </div>
-            <div
-              style="position: absolute; bottom: 20%; left: 15%; width: 100px; height: 100px; border: 2px solid white; border-radius: 50%;">
-            </div>
-          </div>
-
-          <div class="text-center text-white position-relative p-5" style="max-width: 500px;">
-            <!-- Map Icon/Image -->
-            <div class="mb-4">
-              <i class="ri-map-pin-line" style="font-size: 80px; opacity: 0.9;"></i>
-            </div>
-
-            <h2 class="fw-bold mb-3" style="letter-spacing: 2px;">SIG PBB</h2>
-            <h4 class="mb-4" style="font-weight: 300;">Sistem Informasi Geografis</h4>
-            <p class="lead mb-4" style="opacity: 0.9; font-size: 1rem;">
-              Pajak Bumi dan Bangunan<br>
-              <small>Badan Pendapatan Daerah</small>
-            </p>
-
-            <p class="small" style="opacity: 0.7;">
-              Pemetaan Objek Pajak Berbasis GIS
-            </p>
-          </div>
+      <!-- Logo Top Left -->
+      <div class="position-absolute top-0 start-0 p-4 text-white d-flex align-items-center gap-2">
+        <img src="assets/images/logo-dark.png" alt="Logo SIG PBB" class="auth-logo">
+        <div class="lh-sm">
+          <div class="fw-bold fs-4">BPRD</div>
+          <small class=" fw-semibold fs-6">Pemerintah Kabupaten Lumajang</small>
         </div>
+      </div>
 
-        <!-- Right Column - Login Form -->
-        <div class="col-lg-6 d-flex align-items-center justify-content-center" style="background: #f8f9fa;">
-
-          <div class="p-4 p-md-5" style="max-width: 420px; width: 100%;">
-
-            <!-- Logo & Title -->
-            <div class="text-center mb-5">
-              <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
-                <!-- Use project's logo -->
-                <img src="assets/images/logo-sm.png" alt="Logo" style="height: 50px; width: auto;">
-                <div class="text-start">
-                  <h5 class="mb-0 fw-bold" style="color: #155034;">SIG PBB</h5>
-                  <small class="text-muted">Sistem Informasi Geografis</small>
-                </div>
-              </div>
-              <hr class="my-4">
-              <h4 class="text-dark mb-1">Selamat Datang</h4>
-              <p class="text-muted mb-0">Silakan masuk untuk melanjutkan</p>
-            </div>
-
-            <!-- Login Form -->
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-
-              <!-- Username Field -->
-              <div class="mb-4">
-                <label class="form-label fw-medium text-dark" for="username">
-                  <i class="ri-user-line me-1"></i> Username
-                </label>
-                <input type="text" class="form-control form-control-lg" id="username" formControlName="username"
-                  [ngClass]="{ 'is-invalid': submitted && f['username'].errors }" placeholder="Masukkan username"
-                  style="border-radius: 10px; border: 2px solid #e0e0e0; padding: 12px 16px;">
-                @if (submitted && f['username'].errors) {
-                <div class="invalid-feedback">
-                  @if(f['username'].errors['required']){
-                  <div>Username wajib diisi</div>}
-                </div>
-                }
-              </div>
-
-              <!-- Password Field -->
-              <div class="mb-4">
-                <label class="form-label fw-medium text-dark" for="password-input">
-                  <i class="ri-lock-line me-1"></i> Kata Sandi
-                </label>
-                <div class="position-relative">
-                  <input [type]="fieldTextType ? 'text' : 'password'" class="form-control form-control-lg"
-                    placeholder="Masukkan kata sandi" id="password-input" formControlName="password"
-                    [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
-                    style="border-radius: 10px; border: 2px solid #e0e0e0; padding: 12px 16px; padding-right: 50px;">
-                  <button
-                    class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none text-muted pe-3"
-                    type="button" (click)="toggleFieldTextType()" style="z-index: 5;">
-                    <i class="mdi fs-5"
-                      [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}">
-                    </i>
-                  </button>
-                  @if (submitted && f['password'].errors) {
-                  <div class="invalid-feedback">
-                    @if(f['password'].errors['required']){
-                    <span>Kata sandi wajib diisi</span>}
-                  </div>
-                  }
-                </div>
-              </div>
-
-              <!-- Login Button - Uses primary green color -->
-              <div class="mb-4">
-                <button class="btn btn-lg w-100 text-white fw-semibold" type="submit"
-                  style="background: linear-gradient(135deg, #155034 0%, #0ab39c 100%); border: none; border-radius: 10px; padding: 14px; font-size: 16px; box-shadow: 0 4px 15px rgba(21, 80, 52, 0.4); transition: all 0.3s ease;">
-                  <i class="ri-login-box-line me-2"></i> Masuk
-                </button>
-              </div>
-
-            </form>
-
-            <!-- Footer -->
-            <div class="text-center mt-5">
-              <p class="text-muted small mb-1">
-                <i class="ri-copyright-line"></i> {{ year }} Badan Pendapatan Daerah
-              </p>
-              <p class="text-muted small mb-0" style="font-size: 11px;">
-                Sistem Informasi Geografis PBB v2.0
-              </p>
-            </div>
-
-          </div>
-        </div>
-
+      <!-- Text bottom -->
+      <div class="position-absolute bottom-0 start-0 p-5 text-white">
+        <h1 class="fw-bold display-3 text-white">SIG PBB</h1>
+        <p class="fw-bold mb-0 fs-4">Sistem Informasi Geografis Pajak Bumi dan Bangunan Badan Pendapatan Daerah</p>
       </div>
     </div>
+
+    <!-- RIGHT -->
+    <div class="col-lg-6 d-flex align-items-center justify-content-center bg-light">
+      <div class="auth-form p-4 p-md-5 w-100" style="max-width: 400px;">
+        <!-- HEADER -->
+      <div class="auth-form-header">
+        <h3 class="fw-bold fs-1 text-primary-custom">Selamat Datang</h3>
+        <p class="text-primary-custom fs-5 fw-semibold mb-0">Silahkan masuk untuk melanjutkan</p>
+      </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label class="form-label text-primary-custom">Username</label>
+            <input type="text" class="form-control custom-input rounded-sm" formControlName="username">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-primary-custom">Kata Sandi</label>
+            <input type="password" class="form-control custom-input rounded-sm" formControlName="password">
+          </div>
+
+          <button class="btn btn-success btn-lg w-100 rounded-pill">
+            Masuk
+          </button>
+        </form>
+
+        <div class="text-center mt-3 small text-muted mb-4">
+          © {{ year }} Badan Pendapatan Daerah<br>
+          SIG PBB v2.0
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
