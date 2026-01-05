@@ -18,6 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 import { TranslationSyncService } from 'src/app/services/translation-sync.service';
+import { UtilitiesService } from 'src/app/shared/services/utilities.service';
 
 @Component({
   selector: 'app-topbar',
@@ -47,7 +48,7 @@ export class TopbarComponent implements OnInit {
 
   constructor(@Inject(DOCUMENT) private document: any, private eventService: EventService, public languageService: LanguageService, private modalService: NgbModal,
     public _cookiesService: CookieService, public translate: TranslateService, private authService: AuthenticationService,
-    private router: Router, private store: Store, private translationSyncService: TranslationSyncService) { }
+    private router: Router, private store: Store, private translationSyncService: TranslationSyncService, private utilitiesService: UtilitiesService) { }
 
   async ngOnInit(): Promise<void> {
     this.userData = await firstValueFrom(this.store.select((state: any) => state.auth.user));
@@ -314,5 +315,20 @@ export class TopbarComponent implements OnInit {
     if (this.totalNotify == 0) {
       document.querySelector('.empty-notification-elem')?.classList.remove('d-none')
     }
+  }
+
+  /**
+   * Get user initials from name
+   */
+  getInitials(name: string): string {
+    return this.utilitiesService.getInitials(name);
+  }
+
+  /**
+   * Get avatar background class based on initials
+   */
+  getAvatarClass(name: string): string {
+    const initials = this.getInitials(name);
+    return this.utilitiesService.getAvatarClass(initials);
   }
 }
