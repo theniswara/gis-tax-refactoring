@@ -30,7 +30,7 @@ public class MultipleDatabaseConfig {
     @Bean(name = "oracleDataSource")
     public DataSource oracleDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:oracle:thin:@//192.178.10.101:1521/SISMIOP")
+                .url("jdbc:oracle:thin:@//localhost:1521/FREEPDB1")
                 .username("PBB")
                 .password("PBB")
                 .driverClassName("oracle.jdbc.OracleDriver")
