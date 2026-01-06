@@ -117,8 +117,113 @@
         </div>
 
         <!-- Map Container -->
-        <div class="map-container">
+        <div class="map-container position-relative">
           <div #mapContainer class="leaflet-container"></div>
+
+          <!-- Layer Legend Panel -->
+          <div class="layer-legend-panel" *ngIf="showLayerLegend">
+            <div class="legend-header">
+              <i class="ri-stack-line me-1"></i>
+              <span>Layer Control</span>
+              <button class="btn btn-sm btn-link p-0 ms-auto" (click)="toggleLayerLegend()">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+            <div class="legend-body">
+              <!-- Overlay Layers -->
+              <div class="legend-section">
+                <small class="text-muted fw-bold">Overlay Layers</small>
+
+                <!-- Batas Kecamatan -->
+                <div class="legend-item">
+                  <label class="d-flex align-items-center">
+                    <input type="checkbox" [(ngModel)]="layerVisibility.batasKecamatan"
+                      (change)="toggleLayerVisibility('batasKecamatan')" class="form-check-input me-2">
+                    <span>Batas Kecamatan</span>
+                  </label>
+                  <input type="range" class="form-range" min="0" max="1" step="0.1"
+                    [(ngModel)]="layerOpacity.batasKecamatan"
+                    (ngModelChange)="updateLayerOpacity('batasKecamatan', $event)">
+                </div>
+
+                <!-- Batas Kelurahan -->
+                <div class="legend-item" *ngIf="kelurahanBoundariesLayer">
+                  <label class="d-flex align-items-center">
+                    <input type="checkbox" [(ngModel)]="layerVisibility.batasKelurahan"
+                      (change)="toggleLayerVisibility('batasKelurahan')" class="form-check-input me-2">
+                    <span>Batas Kelurahan</span>
+                  </label>
+                  <input type="range" class="form-range" min="0" max="1" step="0.1"
+                    [(ngModel)]="layerOpacity.batasKelurahan"
+                    (ngModelChange)="updateLayerOpacity('batasKelurahan', $event)">
+                </div>
+
+                <!-- Batas Blok -->
+                <div class="legend-item" *ngIf="blokBoundariesLayer">
+                  <label class="d-flex align-items-center">
+                    <input type="checkbox" [(ngModel)]="layerVisibility.batasBlok"
+                      (change)="toggleLayerVisibility('batasBlok')" class="form-check-input me-2">
+                    <span>Batas Blok</span>
+                  </label>
+                  <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="layerOpacity.batasBlok"
+                    (ngModelChange)="updateLayerOpacity('batasBlok', $event)">
+                </div>
+
+                <!-- Bidang -->
+                <div class="legend-item" *ngIf="bidangBoundariesLayer">
+                  <label class="d-flex align-items-center">
+                    <input type="checkbox" [(ngModel)]="layerVisibility.bidang"
+                      (change)="toggleLayerVisibility('bidang')" class="form-check-input me-2">
+                    <span>Bidang</span>
+                  </label>
+                  <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="layerOpacity.bidang"
+                    (ngModelChange)="updateLayerOpacity('bidang', $event)">
+                </div>
+              </div>
+
+              <hr class="my-2">
+
+              <!-- Base Layers -->
+              <div class="legend-section">
+                <small class="text-muted fw-bold">Base Maps</small>
+
+                <!-- Google Satellite -->
+                <div class="legend-item">
+                  <label class="d-flex align-items-center">
+                    <input type="radio" name="baseLayer" value="satellite" [(ngModel)]="selectedBaseLayer"
+                      (change)="changeBaseLayer('satellite')" class="form-check-input me-2">
+                    <span>Google Satellite</span>
+                  </label>
+                  <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="layerOpacity.satellite"
+                    (ngModelChange)="updateBaseLayerOpacity($event)">
+                </div>
+
+                <!-- Google Streets -->
+                <div class="legend-item">
+                  <label class="d-flex align-items-center">
+                    <input type="radio" name="baseLayer" value="streets" [(ngModel)]="selectedBaseLayer"
+                      (change)="changeBaseLayer('streets')" class="form-check-input me-2">
+                    <span>Google Map</span>
+                  </label>
+                </div>
+
+                <!-- OpenStreetMap -->
+                <div class="legend-item">
+                  <label class="d-flex align-items-center">
+                    <input type="radio" name="baseLayer" value="osm" [(ngModel)]="selectedBaseLayer"
+                      (change)="changeBaseLayer('osm')" class="form-check-input me-2">
+                    <span>OpenStreet Map</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer Toggle Button (when legend is hidden) -->
+          <button *ngIf="!showLayerLegend" class="layer-toggle-btn" (click)="toggleLayerLegend()"
+            title="Toggle Layer Control">
+            <i class="ri-stack-line"></i>
+          </button>
         </div>
 
         <!-- Loading State -->
