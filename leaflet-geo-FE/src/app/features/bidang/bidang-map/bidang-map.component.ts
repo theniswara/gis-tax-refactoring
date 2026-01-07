@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { RestApiService } from '../../../services/rest-api.service';
 import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
 import * as L from 'leaflet';
+import 'leaflet-draw';
 
 // Interface for BPRD Bidang Detail Response
 interface BidangDetailResponse {
@@ -129,6 +130,16 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     satellite: 1
   };
 
+  // ==========================================
+  // Geometry Editing Properties
+  // ==========================================
+  editMode: 'none' | 'draw' | 'edit' | 'delete' | 'move' = 'none';
+  editableLayer: L.FeatureGroup | null = null;
+  drawControl: L.Control.Draw | null = null;
+  pendingChanges: { id: string; geom: any }[] = [];
+  isEditToolbarVisible = false;
+  selectedEditFeature: any = null;
+
   constructor(
     private restApiService: RestApiService,
     private bprdApiService: BprdApiService
@@ -201,7 +212,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
         // Basic Leaflet map initialization - Center di Lumajang
         this.map = L.map(this.mapContainer.nativeElement, {
           center: [-8.1335, 113.2246], // Koordinat Lumajang
-          zoom: 11
+          zoom: 11,
+          doubleClickZoom: false // Disable double-click zoom to allow click navigation
         });
 
         // Define base layers and store references for custom layer control
@@ -2579,5 +2591,233 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.currentBaseLayer) {
       this.currentBaseLayer.setOpacity(opacity);
     }
+  }
+
+  // ==========================================
+  // Geometry Editing Methods
+  // ==========================================
+
+  /**
+   * Initialize editable layer for drawing/editing
+   */
+  private initEditableLayer(): void {
+    if (this.map && !this.editableLayer) {
+      this.editableLayer = new L.FeatureGroup();
+      this.map.addLayer(this.editableLayer);
+      console.log('✅ Editable layer initialized');
+    }
+  }
+
+  /**
+   * Toggle edit mode (draw, edit, delete)
+   */
+  toggleEditMode(mode: 'draw' | 'edit' | 'delete' | 'move'): void {
+    if (!this.map) return;
+
+    // Initialize editable layer if needed
+    this.initEditableLayer();
+
+    // If clicking same mode, turn it off
+    if (this.editMode === mode) {
+      this.editMode = 'none';
+      this.removeDrawControl();
+      return;
+    }
+
+    // Remove existing draw control
+    this.removeDrawControl();
+
+    // Set new mode
+    this.editMode = mode;
+
+    // Setup draw control based on mode
+    if (mode === 'draw') {
+      this.setupDrawMode();
+    } else if (mode === 'edit') {
+      this.setupEditMode();
+    } else if (mode === 'delete') {
+      this.setupDeleteMode();
+    }
+  }
+
+  /**
+   * Setup draw mode for creating new polygons
+   */
+  private setupDrawMode(): void {
+    if (!this.map || !this.editableLayer) return;
+
+    this.drawControl = new (L.Control as any).Draw({
+      draw: {
+        polygon: {
+          allowIntersection: false,
+          showArea: true,
+          shapeOptions: {
+            color: '#3388ff',
+            weight: 2
+          }
+        },
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false
+      },
+      edit: false
+    });
+
+    this.map.addControl(this.drawControl as L.Control);
+
+    // Handle draw created event
+    this.map.on(L.Draw.Event.CREATED, (e: any) => {
+      const layer = e.layer;
+      this.editableLayer?.addLayer(layer);
+
+      // Add to pending changes (new bidang will have temporary ID)
+      const tempId = 'new_' + Date.now();
+      const geojson = layer.toGeoJSON();
+      this.pendingChanges.push({
+        id: tempId,
+        geom: geojson.geometry
+      });
+
+      console.log('🆕 New polygon drawn, pending save:', tempId);
+    });
+
+    console.log('✏️ Draw mode enabled');
+  }
+
+  /**
+   * Setup edit mode for modifying existing polygons
+   */
+  private setupEditMode(): void {
+    if (!this.map || !this.bidangBoundariesLayer) return;
+
+    // Copy bidang layers to editable layer for editing
+    this.bidangBoundariesLayer.eachLayer((layer: any) => {
+      if (layer.feature) {
+        const clone = L.geoJSON(layer.toGeoJSON()).getLayers()[0];
+        (clone as any).originalId = layer.feature.properties?.id;
+        this.editableLayer?.addLayer(clone);
+      }
+    });
+
+    this.drawControl = new (L.Control as any).Draw({
+      draw: false,
+      edit: {
+        featureGroup: this.editableLayer!,
+        remove: false
+      }
+    });
+
+    this.map.addControl(this.drawControl as L.Control);
+
+    // Handle edit stop event
+    this.map.on(L.Draw.Event.EDITED, (e: any) => {
+      const layers = e.layers;
+      layers.eachLayer((layer: any) => {
+        const id = layer.originalId || layer.feature?.properties?.id;
+        if (id) {
+          const geojson = layer.toGeoJSON();
+          // Check if already in pending
+          const existing = this.pendingChanges.findIndex(c => c.id === id);
+          if (existing >= 0) {
+            this.pendingChanges[existing].geom = geojson.geometry;
+          } else {
+            this.pendingChanges.push({ id, geom: geojson.geometry });
+          }
+          console.log('✏️ Polygon edited:', id);
+        }
+      });
+    });
+
+    console.log('✏️ Edit mode enabled');
+  }
+
+  /**
+   * Setup delete mode for removing polygons
+   */
+  private setupDeleteMode(): void {
+    if (!this.map || !this.bidangBoundariesLayer) return;
+
+    // Enable click to delete on bidang layer
+    this.bidangBoundariesLayer.eachLayer((layer: any) => {
+      layer.on('click', () => {
+        const id = layer.feature?.properties?.id;
+        if (id && confirm('Hapus bidang ini?')) {
+          this.pendingChanges.push({ id, geom: null }); // null = delete
+          this.bidangBoundariesLayer?.removeLayer(layer);
+          console.log('🗑️ Polygon marked for deletion:', id);
+        }
+      });
+    });
+
+    console.log('🗑️ Delete mode enabled');
+  }
+
+  /**
+   * Remove draw control from map
+   */
+  private removeDrawControl(): void {
+    if (this.drawControl && this.map) {
+      this.map.removeControl(this.drawControl as L.Control);
+      this.drawControl = null;
+    }
+
+    // Clear editable layer
+    if (this.editableLayer) {
+      this.editableLayer.clearLayers();
+    }
+
+    // Remove event listeners
+    if (this.map) {
+      this.map.off(L.Draw.Event.CREATED);
+      this.map.off(L.Draw.Event.EDITED);
+    }
+  }
+
+  /**
+   * Save all pending changes to backend
+   */
+  saveEditChanges(): void {
+    if (this.pendingChanges.length === 0) {
+      console.log('No changes to save');
+      return;
+    }
+
+    console.log('💾 Saving', this.pendingChanges.length, 'changes...');
+
+    // TODO: Implement actual API calls to backend
+    // For now, just log and clear
+    this.pendingChanges.forEach(change => {
+      if (change.geom === null) {
+        console.log('  🗑️ Delete:', change.id);
+        // this.bprdApiService.deleteBidang(change.id).subscribe(...)
+      } else if (change.id.startsWith('new_')) {
+        console.log('  🆕 Create new bidang');
+        // this.bprdApiService.createBidang(change.geom).subscribe(...)
+      } else {
+        console.log('  ✏️ Update:', change.id);
+        // this.bprdApiService.updateBidang(change.id, change.geom).subscribe(...)
+      }
+    });
+
+    // Clear pending changes and exit edit mode
+    this.pendingChanges = [];
+    this.cancelEditMode();
+
+    // Refresh map data
+    // this.refreshBidangData();
+
+    alert('Changes saved successfully! (Demo mode - not actually saved to backend)');
+  }
+
+  /**
+   * Cancel edit mode and discard changes
+   */
+  cancelEditMode(): void {
+    this.editMode = 'none';
+    this.pendingChanges = [];
+    this.removeDrawControl();
+    console.log('❌ Edit mode cancelled');
   }
 }

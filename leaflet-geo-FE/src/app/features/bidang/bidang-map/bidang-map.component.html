@@ -224,6 +224,54 @@
             title="Toggle Layer Control">
             <i class="ri-stack-line"></i>
           </button>
+
+          <!-- Edit Toolbar Panel -->
+          <div class="edit-toolbar-panel" *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'">
+            <div class="edit-toolbar-header">
+              <i class="ri-edit-2-line me-1"></i>
+              <span>Edit Tools</span>
+            </div>
+            <div class="edit-toolbar-body">
+              <!-- Draw Button -->
+              <button class="edit-btn" [class.active]="editMode === 'draw'" (click)="toggleEditMode('draw')"
+                title="Gambar Bidang Baru">
+                <i class="ri-shape-line"></i>
+                <span>Draw</span>
+              </button>
+
+              <!-- Edit Button -->
+              <button class="edit-btn" [class.active]="editMode === 'edit'" (click)="toggleEditMode('edit')"
+                title="Edit Bidang">
+                <i class="ri-edit-line"></i>
+                <span>Edit</span>
+              </button>
+
+              <!-- Delete Button -->
+              <button class="edit-btn" [class.active]="editMode === 'delete'" (click)="toggleEditMode('delete')"
+                title="Hapus Bidang">
+                <i class="ri-delete-bin-line"></i>
+                <span>Delete</span>
+              </button>
+
+              <hr class="my-2">
+
+              <!-- Save/Cancel when in edit mode -->
+              <div *ngIf="editMode !== 'none'" class="edit-actions">
+                <button class="btn btn-sm btn-success w-100 mb-2" (click)="saveEditChanges()"
+                  [disabled]="pendingChanges.length === 0">
+                  <i class="ri-save-line me-1"></i>Save
+                </button>
+                <button class="btn btn-sm btn-secondary w-100" (click)="cancelEditMode()">
+                  <i class="ri-close-line me-1"></i>Cancel
+                </button>
+              </div>
+
+              <!-- Pending changes indicator -->
+              <div *ngIf="pendingChanges.length > 0" class="pending-badge">
+                {{ pendingChanges.length }} changes pending
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Loading State -->
