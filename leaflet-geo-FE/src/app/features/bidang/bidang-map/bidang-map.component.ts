@@ -1901,18 +1901,47 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
               { level: 'blok', name: this.selectedKelurahanForDrilldown?.nama || 'Kelurahan' }
             ];
 
-            // Add to map
+            // Step 5: Create selectedBlokLayer - single polygon for this blok (like legacy layerBlok)
+            if (this.selectedBlokLayer && this.map) {
+              this.map.removeLayer(this.selectedBlokLayer);
+              this.selectedBlokLayer = null;
+            }
+
+            // Create grey-styled layer from clicked blok
+            if (blokLayer && blokLayer.toGeoJSON) {
+              const blokGeojson = blokLayer.toGeoJSON();
+              this.selectedBlokLayer = L.geoJSON(blokGeojson, {
+                style: {
+                  color: 'grey',
+                  weight: 2,
+                  fillColor: 'grey',
+                  fillOpacity: 0.15
+                }
+              });
+              if (this.map) {
+                this.selectedBlokLayer.addTo(this.map);
+                console.log(`✅ Created selectedBlokLayer for blok ${kdBlok}`);
+
+                // Fit bounds to selected blok
+                const bounds = this.selectedBlokLayer.getBounds();
+                if (bounds && bounds.isValid()) {
+                  this.map.fitBounds(bounds, { padding: [30, 30] });
+                  console.log('🔍 Fitted bounds to selected blok');
+                }
+              }
+            }
+
+            // Hide ALL blok (remove blokBoundariesLayer)
+            if (this.blokBoundariesLayer && this.map) {
+              this.map.removeLayer(this.blokBoundariesLayer);
+              this.blokBoundariesLayer = null;
+              console.log('🙈 Hidden all other blok');
+            }
+
+            // Add bidang layer to map
             this.bidangBoundariesLayer.addTo(this.map);
 
             console.log(`✅ Bidang boundaries displayed for blok ${kdBlok}`);
-
-            // Dim the blok layer
-            if (blokLayer) {
-              blokLayer.setStyle({
-                opacity: 0.3,
-                fillOpacity: 0.1
-              });
-            }
           }
         } else {
           // Close loading popup and show no data message
@@ -1984,19 +2013,39 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
    * Clear bidang drill-down and return to blok view
    */
   clearBidangView(): void {
+    // Clear bidang layer
     if (this.bidangBoundariesLayer && this.map) {
       this.map.removeLayer(this.bidangBoundariesLayer);
       this.bidangBoundariesLayer = null;
     }
 
-    // Restore blok layer style
-    if (this.blokBoundariesLayer) {
-      this.blokBoundariesLayer.resetStyle();
+    // Clear selectedBlokLayer (the single grey blok polygon)
+    if (this.selectedBlokLayer && this.map) {
+      this.map.removeLayer(this.selectedBlokLayer);
+      this.selectedBlokLayer = null;
+      console.log('🗑️ Cleared selectedBlokLayer');
     }
 
     // Reset navigation state
     this.selectedBlokForDrilldown = null;
     this.currentLevel = 'blok';
+
+    // Fit bounds to selected kelurahan
+    if (this.selectedKelurahanLayer && this.map) {
+      const bounds = this.selectedKelurahanLayer.getBounds();
+      if (bounds && bounds.isValid()) {
+        this.map.fitBounds(bounds, { padding: [30, 30] });
+        console.log('🔍 Fitted bounds to selected kelurahan');
+      }
+    }
+
+    // Reload blok boundaries for current kelurahan
+    if (this.selectedKelurahanForDrilldown) {
+      const kdKec = this.selectedKelurahanForDrilldown.kdKec;
+      const kdKel = this.selectedKelurahanForDrilldown.kdKel;
+      const kelurahanName = this.selectedKelurahanForDrilldown.nama;
+      this.loadBlokBoundaries(kdKec, kdKel, kelurahanName, null);
+    }
 
     console.log('🔙 Returned to blok view');
   }
