@@ -4,13 +4,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './components/layouts/layout.component';
 
 // Auth
-import { AuthGuard } from './guards/auth.guard';
+// import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    canActivate: [AuthGuard],  // Added AuthGuard here
+    canActivate: [],  // Added AuthGuard here
     children: [
       { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./features/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },

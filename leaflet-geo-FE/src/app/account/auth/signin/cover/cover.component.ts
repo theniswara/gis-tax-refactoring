@@ -79,68 +79,32 @@ export class CoverComponent implements OnInit {
    * Form submit - Login
    */
   async onSubmit() {
-    try {
-      this.submitted = true;
+  this.submitted = true;
 
-      // Validate input fields
-      if (!this.f['username'].value || !this.f['password'].value) {
-        return;
-      }
-
-      this.spinner.show();
-
-      // Perform Login using new backend endpoint
-      const response: ApiResponse<LoginResponse> = await firstValueFrom(
-        this.authenticationService.login(
-          this.f['username'].value,
-          this.f['password'].value
-        )
-      );
-
-      console.log('Login response:', response);
-
-      if (response.success && response.data) {
-        // Store the token in localStorage
-        this.authenticationService.storeToken(response.data.token);
-
-        // Set user data in store
-        this.store.dispatch(setUser({
-          user: {
-            nama: response.data.nama,
-            role: response.data.role,
-            idUnit: response.data.idUnit,
-            token: response.data.token
-          }
-        }));
-
-        this.alertType = 'success';
-        this.alertMessage = response.message || 'Login berhasil';
-
-        this.spinner.hide();
-        await this.router.navigate([this.returnUrl || '/']);
-      } else {
-        // Login failed
-        this.error = response.message || 'Login gagal';
-        this.alertType = 'danger';
-        this.alertMessage = this.error;
-        this.spinner.hide();
-        this.toastService.show(this.error, { classname: 'bg-danger text-white', delay: 5000 });
-      }
-    } catch (error: any) {
-      console.error('Login error:', error);
-      this.error = error.error?.message || 'Login gagal. Silakan coba lagi.';
-      this.alertType = 'danger';
-      this.alertMessage = this.error;
-      this.spinner.hide();
-      this.toastService.show(this.error, { classname: 'bg-danger text-white', delay: 5000 });
-    }
+  // 1. Validasi form
+  if (!this.f['username'].value || !this.f['password'].value) {
+    return;                 // kalau invalid, langsung keluar (spinner tidak dinyalakan)
   }
 
-  /**
-   * Password Hide/Show
-   */
-  toggleFieldTextType() {
-    this.fieldTextType = !this.fieldTextType;
+  this.spinner.show();      // 2. Tampilkan spinner
+
+  try {
+    // 3. Panggil API login (async)
+    const payload = {
+      username: this.f['username'].value,
+      password: this.f['password'].value,
+    };
+
+    // const res = await this.authService.login(payload).toPromise();
+    // 4. Tangani respon sukses (simpan token, redirect, dll)
+    // this.router.navigate(['/dashboard']);
+  } catch (err) {
+    // 5. Tangani error (tampilkan pesan ke user)
+    // this.errorMessage = 'Username atau password salah';
+  } finally {
+    // 6. Matikan spinner apapun hasilnya
+    this.spinner.hide();
   }
+}
 
 }

@@ -17,7 +17,7 @@ import { environment } from '../environments/environment';
 
 // Interceptor
 import { HttpInterceptorService } from './interceptors/http.interceptor';
-import { ErrorInterceptor } from './interceptors/error.interceptor';
+// import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 // Language
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -82,7 +82,7 @@ export function createTranslateLoader(http: HttpClient): any {
   providers: [
     DecimalPipe,
     DatePipe,
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    // { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true },
     {
       provide: APP_INITIALIZER,
