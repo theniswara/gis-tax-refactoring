@@ -1695,18 +1695,47 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
               { level: 'kelurahan', name: this.selectedKecamatanForDrilldown?.nama || 'Kecamatan' }
             ];
 
-            // Add to map
+            // Step 4: Create selectedKelurahanLayer - single polygon for this kelurahan (like legacy layerKelurahan)
+            if (this.selectedKelurahanLayer && this.map) {
+              this.map.removeLayer(this.selectedKelurahanLayer);
+              this.selectedKelurahanLayer = null;
+            }
+
+            // Create grey-styled layer from clicked kelurahan
+            if (kelurahanLayer && kelurahanLayer.toGeoJSON) {
+              const kelurahanGeojson = kelurahanLayer.toGeoJSON();
+              this.selectedKelurahanLayer = L.geoJSON(kelurahanGeojson, {
+                style: {
+                  color: 'grey',
+                  weight: 2,
+                  fillColor: 'grey',
+                  fillOpacity: 0.15
+                }
+              });
+              if (this.map) {
+                this.selectedKelurahanLayer.addTo(this.map);
+                console.log(`✅ Created selectedKelurahanLayer for ${kelurahanName}`);
+
+                // Fit bounds to selected kelurahan
+                const bounds = this.selectedKelurahanLayer.getBounds();
+                if (bounds && bounds.isValid()) {
+                  this.map.fitBounds(bounds, { padding: [30, 30] });
+                  console.log('🔍 Fitted bounds to selected kelurahan');
+                }
+              }
+            }
+
+            // Hide ALL kelurahan (remove kelurahanBoundariesLayer)
+            if (this.kelurahanBoundariesLayer && this.map) {
+              this.map.removeLayer(this.kelurahanBoundariesLayer);
+              this.kelurahanBoundariesLayer = null;
+              console.log('🙈 Hidden all other kelurahan');
+            }
+
+            // Add blok layer to map
             this.blokBoundariesLayer.addTo(this.map);
 
             console.log(`✅ Blok boundaries with count displayed for ${kelurahanName}`);
-
-            // Dim the kelurahan layer
-            if (kelurahanLayer) {
-              kelurahanLayer.setStyle({
-                opacity: 0.3,
-                fillOpacity: 0.1
-              });
-            }
           }
         } else {
           // Close loading popup and show no data message
@@ -1915,19 +1944,38 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
    * Clear blok drill-down and return to kelurahan view
    */
   clearBlokView(): void {
+    // Clear blok layer
     if (this.blokBoundariesLayer && this.map) {
       this.map.removeLayer(this.blokBoundariesLayer);
       this.blokBoundariesLayer = null;
     }
 
-    // Restore kelurahan layer style
-    if (this.kelurahanBoundariesLayer) {
-      this.kelurahanBoundariesLayer.resetStyle();
+    // Clear selectedKelurahanLayer (the single grey kelurahan polygon)
+    if (this.selectedKelurahanLayer && this.map) {
+      this.map.removeLayer(this.selectedKelurahanLayer);
+      this.selectedKelurahanLayer = null;
+      console.log('🗑️ Cleared selectedKelurahanLayer');
     }
 
     // Reset navigation state
     this.selectedKelurahanForDrilldown = null;
     this.currentLevel = 'kelurahan';
+
+    // Fit bounds to selected kecamatan
+    if (this.selectedKecamatanLayer && this.map) {
+      const bounds = this.selectedKecamatanLayer.getBounds();
+      if (bounds && bounds.isValid()) {
+        this.map.fitBounds(bounds, { padding: [30, 30] });
+        console.log('🔍 Fitted bounds to selected kecamatan');
+      }
+    }
+
+    // Reload kelurahan boundaries for current kecamatan
+    if (this.selectedKecamatanForDrilldown) {
+      const kdKec = this.selectedKecamatanForDrilldown.kdKec;
+      const kecamatanName = this.selectedKecamatanForDrilldown.nama;
+      this.loadKelurahanBoundariesWithCount(kdKec, kecamatanName);
+    }
 
     console.log('🔙 Returned to kelurahan view');
   }
