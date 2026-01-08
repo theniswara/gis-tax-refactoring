@@ -1063,9 +1063,17 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
    * Clear kelurahan drill-down and return to kecamatan view
    */
   clearKelurahanView(): void {
+    // Clear kelurahan layer
     if (this.kelurahanBoundariesLayer && this.map) {
       this.map.removeLayer(this.kelurahanBoundariesLayer);
       this.kelurahanBoundariesLayer = null;
+    }
+
+    // Step 3: Clear selectedKecamatanLayer (the single grey kecamatan polygon)
+    if (this.selectedKecamatanLayer && this.map) {
+      this.map.removeLayer(this.selectedKecamatanLayer);
+      this.selectedKecamatanLayer = null;
+      console.log('🗑️ Cleared selectedKecamatanLayer');
     }
 
     // Reset navigation state
@@ -1073,9 +1081,18 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentLevel = 'kecamatan';
     this.navigationStack = [];
 
-    // Restore kecamatan labels (no API call)
+    // Restore kecamatan labels and layer
     this.showKecamatanLabels = true;
     this.recreateKecamatanLayerFromCache();
+
+    // Fit bounds to all kecamatan
+    if (this.kecamatanBoundariesLayer && this.map) {
+      const bounds = this.kecamatanBoundariesLayer.getBounds();
+      if (bounds && bounds.isValid()) {
+        this.map.fitBounds(bounds, { padding: [20, 20] });
+        console.log('🔍 Fitted bounds to all kecamatan');
+      }
+    }
 
     console.log('🔙 Returned to kecamatan view');
   }
