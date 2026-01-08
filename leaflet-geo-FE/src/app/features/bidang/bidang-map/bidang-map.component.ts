@@ -71,11 +71,17 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   totalBidangCount = 0;
   isLoadingTotalCount = false;
 
-  // Boundary data
-  kecamatanBoundariesLayer: L.GeoJSON | null = null;
-  kelurahanBoundariesLayer: L.GeoJSON | null = null;
-  blokBoundariesLayer: L.GeoJSON | null = null;
-  bidangBoundariesLayer: L.GeoJSON | null = null;
+  // Boundary data - List layers (children for navigation)
+  kecamatanBoundariesLayer: L.GeoJSON | null = null;  // All kecamatan (like legacy layerDati)
+  kelurahanBoundariesLayer: L.GeoJSON | null = null;  // Kelurahan in selected kecamatan (like legacy layerListKelurahan)
+  blokBoundariesLayer: L.GeoJSON | null = null;       // Blok in selected kelurahan (like legacy layerListBlok)
+  bidangBoundariesLayer: L.GeoJSON | null = null;     // Bidang in selected blok (like legacy layerListBidang)
+
+  // Selected parent layers - Single polygon for editing (like legacy layerKecamatan, layerKelurahan, layerBlok)
+  selectedKecamatanLayer: L.GeoJSON | null = null;    // Single selected kecamatan (grey, for editing)
+  selectedKelurahanLayer: L.GeoJSON | null = null;    // Single selected kelurahan (grey, for editing)
+  selectedBlokLayer: L.GeoJSON | null = null;         // Single selected blok (grey, for editing)
+
   bprdKecamatanData: KecamatanBoundary[] = [];
   selectedKecamatanForDrilldown: any = null; // Track selected kecamatan for drill-down
   selectedKelurahanForDrilldown: any = null; // Track selected kelurahan for drill-down
