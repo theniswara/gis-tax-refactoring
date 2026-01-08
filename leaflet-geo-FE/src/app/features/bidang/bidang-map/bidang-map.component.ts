@@ -2754,9 +2754,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Toggle edit mode (draw, edit, delete)
+   * Toggle edit mode (draw, edit, delete) - updated
    */
-  toggleEditMode(mode: 'draw' | 'edit' | 'delete' | 'move'): void {
+  toggleEditMode(mode: 'draw' | 'edit' | 'delete' | 'move' | 'none'): void {
     if (!this.map) return;
 
     // Initialize editable layer if needed
@@ -2833,119 +2833,149 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Setup edit mode for modifying existing polygons
+   * Based on Legacy SIG_MAP_EDITING_ANALYSIS.md:
+   * - viewMode determines which layer is editable
+   * - Vertex handles appear on ALL polygons immediately
+   * - modifyend event tracks changes per-feature
    */
   private setupEditMode(): void {
-    if (!this.map) return;
+    if (!this.map) {
+      console.error('❌ setupEditMode: No map instance');
+      return;
+    }
 
-    // Legacy Logic Implementation:
-    // The View Mode determines which layer is active and editable.
-    // - Mode 'kecamatan' (Top Level) -> Edit Kecamatan Boundaries
-    // - Mode 'kelurahan' (Drilled Down) -> Edit Kelurahan Boundaries
-    // - Mode 'blok' -> Edit Blok Boundaries
-    // - Mode 'bidang' -> Edit Bidang Boundaries
+    console.log('=== SETUP EDIT MODE ===');
+    console.log('currentLevel:', this.currentLevel);
 
+    // Determine source layer based on current view level
     let sourceLayer: L.GeoJSON | null = null;
 
     switch (this.currentLevel) {
       case 'kecamatan':
         this.editTarget = 'kecamatan';
         sourceLayer = this.kecamatanBoundariesLayer;
-        // If layer works from cache or lazy load, ensure it exists
         if (!sourceLayer && this.bprdKecamatanData) {
           this.recreateKecamatanLayerFromCache();
           sourceLayer = this.kecamatanBoundariesLayer;
         }
-        console.log('📝 Edit target: Kecamatan (all visible kecamatan)');
         break;
 
       case 'kelurahan':
         this.editTarget = 'kelurahan';
         sourceLayer = this.kelurahanBoundariesLayer;
-        console.log('📝 Edit target: Kelurahan (active kelurahan list)');
         break;
 
       case 'blok':
         this.editTarget = 'blok';
         sourceLayer = this.blokBoundariesLayer;
-        console.log('📝 Edit target: Blok (active blok list)');
         break;
 
       case 'bidang':
         this.editTarget = 'bidang';
         sourceLayer = this.bidangBoundariesLayer;
-        console.log('📝 Edit target: Bidang (active bidang list)');
         break;
 
       default:
-        console.warn(`Unknown current level: ${this.currentLevel}`);
+        console.error(`❌ Unknown level: ${this.currentLevel}`);
         return;
     }
 
-    if (!sourceLayer) {
-      console.warn(`No source layer found for editing at ${this.currentLevel} level. Is data loaded?`);
-      alert(`Tidak ada data ${this.editTarget} untuk diedit.`);
-      this.toggleEditMode('none');
+    console.log('editTarget:', this.editTarget);
+    console.log('sourceLayer:', sourceLayer);
+    console.log('sourceLayer features:', sourceLayer?.getLayers()?.length || 0);
+
+    if (!sourceLayer || sourceLayer.getLayers().length === 0) {
+      console.error(`❌ No features in ${this.editTarget} layer`);
+      alert(`Tidak ada data ${this.editTarget} untuk diedit. Pastikan data sudah dimuat.`);
+      this.editMode = 'none';
       return;
     }
 
-    // Clear existing editable layer
-    if (this.editableLayer) {
+    // Initialize editable layer
+    if (!this.editableLayer) {
+      this.editableLayer = new L.FeatureGroup();
+    } else {
       this.editableLayer.clearLayers();
     }
 
-    // Copy source layer to editable layer with orange editing style
-    // This allows editing ALL features in the current view, matching legacy source modification
+    // Copy ALL features from source to editable layer with editing style
     let featureCount = 0;
     sourceLayer.eachLayer((layer: any) => {
       if (layer.toGeoJSON) {
         const geoJson = layer.toGeoJSON();
+        const props = geoJson.properties || {};
+
+        // Get ID based on layer type
+        const id = props.id || props.kd_kec || props.kd_kel || props.kd_blok || props.nop;
+
+        // Create new layer with editing style
         const editLayer = L.geoJSON(geoJson, {
           style: {
-            color: '#f97316', // Orange for editing
+            color: '#f97316', // Orange border
             weight: 3,
-            fillColor: '#f97316',
-            fillOpacity: 0.3
+            fillColor: '#fed7aa', // Light orange fill
+            fillOpacity: 0.5
           }
         });
 
         editLayer.eachLayer((l: any) => {
-          // Store original reference for saving
-          // Priority of ID properties matches common patterns in API
-          const props = layer.feature?.properties;
-          const id = props?.id || props?.kd_kec || props?.kd_kel || props?.kd_blok;
-
-          (l as any).originalId = id;
-          (l as any).originalFeature = layer.feature;
-          (l as any).originalLayer = layer; // Keep ref to original to hide/show specific if needed
-
+          // Store original reference
+          (l as any)._editId = id;
+          (l as any)._editTarget = this.editTarget;
           this.editableLayer?.addLayer(l);
           featureCount++;
         });
       }
     });
 
-    console.log(`📝 Prepared ${featureCount} features for editing`);
+    console.log(`📝 Copied ${featureCount} features to editable layer`);
 
-    // Create draw control with edit enabled
+    if (featureCount === 0) {
+      console.error('❌ No features copied to editable layer');
+      alert('Gagal menyiapkan mode edit.');
+      this.editMode = 'none';
+      return;
+    }
+
+    // Hide source layer during editing
+    this.map.removeLayer(sourceLayer);
+    console.log(`🙈 Hidden ${this.editTarget} source layer`);
+
+    // Add editable layer to map
+    this.map.addLayer(this.editableLayer);
+    console.log('✅ Added editable layer to map');
+
+    // Create Leaflet-Draw control with ONLY edit enabled
     this.drawControl = new (L.Control as any).Draw({
-      draw: false, // No drawing new shapes in edit mode (Draw mode is separate)
+      position: 'topright',
+      draw: false, // No drawing in edit mode
       edit: {
-        featureGroup: this.editableLayer!,
-        edit: true,
-        remove: false // Deletion is separate mode
+        featureGroup: this.editableLayer,
+        edit: {
+          selectedPathOptions: {
+            maintainColor: true,
+            opacity: 0.8
+          }
+        },
+        remove: false
       }
     });
 
-    this.map.addControl(this.drawControl as L.Control);
+    this.map.addControl(this.drawControl);
+    console.log('✅ Added draw control');
 
-    // Handle edited event to track changes
+    // Set up EDITED event handler
     this.map.on(L.Draw.Event.EDITED, (e: any) => {
+      console.log('📝 L.Draw.Event.EDITED fired');
       const layers = e.layers;
       layers.eachLayer((layer: any) => {
-        const id = layer.originalId || layer.feature?.properties?.id;
+        const id = (layer as any)._editId;
+        const target = (layer as any)._editTarget;
+
         if (id) {
           const geojson = layer.toGeoJSON();
-          // Check if already in pending changes
+
+          // Add to pending changes
           const existing = this.pendingChanges.findIndex(c => c.id === id);
           if (existing >= 0) {
             this.pendingChanges[existing].geom = geojson.geometry;
@@ -2953,34 +2983,43 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             this.pendingChanges.push({
               id,
               geom: geojson.geometry,
-              target: this.editTarget || undefined
+              target: target || this.editTarget || undefined
             });
           }
-          console.log(`✏️ ${this.editTarget} edited:`, id);
+          console.log(`✅ Tracked change: ${target} id=${id}`);
         }
       });
+
+      console.log(`📋 Total pending changes: ${this.pendingChanges.length}`);
     });
 
-    // Hide original source layer while editing to avoid visual clutter
-    if (this.map && sourceLayer) {
-      this.map.removeLayer(sourceLayer);
-      console.log(`🙈 Hidden original ${this.editTarget} layer`);
-    }
-
-    // Add editable layer to map
-    if (this.editableLayer) {
-      this.editableLayer.addTo(this.map);
-    }
-
-    // Programmatically click the edit button to show vertex handles immediately
-    // This replicates the legacy "Always On" modify interaction
+    // CRITICAL: Programmatically enable edit mode
+    // Leaflet-Draw requires clicking the edit button, we simulate this
     setTimeout(() => {
+      // Try multiple approaches to activate edit mode
+
+      // Approach 1: Find and click the edit button
       const editBtn = document.querySelector('.leaflet-draw-edit-edit') as HTMLElement;
       if (editBtn) {
+        console.log('🔘 Found edit button, clicking...');
         editBtn.click();
-        console.log('🎯 Auto-activated edit interaction');
+      } else {
+        console.warn('⚠️ Edit button not found in DOM');
+
+        // Approach 2: Direct handler enable
+        try {
+          const toolbar = (this.drawControl as any)._toolbars?.edit;
+          if (toolbar?._modes?.edit?.handler) {
+            toolbar._modes.edit.handler.enable();
+            console.log('✅ Enabled edit handler directly');
+          }
+        } catch (err) {
+          console.error('❌ Failed to enable edit handler:', err);
+        }
       }
-    }, 100);
+    }, 200);
+
+    console.log('=== EDIT MODE SETUP COMPLETE ===');
   }
 
   /**
