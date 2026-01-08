@@ -1181,16 +1181,43 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentLevel = 'kelurahan';
           this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
 
-          // Hide kecamatan labels temporarily
-          const wasShowingLabels = this.showKecamatanLabels;
-          if (wasShowingLabels) {
-            this.showKecamatanLabels = false;
-            if (this.kecamatanBoundariesLayer && this.map) {
-              this.map.removeLayer(this.kecamatanBoundariesLayer);
-              this.kecamatanBoundariesLayer = null;
-              this.recreateKecamatanLayerFromCache();
+          // Step 2: Create selectedKecamatanLayer - single polygon for this kecamatan (like legacy layerKecamatan)
+          if (this.selectedKecamatanLayer && this.map) {
+            this.map.removeLayer(this.selectedKecamatanLayer);
+            this.selectedKecamatanLayer = null;
+          }
+
+          // Get GeoJSON from clicked kecamatan layer and create grey-styled layer
+          if (kecamatanLayer && kecamatanLayer.toGeoJSON) {
+            const kecamatanGeojson = kecamatanLayer.toGeoJSON();
+            this.selectedKecamatanLayer = L.geoJSON(kecamatanGeojson, {
+              style: {
+                color: 'grey',
+                weight: 2,
+                fillColor: 'grey',
+                fillOpacity: 0.15
+              }
+            });
+            if (this.map) {
+              this.selectedKecamatanLayer.addTo(this.map);
+              console.log(`✅ Created selectedKecamatanLayer for ${kecamatanName}`);
+
+              // Fit bounds to selected kecamatan
+              const bounds = this.selectedKecamatanLayer.getBounds();
+              if (bounds && bounds.isValid()) {
+                this.map.fitBounds(bounds, { padding: [30, 30] });
+                console.log('🔍 Fitted bounds to selected kecamatan');
+              }
             }
           }
+
+          // Hide ALL other kecamatan (remove kecamatanBoundariesLayer completely)
+          if (this.kecamatanBoundariesLayer && this.map) {
+            this.map.removeLayer(this.kecamatanBoundariesLayer);
+            this.kecamatanBoundariesLayer = null;
+            console.log('🙈 Hidden all other kecamatan');
+          }
+          this.showKecamatanLabels = false;
 
           // Create count map for easy lookup based on kd_kel
           const countMap = new Map<string, number>();
