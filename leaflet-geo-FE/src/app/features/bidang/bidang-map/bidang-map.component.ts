@@ -1085,13 +1085,10 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showKecamatanLabels = true;
     this.recreateKecamatanLayerFromCache();
 
-    // Fit bounds to all kecamatan
-    if (this.kecamatanBoundariesLayer && this.map) {
-      const bounds = this.kecamatanBoundariesLayer.getBounds();
-      if (bounds && bounds.isValid()) {
-        this.map.fitBounds(bounds, { padding: [20, 20] });
-        console.log('🔍 Fitted bounds to all kecamatan');
-      }
+    // Set fixed view for Lumajang (more reliable than fitBounds which can give wrong bounds)
+    if (this.map) {
+      this.map.setView([-8.1335, 113.2246], 11);
+      console.log('🔍 Set view to Lumajang center (zoom 11)');
     }
 
     console.log('🔙 Returned to kecamatan view');
