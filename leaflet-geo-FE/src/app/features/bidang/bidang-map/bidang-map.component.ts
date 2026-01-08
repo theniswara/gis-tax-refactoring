@@ -2837,36 +2837,54 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private setupEditMode(): void {
     if (!this.map) return;
 
-    // Determine which layer to edit based on currentLevel
-    // At kelurahan level → edit selectedKecamatanLayer (the parent kecamatan)
-    // At blok level → edit selectedKelurahanLayer (the parent kelurahan)
-    // At bidang level → edit selectedBlokLayer (the parent blok) or bidang
+    // Legacy Logic Implementation:
+    // The View Mode determines which layer is active and editable.
+    // - Mode 'kecamatan' (Top Level) -> Edit Kecamatan Boundaries
+    // - Mode 'kelurahan' (Drilled Down) -> Edit Kelurahan Boundaries
+    // - Mode 'blok' -> Edit Blok Boundaries
+    // - Mode 'bidang' -> Edit Bidang Boundaries
+
     let sourceLayer: L.GeoJSON | null = null;
 
     switch (this.currentLevel) {
-      case 'kelurahan':
+      case 'kecamatan':
         this.editTarget = 'kecamatan';
-        sourceLayer = this.selectedKecamatanLayer;
-        console.log('📝 Edit target: Kecamatan (selected kecamatan layer)');
+        sourceLayer = this.kecamatanBoundariesLayer;
+        // If layer works from cache or lazy load, ensure it exists
+        if (!sourceLayer && this.bprdKecamatanData) {
+          this.recreateKecamatanLayerFromCache();
+          sourceLayer = this.kecamatanBoundariesLayer;
+        }
+        console.log('📝 Edit target: Kecamatan (all visible kecamatan)');
         break;
-      case 'blok':
+
+      case 'kelurahan':
         this.editTarget = 'kelurahan';
-        sourceLayer = this.selectedKelurahanLayer;
-        console.log('📝 Edit target: Kelurahan (selected kelurahan layer)');
+        sourceLayer = this.kelurahanBoundariesLayer;
+        console.log('📝 Edit target: Kelurahan (active kelurahan list)');
         break;
-      case 'bidang':
-        // At bidang level, can edit either blok or bidang - default to blok for now
+
+      case 'blok':
         this.editTarget = 'blok';
-        sourceLayer = this.selectedBlokLayer;
-        console.log('📝 Edit target: Blok (selected blok layer)');
+        sourceLayer = this.blokBoundariesLayer;
+        console.log('📝 Edit target: Blok (active blok list)');
         break;
+
+      case 'bidang':
+        this.editTarget = 'bidang';
+        sourceLayer = this.bidangBoundariesLayer;
+        console.log('📝 Edit target: Bidang (active bidang list)');
+        break;
+
       default:
-        console.warn('Cannot edit at kecamatan overview level');
+        console.warn(`Unknown current level: ${this.currentLevel}`);
         return;
     }
 
     if (!sourceLayer) {
-      console.warn(`No source layer found for editing at ${this.currentLevel} level`);
+      console.warn(`No source layer found for editing at ${this.currentLevel} level. Is data loaded?`);
+      alert(`Tidak ada data ${this.editTarget} untuk diedit.`);
+      this.toggleEditMode('none');
       return;
     }
 
@@ -2876,6 +2894,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Copy source layer to editable layer with orange editing style
+    // This allows editing ALL features in the current view, matching legacy source modification
+    let featureCount = 0;
     sourceLayer.eachLayer((layer: any) => {
       if (layer.toGeoJSON) {
         const geoJson = layer.toGeoJSON();
@@ -2890,20 +2910,29 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
         editLayer.eachLayer((l: any) => {
           // Store original reference for saving
-          (l as any).originalId = layer.feature?.properties?.id || layer.feature?.properties?.kd_kec || layer.feature?.properties?.kd_kel;
+          // Priority of ID properties matches common patterns in API
+          const props = layer.feature?.properties;
+          const id = props?.id || props?.kd_kec || props?.kd_kel || props?.kd_blok;
+
+          (l as any).originalId = id;
           (l as any).originalFeature = layer.feature;
+          (l as any).originalLayer = layer; // Keep ref to original to hide/show specific if needed
+
           this.editableLayer?.addLayer(l);
+          featureCount++;
         });
       }
     });
 
+    console.log(`📝 Prepared ${featureCount} features for editing`);
+
     // Create draw control with edit enabled
     this.drawControl = new (L.Control as any).Draw({
-      draw: false, // No drawing, just editing
+      draw: false, // No drawing new shapes in edit mode (Draw mode is separate)
       edit: {
         featureGroup: this.editableLayer!,
         edit: true,
-        remove: false
+        remove: false // Deletion is separate mode
       }
     });
 
@@ -2927,28 +2956,29 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
               target: this.editTarget || undefined
             });
           }
-          console.log(`✏️ ${this.editTarget} polygon edited:`, id);
+          console.log(`✏️ ${this.editTarget} edited:`, id);
         }
       });
     });
 
-    // Hide original source layer while editing
-    this.map.removeLayer(sourceLayer);
-    console.log(`🙈 Hidden original ${this.editTarget} layer for editing`);
+    // Hide original source layer while editing to avoid visual clutter
+    if (this.map && sourceLayer) {
+      this.map.removeLayer(sourceLayer);
+      console.log(`🙈 Hidden original ${this.editTarget} layer`);
+    }
 
     // Add editable layer to map
     if (this.editableLayer) {
       this.editableLayer.addTo(this.map);
     }
 
-    console.log(`✏️ Edit mode enabled for ${this.editTarget}`);
-
     // Programmatically click the edit button to show vertex handles immediately
+    // This replicates the legacy "Always On" modify interaction
     setTimeout(() => {
       const editBtn = document.querySelector('.leaflet-draw-edit-edit') as HTMLElement;
       if (editBtn) {
         editBtn.click();
-        console.log('🎯 Auto-clicked edit button to show vertex handles');
+        console.log('🎯 Auto-activated edit interaction');
       }
     }, 100);
   }
@@ -2995,21 +3025,27 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.map && this.editTarget) {
       switch (this.editTarget) {
         case 'kecamatan':
-          if (this.selectedKecamatanLayer) {
-            this.selectedKecamatanLayer.addTo(this.map);
-            console.log('👁️ Restored selectedKecamatanLayer');
+          if (this.kecamatanBoundariesLayer) {
+            this.kecamatanBoundariesLayer.addTo(this.map);
+            console.log('👁️ Restored kecamatanBoundariesLayer');
           }
           break;
         case 'kelurahan':
-          if (this.selectedKelurahanLayer) {
-            this.selectedKelurahanLayer.addTo(this.map);
-            console.log('👁️ Restored selectedKelurahanLayer');
+          if (this.kelurahanBoundariesLayer) {
+            this.kelurahanBoundariesLayer.addTo(this.map);
+            console.log('👁️ Restored kelurahanBoundariesLayer');
           }
           break;
         case 'blok':
-          if (this.selectedBlokLayer) {
-            this.selectedBlokLayer.addTo(this.map);
-            console.log('👁️ Restored selectedBlokLayer');
+          if (this.blokBoundariesLayer) {
+            this.blokBoundariesLayer.addTo(this.map);
+            console.log('👁️ Restored blokBoundariesLayer');
+          }
+          break;
+        case 'bidang':
+          if (this.bidangBoundariesLayer) {
+            this.bidangBoundariesLayer.addTo(this.map);
+            console.log('👁️ Restored bidangBoundariesLayer');
           }
           break;
       }
