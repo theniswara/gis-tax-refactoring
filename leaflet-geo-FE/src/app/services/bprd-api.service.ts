@@ -254,6 +254,44 @@ export class BprdApiService {
   }
 
   /**
+   * Update Kecamatan Boundary
+   * Payload: { id, geom } (geom as WKB or GeoJSON depending on backend req, legacy used WKB)
+   */
+  updateKecamatan(payload: any): Observable<any> {
+    const proxyUrl = this.restApiService.apiUrl + 'bprd/map/updatekecamatan';
+    console.log(`💾 Updating Kecamatan via backend proxy: ${proxyUrl}`, payload);
+    return this.http.post<any>(proxyUrl, payload);
+  }
+
+  /**
+   * Update Kelurahan Boundary
+   */
+  updateKelurahan(payload: any): Observable<any> {
+    const proxyUrl = this.restApiService.apiUrl + 'bprd/map/updatekelurahan';
+    console.log(`💾 Updating Kelurahan via backend proxy: ${proxyUrl}`, payload);
+    return this.http.post<any>(proxyUrl, payload);
+  }
+
+  /**
+   * Update Blok Boundary
+   */
+  updateBlok(payload: any): Observable<any> {
+    const proxyUrl = this.restApiService.apiUrl + 'bprd/map/updateblok';
+    console.log(`💾 Updating Blok via backend proxy: ${proxyUrl}`, payload);
+    return this.http.post<any>(proxyUrl, payload);
+  }
+
+  /**
+   * Update Bidang (NOP) Boundary
+   * Legacy Endpoint: /map/updatenop
+   */
+  updateBidang(payload: any): Observable<any> {
+    const proxyUrl = this.restApiService.apiUrl + 'bprd/map/updatenop';
+    console.log(`💾 Updating Bidang via backend proxy: ${proxyUrl}`, payload);
+    return this.http.post<any>(proxyUrl, payload);
+  }
+
+  /**
    * Get tematik data from BPRD API via backend proxy
    */
   getTematikData(tematikRequest: any): Observable<any> {

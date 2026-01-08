@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { RestApiService } from '../../../services/rest-api.service';
 import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
 import * as L from 'leaflet';
@@ -3070,40 +3070,112 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    console.log('💾 Saving', this.pendingChanges.length, 'changes...');
+    console.log(`💾 Saving ${this.pendingChanges.length} changes...`);
 
-    // TODO: Implement actual API calls to backend
-    // For now, just log and clear
+    // Group changes by target type
+    const changesByTarget: { [key: string]: any[] } = {};
+
     this.pendingChanges.forEach(change => {
-      if (change.geom === null) {
-        console.log('  🗑️ Delete:', change.id);
-        // this.bprdApiService.deleteBidang(change.id).subscribe(...)
-      } else if (change.id.startsWith('new_')) {
-        console.log('  🆕 Create new bidang');
-        // this.bprdApiService.createBidang(change.geom).subscribe(...)
-      } else {
-        console.log('  ✏️ Update:', change.id);
-        // this.bprdApiService.updateBidang(change.id, change.geom).subscribe(...)
+      const target = change.target || this.editTarget || 'bidang'; // Default to bidang if unknown
+      if (!changesByTarget[target]) {
+        changesByTarget[target] = [];
+      }
+
+      // Convert geometry to format expected by backend
+      changesByTarget[target].push({
+        id: change.id,
+        geom: change.geom // GeoJSON geometry
+      });
+    });
+
+    const tasks: Observable<any>[] = [];
+
+    // Create API requests for each target group
+    Object.keys(changesByTarget).forEach(target => {
+      const payload = { geometry: changesByTarget[target] };
+
+      switch (target) {
+        case 'kecamatan':
+          tasks.push(this.bprdApiService.updateKecamatan(payload));
+          break;
+        case 'kelurahan':
+          tasks.push(this.bprdApiService.updateKelurahan(payload));
+          break;
+        case 'blok':
+          tasks.push(this.bprdApiService.updateBlok(payload));
+          break;
+        case 'bidang':
+          tasks.push(this.bprdApiService.updateBidang(payload));
+          break;
       }
     });
 
-    // Clear pending changes and exit edit mode
-    this.pendingChanges = [];
-    this.cancelEditMode();
+    if (tasks.length === 0) {
+      console.warn('No valid tasks created');
+      return;
+    }
 
-    // Refresh map data
-    // this.refreshBidangData();
+    // Execute all save requests
+    forkJoin(tasks).subscribe({
+      next: (results) => {
+        console.log('✅ All changes saved successfully', results);
+        alert('Perubahan berhasil disimpan!');
 
-    alert('Changes saved successfully! (Demo mode - not actually saved to backend)');
+        // Clear updates
+        this.pendingChanges = [];
+        this.toggleEditMode('none');
+
+        // Reload current view to reflect changes
+        this.reloadCurrentView();
+      },
+      error: (err) => {
+        console.error('❌ Failed to save changes:', err);
+        alert('Gagal menyimpan perubahan. Silakan coba lagi.');
+      }
+    });
   }
 
   /**
    * Cancel edit mode and discard changes
    */
   cancelEditMode(): void {
+    if (this.pendingChanges.length > 0) {
+      if (!confirm('Batalkan perubahan? Perubahan yang belum disimpan akan hilang.')) {
+        return;
+      }
+    }
+
     this.editMode = 'none';
     this.pendingChanges = [];
     this.removeDrawControl();
     console.log('❌ Edit mode cancelled');
+  }
+
+  /**
+   * Reload the current view data after edits
+   */
+  private reloadCurrentView(): void {
+    if (this.currentLevel === 'kecamatan') {
+      window.location.reload();
+    } else if (this.currentLevel === 'kelurahan' && this.selectedKecamatanForDrilldown) {
+      this.loadKelurahanBoundariesWithCount(
+        this.selectedKecamatanForDrilldown.kdKec,
+        this.selectedKecamatanForDrilldown.nama
+      );
+    } else if (this.currentLevel === 'blok' && this.selectedKelurahanForDrilldown) {
+      this.loadBlokBoundaries(
+        this.selectedKelurahanForDrilldown.kdKec,
+        this.selectedKelurahanForDrilldown.kdKel,
+        this.selectedKelurahanForDrilldown.nama,
+        null
+      );
+    } else if (this.currentLevel === 'bidang' && this.selectedBlokForDrilldown) {
+      this.loadBidangBoundaries(
+        this.selectedBlokForDrilldown.kdKec,
+        this.selectedBlokForDrilldown.kdKel,
+        this.selectedBlokForDrilldown.kdBlok,
+        null
+      );
+    }
   }
 }
