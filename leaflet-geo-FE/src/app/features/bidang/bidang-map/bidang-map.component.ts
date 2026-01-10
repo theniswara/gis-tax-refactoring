@@ -5,7 +5,8 @@ import { forkJoin, Observable } from 'rxjs';
 import { RestApiService } from '../../../services/rest-api.service';
 import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
 import * as L from 'leaflet';
-import 'leaflet-draw';
+import '@geoman-io/leaflet-geoman-free';
+import { SingleVertexEditor, enableSingleVertexEdit } from '../../../shared/single-vertex-editor';
 
 // Interface for BPRD Bidang Detail Response
 interface BidangDetailResponse {
@@ -71,6 +72,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   totalBidangCount = 0;
   isLoadingTotalCount = false;
 
+  // Drawn layers (to be removed on cancel)
+  drawnLayers: L.Layer[] = [];
+
   // Boundary data - List layers (children for navigation)
   kecamatanBoundariesLayer: L.GeoJSON | null = null;  // All kecamatan (like legacy layerDati)
   kelurahanBoundariesLayer: L.GeoJSON | null = null;  // Kelurahan in selected kecamatan (like legacy layerListKelurahan)
@@ -82,7 +86,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedKelurahanLayer: L.GeoJSON | null = null;    // Single selected kelurahan (grey, for editing)
   selectedBlokLayer: L.GeoJSON | null = null;         // Single selected blok (grey, for editing)
 
+  // Cached boundary data for single-polygon editing
   bprdKecamatanData: KecamatanBoundary[] = [];
+  bprdKelurahanData: any[] = [];   // Cache kelurahan data for editing
+  bprdBlokData: any[] = [];        // Cache blok data for editing
+
   selectedKecamatanForDrilldown: any = null; // Track selected kecamatan for drill-down
   selectedKelurahanForDrilldown: any = null; // Track selected kelurahan for drill-down
   selectedBlokForDrilldown: any = null; // Track selected blok for drill-down
@@ -142,7 +150,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   editMode: 'none' | 'draw' | 'edit' | 'delete' | 'move' = 'none';
   editTarget: 'kecamatan' | 'kelurahan' | 'blok' | 'bidang' | null = null; // Which layer is being edited
   editableLayer: L.FeatureGroup | null = null;
-  drawControl: L.Control.Draw | null = null;
+  drawControl: any = null; // Legacy (now using Geoman instead)
   pendingChanges: { id: string; geom: any; target?: string }[] = [];
   isEditToolbarVisible = false;
   selectedEditFeature: any = null;
@@ -731,9 +739,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kecamatanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click: Load kelurahan boundaries (drill-down)
-                  L.DomEvent.stopPropagation(e); // Prevent zoom
+                dblclick: (e) => {
+                  // Double-click: Load kelurahan boundaries (drill-down)
+                  L.DomEvent.stopPropagation(e); // Prevent map zoom
 
                   const kdKec = props.kd_kec;
                   const kecamatanName = props.nama;
@@ -927,6 +935,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (kelurahanBoundaries) => {
         console.log(`📡 Received ${kelurahanBoundaries.length} kelurahan boundaries`);
 
+        // Cache kelurahan data for single-polygon edit mode
+        this.bprdKelurahanData = kelurahanBoundaries;
+
         if (kelurahanBoundaries && kelurahanBoundaries.length > 0) {
           // Remove existing kelurahan layer if any
           if (this.kelurahanBoundariesLayer && this.map) {
@@ -995,9 +1006,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click kelurahan: Load blok boundaries
-                  L.DomEvent.stopPropagation(e); // Prevent zoom
+                dblclick: (e) => {
+                  // Double-click kelurahan: Load blok boundaries
+                  L.DomEvent.stopPropagation(e); // Prevent map zoom
 
                   const kdKec = props.kd_kec;
                   const kdKel = props.kd_kel;
@@ -1325,8 +1336,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  L.DomEvent.stopPropagation(e);
+                dblclick: (e) => {
+                  L.DomEvent.stopPropagation(e); // Double-click: drill-down to blok
                   console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading blok boundaries...`);
                   // Load blok boundaries for this kelurahan
                   // Need kdKec from current kecamatan context
@@ -1598,6 +1609,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log(`📡 Received ${blokBoundaries.length} blok boundaries for ${kelurahanName}`);
         console.log(`📊 Received blok count data:`, blokCountData);
 
+        // Cache blok data for single-polygon edit mode
+        this.bprdBlokData = blokBoundaries;
+
         if (blokBoundaries && blokBoundaries.length > 0) {
           // Remove existing blok layer
           if (this.blokBoundariesLayer && this.map) {
@@ -1837,11 +1851,17 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.bidangBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click: Show bidang detail modal
+                dblclick: (e) => {
+                  // Double click: Show bidang detail modal (consistent with kecamatan/kelurahan/blok)
+                  // Skip if in edit mode
+                  if (this.editMode !== 'none') {
+                    console.log('⏭️ Skipping bidang detail - in edit mode');
+                    return;
+                  }
+
                   L.DomEvent.stopPropagation(e);
 
-                  console.log(`🔍 Clicked bidang: ${nop} (no_urut: ${noUrut})`);
+                  console.log(`🔍 Double-clicked bidang: ${nop} (no_urut: ${noUrut})`);
                   console.log('🔍 Full bidang properties:', props);
 
                   // Extract parameters for BPRD API call
@@ -2754,16 +2774,16 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Toggle edit mode (draw, edit, delete) - updated
+   * Toggle edit mode (draw, edit, delete) - updated to accept target parameter
    */
-  toggleEditMode(mode: 'draw' | 'edit' | 'delete' | 'move' | 'none'): void {
+  toggleEditMode(mode: 'draw' | 'edit' | 'delete' | 'move' | 'none', target?: 'kecamatan' | 'kelurahan' | 'blok' | 'bidang'): void {
     if (!this.map) return;
 
     // Initialize editable layer if needed
     this.initEditableLayer();
 
-    // If clicking same mode, turn it off
-    if (this.editMode === mode) {
+    // If clicking same mode AND same target, turn it off
+    if (this.editMode === mode && (!target || this.editTarget === target)) {
       this.editMode = 'none';
       this.removeDrawControl();
       return;
@@ -2771,6 +2791,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Remove existing draw control
     this.removeDrawControl();
+
+    // Set the target BEFORE setting mode
+    if (target) {
+      this.editTarget = target;
+    }
 
     // Set new mode
     this.editMode = mode;
@@ -2780,63 +2805,74 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setupDrawMode();
     } else if (mode === 'edit') {
       this.setupEditMode();
+    } else if (mode === 'move') {
+      this.setupMoveMode();
     } else if (mode === 'delete') {
       this.setupDeleteMode();
     }
   }
 
   /**
-   * Setup draw mode for creating new polygons
+   * Setup draw mode for creating new polygons using Geoman
    */
   private setupDrawMode(): void {
-    if (!this.map || !this.editableLayer) return;
+    if (!this.map) {
+      console.error('❌ setupDrawMode: No map');
+      return;
+    }
 
-    this.drawControl = new (L.Control as any).Draw({
-      draw: {
-        polygon: {
-          allowIntersection: false,
-          showArea: true,
-          shapeOptions: {
-            color: '#3388ff',
-            weight: 2
-          }
-        },
-        polyline: false,
-        rectangle: false,
-        circle: false,
-        marker: false,
-        circlemarker: false
+    // Enable Geoman draw mode for polygons
+    (this.map as any).pm.enableDraw('Polygon', {
+      snappable: true,
+      allowSelfIntersection: false,
+      finishOn: 'dblclick',
+      templineStyle: {
+        color: '#3388ff',
+        weight: 2
       },
-      edit: false
+      hintlineStyle: {
+        color: '#3388ff',
+        dashArray: '5, 5'
+      },
+      pathOptions: {
+        color: '#3388ff',
+        weight: 2,
+        fillColor: '#3388ff',
+        fillOpacity: 0.3
+      }
     });
 
-    this.map.addControl(this.drawControl as L.Control);
-
-    // Handle draw created event
-    this.map.on(L.Draw.Event.CREATED, (e: any) => {
+    // Handle Geoman draw created event
+    this.map.on('pm:create', (e: any) => {
       const layer = e.layer;
-      this.editableLayer?.addLayer(layer);
+
+      // Track drawn layer for removal on cancel
+      this.drawnLayers.push(layer);
 
       // Add to pending changes (new bidang will have temporary ID)
       const tempId = 'new_' + Date.now();
       const geojson = layer.toGeoJSON();
       this.pendingChanges.push({
         id: tempId,
-        geom: geojson.geometry
+        geom: geojson.geometry,
+        target: this.editTarget || 'bidang'
       });
 
-      console.log('🆕 New polygon drawn, pending save:', tempId);
+      console.log('🆕 New polygon drawn via Geoman, pending save:', tempId);
     });
 
-    console.log('✏️ Draw mode enabled');
+    console.log('✏️ Draw mode enabled (Geoman)');
   }
 
   /**
    * Setup edit mode for modifying existing polygons
-   * Based on Legacy SIG_MAP_EDITING_ANALYSIS.md:
-   * - viewMode determines which layer is editable
-   * - Vertex handles appear on ALL polygons immediately
-   * - modifyend event tracks changes per-feature
+   * Using Leaflet-Geoman instead of Leaflet-Draw for better programmatic control
+   * 
+   * LEGACY BEHAVIOR (from screenshot):
+   * - Only the SELECTED polygon is shown (e.g., one kecamatan)
+   * - All other layers are HIDDEN (no kelurahan labels underneath)
+   * - Plain color fill (like brown/olive), simple style
+   * - Vertex handles appear on the single polygon
    */
   private setupEditMode(): void {
     if (!this.map) {
@@ -2844,182 +2880,650 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    console.log('=== SETUP EDIT MODE ===');
+    console.log('=== SETUP EDIT MODE (Geoman) ===');
     console.log('currentLevel:', this.currentLevel);
+    console.log('editTarget:', this.editTarget);
 
-    // Determine source layer based on current view level
+    // Determine which layer to edit based on editTarget (set by button click)
     let sourceLayer: L.GeoJSON | null = null;
+    let selectedItem: any = null;
+    let useSinglePolygonFromCache = false;
+    let cacheData: any[] = [];
+    let idProperty: string = '';
 
-    switch (this.currentLevel) {
+    switch (this.editTarget) {
       case 'kecamatan':
-        this.editTarget = 'kecamatan';
-        sourceLayer = this.kecamatanBoundariesLayer;
-        if (!sourceLayer && this.bprdKecamatanData) {
-          this.recreateKecamatanLayerFromCache();
-          sourceLayer = this.kecamatanBoundariesLayer;
+        // Edit ONLY the selected kecamatan boundary (NOT all kecamatans!)
+        selectedItem = this.selectedKecamatanForDrilldown;
+        cacheData = this.bprdKecamatanData;
+        idProperty = 'kd_kec';
+
+        if (selectedItem && cacheData.length > 0) {
+          useSinglePolygonFromCache = true;
+        } else {
+          console.error('❌ No selected kecamatan or cached data');
+          this.editMode = 'none';
+          return;
         }
         break;
 
       case 'kelurahan':
-        this.editTarget = 'kelurahan';
-        sourceLayer = this.kelurahanBoundariesLayer;
+        // Edit ONLY the selected kelurahan boundary
+        selectedItem = this.selectedKelurahanForDrilldown;
+        cacheData = this.bprdKelurahanData;
+        idProperty = 'kd_kel';
+
+        console.log('🔍 Kelurahan edit check:');
+        console.log('  - selectedKelurahanForDrilldown:', selectedItem);
+        console.log('  - bprdKelurahanData length:', cacheData.length);
+
+        // If cache is empty but we have the layer, extract geometry from the layer
+        console.log('🔍 Checking fallback options:');
+        console.log('  - kelurahanBoundariesLayer exists:', !!this.kelurahanBoundariesLayer);
+        console.log('  - selectedKelurahanLayer exists:', !!this.selectedKelurahanLayer);
+
+        if (selectedItem && cacheData.length === 0) {
+          // Try extracting from kelurahanBoundariesLayer first
+          if (this.kelurahanBoundariesLayer) {
+            console.log('⚠️ Cache empty, extracting geometry from kelurahanBoundariesLayer');
+            this.kelurahanBoundariesLayer.eachLayer((layer: any) => {
+              const feature = layer.feature;
+              if (feature && feature.properties) {
+                const layerKdKel = feature.properties.kd_kel;
+                if (layerKdKel === selectedItem.kdKel) {
+                  cacheData.push({
+                    kd_kel: layerKdKel,
+                    kd_kec: feature.properties.kd_kec,
+                    nama: feature.properties.nama,
+                    geom: feature.geometry
+                  });
+                  console.log('✅ Extracted kelurahan geometry from kelurahanBoundariesLayer');
+                }
+              }
+            });
+          }
+
+          // If still empty, try selectedKelurahanLayer (the grey single kelurahan polygon)
+          if (cacheData.length === 0 && this.selectedKelurahanLayer) {
+            console.log('⚠️ Trying selectedKelurahanLayer fallback');
+            this.selectedKelurahanLayer.eachLayer((layer: any) => {
+              const feature = layer.feature;
+              if (feature && feature.geometry) {
+                cacheData.push({
+                  kd_kel: selectedItem.kdKel,
+                  kd_kec: selectedItem.kdKec,
+                  nama: selectedItem.nama,
+                  geom: feature.geometry
+                });
+                console.log('✅ Extracted kelurahan geometry from selectedKelurahanLayer');
+              }
+            });
+          }
+
+          // Update the class cache
+          this.bprdKelurahanData = cacheData;
+        }
+
+        if (selectedItem && cacheData.length > 0) {
+          useSinglePolygonFromCache = true;
+        } else {
+          console.error('❌ No selected kelurahan or cached data');
+          console.error('  - selectedItem exists:', !!selectedItem);
+          console.error('  - cacheData.length:', cacheData.length);
+          this.editMode = 'none';
+          return;
+        }
         break;
 
       case 'blok':
-        this.editTarget = 'blok';
-        sourceLayer = this.blokBoundariesLayer;
+        // Edit ONLY the selected blok boundary
+        selectedItem = this.selectedBlokForDrilldown;
+        cacheData = this.bprdBlokData;
+        idProperty = 'kd_blok';
+
+        console.log('🔍 Blok edit check:');
+        console.log('  - selectedBlokForDrilldown:', selectedItem);
+        console.log('  - bprdBlokData length:', cacheData.length);
+
+        // If cache is empty but we have the layer, extract geometry from the layer
+        if (selectedItem && cacheData.length === 0 && this.blokBoundariesLayer) {
+          console.log('⚠️ Cache empty, extracting geometry from blokBoundariesLayer');
+          this.blokBoundariesLayer.eachLayer((layer: any) => {
+            const feature = layer.feature;
+            if (feature && feature.properties) {
+              const layerKdBlok = feature.properties.kd_blok;
+              if (layerKdBlok === selectedItem.kdBlok) {
+                cacheData.push({
+                  kd_blok: layerKdBlok,
+                  kd_kec: feature.properties.kd_kec,
+                  kd_kel: feature.properties.kd_kel,
+                  geom: feature.geometry
+                });
+                console.log('✅ Extracted blok geometry from layer');
+              }
+            }
+          });
+          this.bprdBlokData = cacheData;
+        }
+
+        if (selectedItem && cacheData.length > 0) {
+          useSinglePolygonFromCache = true;
+        } else {
+          console.error('❌ No selected blok or cached data');
+          console.error('  - selectedItem exists:', !!selectedItem);
+          console.error('  - cacheData.length:', cacheData.length);
+          this.editMode = 'none';
+          return;
+        }
         break;
 
       case 'bidang':
-        this.editTarget = 'bidang';
+        // Edit all bidang in the current view
         sourceLayer = this.bidangBoundariesLayer;
         break;
 
       default:
-        console.error(`❌ Unknown level: ${this.currentLevel}`);
+        console.error(`❌ Unknown editTarget: ${this.editTarget}`);
+        this.editMode = 'none';
         return;
     }
 
-    console.log('editTarget:', this.editTarget);
-    console.log('sourceLayer:', sourceLayer);
-    console.log('sourceLayer features:', sourceLayer?.getLayers()?.length || 0);
+    // For kecamatan/kelurahan/blok editing: create single polygon from cached data
+    if (useSinglePolygonFromCache && selectedItem) {
+      this.setupSinglePolygonEditMode(selectedItem, cacheData, idProperty);
+      return;
+    }
 
-    if (!sourceLayer || sourceLayer.getLayers().length === 0) {
-      console.error(`❌ No features in ${this.editTarget} layer`);
-      alert(`Tidak ada data ${this.editTarget} untuk diedit. Pastikan data sudah dimuat.`);
+    if (!sourceLayer) {
+      console.error(`❌ No source layer for ${this.editTarget}`);
+      alert(`Tidak ada data ${this.editTarget} untuk diedit.`);
       this.editMode = 'none';
       return;
     }
 
-    // Initialize editable layer
-    if (!this.editableLayer) {
-      this.editableLayer = new L.FeatureGroup();
-    } else {
-      this.editableLayer.clearLayers();
-    }
-
-    // Copy ALL features from source to editable layer with editing style
-    let featureCount = 0;
-    sourceLayer.eachLayer((layer: any) => {
-      if (layer.toGeoJSON) {
-        const geoJson = layer.toGeoJSON();
-        const props = geoJson.properties || {};
-
-        // Get ID based on layer type
-        const id = props.id || props.kd_kec || props.kd_kel || props.kd_blok || props.nop;
-
-        // Create new layer with editing style
-        const editLayer = L.geoJSON(geoJson, {
-          style: {
-            color: '#f97316', // Orange border
-            weight: 3,
-            fillColor: '#fed7aa', // Light orange fill
-            fillOpacity: 0.5
-          }
-        });
-
-        editLayer.eachLayer((l: any) => {
-          // Store original reference
-          (l as any)._editId = id;
-          (l as any)._editTarget = this.editTarget;
-          this.editableLayer?.addLayer(l);
-          featureCount++;
-        });
-      }
-    });
-
-    console.log(`📝 Copied ${featureCount} features to editable layer`);
-
-    if (featureCount === 0) {
-      console.error('❌ No features copied to editable layer');
-      alert('Gagal menyiapkan mode edit.');
-      this.editMode = 'none';
+    // Enable Geoman on the map
+    if (!(this.map as any).pm) {
+      console.error('❌ Geoman not initialized on map');
       return;
     }
 
-    // Hide source layer during editing
-    this.map.removeLayer(sourceLayer);
-    console.log(`🙈 Hidden ${this.editTarget} source layer`);
+    // Store reference to source layer for restoration later
+    (this as any)._editSourceLayer = sourceLayer;
+    (this as any)._hiddenLayers = [];
 
-    // Add editable layer to map
-    this.map.addLayer(this.editableLayer);
-    console.log('✅ Added editable layer to map');
+    // HIDE ALL OTHER LAYERS (like legacy) - plain map with just the polygon being edited
+    const layersToHide = [
+      this.kelurahanBoundariesLayer,
+      this.blokBoundariesLayer,
+      this.bidangBoundariesLayer
+    ].filter(l => l && l !== sourceLayer);
 
-    // Create Leaflet-Draw control with ONLY edit enabled
-    this.drawControl = new (L.Control as any).Draw({
-      position: 'topright',
-      draw: false, // No drawing in edit mode
-      edit: {
-        featureGroup: this.editableLayer,
-        edit: {
-          selectedPathOptions: {
-            maintainColor: true,
-            opacity: 0.8
-          }
-        },
-        remove: false
+    layersToHide.forEach(layer => {
+      if (layer && this.map?.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+        (this as any)._hiddenLayers.push(layer);
+        console.log('🙈 Hidden layer during edit');
       }
     });
 
-    this.map.addControl(this.drawControl);
-    console.log('✅ Added draw control');
+    // For kecamatan/kelurahan/blok editing, only edit the SINGLE selected polygon
+    if (this.editTarget !== 'bidang' && selectedItem) {
+      // Find the specific feature to edit
+      let editableFeature: any = null;
+      // Use correct property names (kdKec, kdKel, kdBlok, NOT kdKecamatan etc)
+      const targetId = selectedItem.kdKec || selectedItem.kdKel || selectedItem.kdBlok || selectedItem.id;
 
-    // Set up EDITED event handler
-    this.map.on(L.Draw.Event.EDITED, (e: any) => {
-      console.log('📝 L.Draw.Event.EDITED fired');
-      const layers = e.layers;
-      layers.eachLayer((layer: any) => {
-        const id = (layer as any)._editId;
-        const target = (layer as any)._editTarget;
+      console.log('🔍 Looking for feature with targetId:', targetId);
+      console.log('🔍 selectedItem:', selectedItem);
 
-        if (id) {
-          const geojson = layer.toGeoJSON();
+      sourceLayer.eachLayer((layer: any) => {
+        const props = layer.feature?.properties || {};
+        const layerId = props.kd_kec || props.kd_kel || props.kd_blok || props.id;
 
-          // Add to pending changes
-          const existing = this.pendingChanges.findIndex(c => c.id === id);
-          if (existing >= 0) {
-            this.pendingChanges[existing].geom = geojson.geometry;
-          } else {
-            this.pendingChanges.push({
-              id,
-              geom: geojson.geometry,
-              target: target || this.editTarget || undefined
-            });
+        console.log('🔍 Checking layer:', layerId, 'vs target:', targetId);
+
+        if (layerId === targetId) {
+          editableFeature = layer;
+          console.log('✅ Found matching feature!');
+        } else {
+          // Hide other polygons in the same layer
+          if (layer.setStyle) {
+            layer.setStyle({ opacity: 0, fillOpacity: 0 });
           }
-          console.log(`✅ Tracked change: ${target} id=${id}`);
         }
       });
 
-      console.log(`📋 Total pending changes: ${this.pendingChanges.length}`);
-    });
+      if (editableFeature) {
+        // Apply edit style - plain olive/brown color like legacy
+        editableFeature.setStyle({
+          color: '#5c5c3d', // Olive border
+          weight: 2,
+          fillColor: '#8b7355', // Brown fill like legacy screenshot
+          fillOpacity: 0.8
+        });
 
-    // CRITICAL: Programmatically enable edit mode
-    // Leaflet-Draw requires clicking the edit button, we simulate this
-    setTimeout(() => {
-      // Try multiple approaches to activate edit mode
+        // Enable Geoman editing ONLY on this single feature
+        if (editableFeature.pm) {
+          editableFeature.pm.enable({
+            allowSelfIntersection: false,
+            snappable: true
+          });
 
-      // Approach 1: Find and click the edit button
-      const editBtn = document.querySelector('.leaflet-draw-edit-edit') as HTMLElement;
-      if (editBtn) {
-        console.log('🔘 Found edit button, clicking...');
-        editBtn.click();
-      } else {
-        console.warn('⚠️ Edit button not found in DOM');
+          const id = targetId;
+          (editableFeature as any)._editId = id;
+          (editableFeature as any)._editTarget = this.editTarget;
 
-        // Approach 2: Direct handler enable
-        try {
-          const toolbar = (this.drawControl as any)._toolbars?.edit;
-          if (toolbar?._modes?.edit?.handler) {
-            toolbar._modes.edit.handler.enable();
-            console.log('✅ Enabled edit handler directly');
-          }
-        } catch (err) {
-          console.error('❌ Failed to enable edit handler:', err);
+          // Listen for edit events
+          editableFeature.on('pm:edit', (e: any) => {
+            console.log(`📝 pm:edit fired for ${this.editTarget} id=${id}`);
+            const editedGeoJson = e.target.toGeoJSON();
+
+            const existingIdx = this.pendingChanges.findIndex(c => c.id === id);
+            if (existingIdx >= 0) {
+              this.pendingChanges[existingIdx].geom = editedGeoJson.geometry;
+            } else {
+              this.pendingChanges.push({
+                id: id,
+                geom: editedGeoJson.geometry,
+                target: this.editTarget || 'kecamatan'
+              });
+            }
+            console.log(`✅ Change tracked: ${this.editTarget} id=${id}`);
+          });
+
+          console.log(`✅ Enabled editing on single ${this.editTarget}: ${id}`);
         }
       }
-    }, 200);
+    } else {
+      // For BIDANG editing: enable on all visible bidang (but one at a time via click)
+      let enabledCount = 0;
+
+      sourceLayer.eachLayer((layer: any) => {
+        if (layer.toGeoJSON) {
+          const geoJson = layer.toGeoJSON();
+          const props = geoJson.properties || {};
+
+          if (!this.isValidGeometry(geoJson.geometry)) {
+            return;
+          }
+
+          const id = props.id || props.nop;
+          (layer as any)._editId = id;
+          (layer as any)._editTarget = 'bidang';
+
+          // Apply editing style
+          layer.setStyle({
+            color: '#f97316',
+            weight: 2,
+            fillColor: '#fed7aa',
+            fillOpacity: 0.5
+          });
+
+          // Enable Geoman editing with optimized settings for performance
+          if (layer.pm) {
+            layer.pm.enable({
+              // Disable expensive features to reduce lag with many polygons
+              allowSelfIntersection: true,  // Disable check during drag for performance
+              snappable: false,             // Disable snapping to other layers (expensive)
+              snapDistance: 0,              // No snap distance
+              preventMarkerRemoval: true,   // Prevent accidental vertex removal
+              limitMarkersToCount: 100      // Limit markers if polygon has too many vertices
+            });
+
+            layer.on('pm:edit', (e: any) => {
+              const editedGeoJson = e.target.toGeoJSON();
+              const existingIdx = this.pendingChanges.findIndex(c => c.id === id);
+              if (existingIdx >= 0) {
+                this.pendingChanges[existingIdx].geom = editedGeoJson.geometry;
+              } else {
+                this.pendingChanges.push({
+                  id: id,
+                  geom: editedGeoJson.geometry,
+                  target: 'bidang'
+                });
+              }
+            });
+
+            enabledCount++;
+          }
+        }
+      });
+
+      console.log(`✅ Enabled editing on ${enabledCount} bidang polygons (optimized settings)`);
+    }
 
     console.log('=== EDIT MODE SETUP COMPLETE ===');
+  }
+
+  /**
+   * Setup edit mode with a SINGLE polygon extracted from cached data
+   * This avoids loading all polygons and only shows the one selected for editing
+   * Works for kecamatan, kelurahan, and blok
+   */
+  private setupSinglePolygonEditMode(selectedItem: any, cacheData: any[], idProperty: string): void {
+    if (!this.map) return;
+
+    // Get the target ID from selectedItem based on the type
+    // selectedItem uses camelCase (kdKec, kdKel, kdBlok) 
+    // cache uses snake_case (kd_kec, kd_kel, kd_blok)
+    let targetId: string;
+    switch (this.editTarget) {
+      case 'kecamatan':
+        targetId = selectedItem.kdKec;
+        break;
+      case 'kelurahan':
+        targetId = selectedItem.kdKel;
+        break;
+      case 'blok':
+        targetId = selectedItem.kdBlok;
+        break;
+      default:
+        targetId = selectedItem.kdKec || selectedItem.kdKel || selectedItem.kdBlok;
+    }
+
+    console.log(`📍 Setting up single polygon edit for ${this.editTarget}:`, targetId);
+    console.log('📍 selectedItem:', selectedItem);
+    console.log('📍 Using idProperty:', idProperty);
+    console.log('📍 cacheData length:', cacheData.length);
+
+    // Hide ALL current layers (clean map, just the editable polygon)
+    const allLayers = [
+      this.kecamatanBoundariesLayer,
+      this.kelurahanBoundariesLayer,
+      this.blokBoundariesLayer,
+      this.bidangBoundariesLayer
+    ];
+
+    (this as any)._hiddenLayers = [];
+
+    allLayers.forEach(layer => {
+      if (layer && this.map?.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+        (this as any)._hiddenLayers.push(layer);
+        console.log('🙈 Hidden layer during single polygon edit');
+      }
+    });
+
+    // Find the selected polygon geometry from cached data
+    let selectedGeometry: any = null;
+    let selectedBoundaryData: any = null;
+
+    // Debug: Show first item in cache to see its structure
+    if (cacheData.length > 0) {
+      console.log('📋 First cache item structure:', Object.keys(cacheData[0]));
+      console.log('📋 First cache item:', JSON.stringify(cacheData[0]).substring(0, 200));
+    }
+
+    for (const boundaryData of cacheData) {
+      const boundaryId = (boundaryData as any)[idProperty];
+      console.log('🔍 Checking cached data:', boundaryId, 'vs', targetId, `(match: ${boundaryId === targetId})`);
+
+      if (boundaryId === targetId) {
+        selectedBoundaryData = boundaryData;
+        // Try geojson first (kecamatan), then geom (kelurahan/blok), then geometry
+        selectedGeometry = boundaryData.geojson || boundaryData.geom || boundaryData.geometry;
+        console.log(`✅ Found matching ${this.editTarget} in cache!`);
+        console.log('📐 Geometry type:', typeof selectedGeometry);
+        break;
+      }
+    }
+
+    if (!selectedGeometry) {
+      console.error(`❌ Could not find geometry for selected ${this.editTarget} in cache`);
+      alert(`Tidak dapat menemukan geometry ${this.editTarget} yang dipilih.`);
+      this.editMode = 'none';
+      return;
+    }
+
+    // Create GeoJSON feature for the single polygon
+    let geoJsonData: any;
+
+    if (typeof selectedGeometry === 'object' && (selectedGeometry.type || selectedGeometry.coordinates)) {
+      geoJsonData = {
+        type: 'Feature',
+        properties: {
+          id: targetId,
+          kd_kec: targetId,
+          nama: selectedItem.nama
+        },
+        geometry: selectedGeometry
+      };
+    } else {
+      console.error('❌ Unknown geometry format:', selectedGeometry);
+      this.editMode = 'none';
+      return;
+    }
+
+    // Create the single polygon layer
+    const singlePolygonLayer = L.geoJSON(geoJsonData, {
+      style: {
+        color: '#5c5c3d', // Olive border like legacy
+        weight: 2,
+        fillColor: '#8b7355', // Brown fill like legacy screenshot  
+        fillOpacity: 0.8
+      }
+    });
+
+    singlePolygonLayer.addTo(this.map);
+
+    // Store for cleanup
+    (this as any)._tempEditableLayer = singlePolygonLayer;
+    (this as any)._editSourceLayer = singlePolygonLayer;
+
+    // SINGLE-VERTEX HOVER EDITING (like legacy OpenLayers)
+    // Shows ONLY ONE vertex marker - the one nearest to the mouse cursor
+    singlePolygonLayer.eachLayer((layer: any) => {
+      (layer as any)._editId = targetId;
+      (layer as any)._editTarget = this.editTarget;
+
+      // Create and enable the single-vertex editor
+      const editor = enableSingleVertexEdit(
+        this.map!,
+        layer as L.Polygon,
+        (editedLayer: L.Polygon | L.Polyline, geojson: any) => {
+          console.log(`📝 Vertex edited for ${this.editTarget} id=${targetId}`);
+
+          const existingIdx = this.pendingChanges.findIndex(c => c.id === targetId);
+          if (existingIdx >= 0) {
+            this.pendingChanges[existingIdx].geom = geojson.geometry;
+          } else {
+            this.pendingChanges.push({
+              id: targetId,
+              geom: geojson.geometry,
+              target: this.editTarget || 'kecamatan'
+            });
+          }
+          console.log(`✅ Change tracked: ${this.editTarget} id=${targetId}`);
+        }
+      );
+
+      // Store editor reference for cleanup
+      (layer as any)._singleVertexEditor = editor;
+    });
+
+    // Zoom to the polygon
+    this.map.fitBounds(singlePolygonLayer.getBounds(), { padding: [50, 50] });
+
+    console.log(`✅ Single polygon edit mode enabled for ${this.editTarget}: ${targetId}`);
+    console.log('=== SINGLE-VERTEX HOVER EDIT MODE SETUP COMPLETE ===');
+  }
+
+  /**
+   * Create an editable layer from the selected item's geometry
+   * Used when the original source layer is no longer available (e.g., kecamatan layer cleared after drilldown)
+   */
+  private createEditableLayerFromSelectedItem(selectedItem: any): void {
+    if (!this.map) return;
+
+    console.log('📍 Creating editable layer from selected item:', selectedItem);
+
+    // Hide all other layers for clean editing view
+    const layersToHide = [
+      this.kelurahanBoundariesLayer,
+      this.blokBoundariesLayer,
+      this.bidangBoundariesLayer
+    ];
+
+    (this as any)._hiddenLayers = [];
+
+    layersToHide.forEach(layer => {
+      if (layer && this.map?.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+        (this as any)._hiddenLayers.push(layer);
+      }
+    });
+
+    // Get geometry from selectedItem - it could be in different formats
+    let geometry = selectedItem.geom || selectedItem.geometry;
+    const id = selectedItem.kdKecamatan || selectedItem.kdKelurahan || selectedItem.kdBlok || selectedItem.id;
+
+    if (!geometry) {
+      console.error('❌ Selected item has no geometry');
+      alert('Tidak ada geometry untuk diedit.');
+      this.editMode = 'none';
+      return;
+    }
+
+    // Create a GeoJSON layer for the selected item
+    let geoJsonData: any;
+
+    // Handle different geometry formats (WKB decoded, GeoJSON, etc)
+    if (typeof geometry === 'object' && geometry.type) {
+      // Already GeoJSON geometry
+      geoJsonData = {
+        type: 'Feature',
+        properties: { id: id },
+        geometry: geometry
+      };
+    } else if (typeof geometry === 'object' && geometry.coordinates) {
+      // Has coordinates directly
+      geoJsonData = {
+        type: 'Feature',
+        properties: { id: id },
+        geometry: geometry
+      };
+    } else {
+      console.error('❌ Unknown geometry format:', geometry);
+      alert('Format geometry tidak dikenali.');
+      this.editMode = 'none';
+      return;
+    }
+
+    // Create temporary editable layer
+    const editableLayer = L.geoJSON(geoJsonData, {
+      style: {
+        color: '#5c5c3d', // Olive border like legacy
+        weight: 2,
+        fillColor: '#8b7355', // Brown fill like legacy screenshot
+        fillOpacity: 0.8
+      }
+    });
+
+    editableLayer.addTo(this.map);
+
+    // Store for cleanup later
+    (this as any)._tempEditableLayer = editableLayer;
+    (this as any)._editSourceLayer = editableLayer;
+
+    // Enable Geoman editing on each layer in the GeoJSON
+    editableLayer.eachLayer((layer: any) => {
+      if (layer.pm) {
+        layer.pm.enable({
+          allowSelfIntersection: false,
+          snappable: true
+        });
+
+        (layer as any)._editId = id;
+        (layer as any)._editTarget = this.editTarget;
+
+        // Listen for edits
+        layer.on('pm:edit', (e: any) => {
+          console.log(`📝 pm:edit fired for ${this.editTarget} id=${id}`);
+          const editedGeoJson = e.target.toGeoJSON();
+
+          const existingIdx = this.pendingChanges.findIndex(c => c.id === id);
+          if (existingIdx >= 0) {
+            this.pendingChanges[existingIdx].geom = editedGeoJson.geometry;
+          } else {
+            this.pendingChanges.push({
+              id: id,
+              geom: editedGeoJson.geometry,
+              target: this.editTarget || 'kecamatan'
+            });
+          }
+          console.log(`✅ Change tracked: ${this.editTarget} id=${id}`);
+        });
+      }
+    });
+
+    // Zoom to the editable polygon
+    this.map.fitBounds(editableLayer.getBounds(), { padding: [20, 20] });
+
+    console.log(`✅ Created editable layer for ${this.editTarget}: ${id}`);
+  }
+
+  /**
+   * Setup move mode for dragging/moving entire bidang polygons (Geser Bidang)
+   */
+  private setupMoveMode(): void {
+    if (!this.map || !this.bidangBoundariesLayer) {
+      console.error('❌ setupMoveMode: No map or bidang layer');
+      return;
+    }
+
+    console.log('🔄 Setting up move mode (Geser Bidang)...');
+
+    let enabledCount = 0;
+
+    // Enable dragging on each bidang polygon
+    this.bidangBoundariesLayer.eachLayer((layer: any) => {
+      if (layer.toGeoJSON && layer.pm) {
+        const geoJson = layer.toGeoJSON();
+        const props = geoJson.properties || {};
+        const id = props.id || props.nop;
+
+        if (!this.isValidGeometry(geoJson.geometry)) {
+          return;
+        }
+
+        // Store ID for tracking
+        (layer as any)._editId = id;
+        (layer as any)._editTarget = 'bidang';
+
+        // Apply move mode style (blue highlight)
+        layer.setStyle({
+          color: '#3b82f6',
+          weight: 3,
+          fillColor: '#93c5fd',
+          fillOpacity: 0.6
+        });
+
+        // Enable Geoman drag mode on this layer
+        layer.pm.enableLayerDrag();
+
+        // Listen for drag end to track changes
+        layer.on('pm:dragend', (e: any) => {
+          const movedGeoJson = e.target.toGeoJSON();
+          const existingIdx = this.pendingChanges.findIndex(c => c.id === id);
+
+          if (existingIdx >= 0) {
+            this.pendingChanges[existingIdx].geom = movedGeoJson.geometry;
+          } else {
+            this.pendingChanges.push({
+              id: id,
+              geom: movedGeoJson.geometry,
+              target: 'bidang'
+            });
+          }
+
+          console.log(`📍 Bidang ${id} moved, position saved`);
+        });
+
+        enabledCount++;
+      }
+    });
+
+    console.log(`✅ Move mode enabled on ${enabledCount} bidang polygons`);
   }
 
   /**
@@ -3044,15 +3548,77 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Remove draw control from map
+   * Disable Geoman editing and restore original layer styles
    */
   private removeDrawControl(): void {
+    console.log('=== EXITING EDIT MODE ===');
+
+    // Disable Geoman draw mode (if in draw mode)
+    if (this.map && (this.map as any).pm) {
+      (this.map as any).pm.disableDraw();
+      this.map.off('pm:create'); // Remove draw created listener
+      console.log('✅ Disabled Geoman draw mode');
+    }
+
+    // Remove any newly drawn layers (on cancel)
+    if (this.drawnLayers.length > 0 && this.map) {
+      this.drawnLayers.forEach(layer => {
+        if (this.map?.hasLayer(layer)) {
+          this.map.removeLayer(layer);
+        }
+      });
+      console.log(`✅ Removed ${this.drawnLayers.length} drawn layers`);
+      this.drawnLayers = [];
+    }
+
+    // Get the source layer that was being edited
+    const sourceLayer = (this as any)._editSourceLayer as L.GeoJSON | null;
+
+    if (sourceLayer) {
+      // Disable Geoman editing on each layer and restore original style
+      sourceLayer.eachLayer((layer: any) => {
+        // Disable Geoman editing
+        if (layer.pm) {
+          layer.pm.disable();
+        }
+
+        // Remove edit event listeners
+        layer.off('pm:edit');
+
+        // Restore full opacity for polygons that were hidden
+        if (layer.setStyle) {
+          layer.setStyle({ opacity: 1, fillOpacity: 0.4 });
+        }
+      });
+
+      // Reset the style using layer's resetStyle function (if available)
+      if (sourceLayer.resetStyle) {
+        sourceLayer.eachLayer((layer: any) => {
+          sourceLayer.resetStyle(layer);
+        });
+      }
+
+      console.log(`✅ Disabled editing and restored styles for ${this.editTarget}`);
+    }
+
+    // RESTORE HIDDEN LAYERS (that were hidden during edit mode)
+    const hiddenLayers = (this as any)._hiddenLayers as L.Layer[] | null;
+    if (hiddenLayers && hiddenLayers.length > 0 && this.map) {
+      hiddenLayers.forEach(layer => {
+        if (layer && !this.map?.hasLayer(layer)) {
+          this.map?.addLayer(layer);
+        }
+      });
+      console.log(`✅ Restored ${hiddenLayers.length} hidden layers`);
+    }
+
+    // Legacy cleanup (for old leaflet-draw code if still present)
     if (this.drawControl && this.map) {
       this.map.removeControl(this.drawControl as L.Control);
       this.drawControl = null;
     }
 
-    // Clear editable layer
+    // Clear editable layer (legacy)
     if (this.editableLayer) {
       this.editableLayer.clearLayers();
       if (this.map && this.editableLayer) {
@@ -3060,44 +3626,42 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // Restore original layer based on editTarget
-    if (this.map && this.editTarget) {
-      switch (this.editTarget) {
-        case 'kecamatan':
-          if (this.kecamatanBoundariesLayer) {
-            this.kecamatanBoundariesLayer.addTo(this.map);
-            console.log('👁️ Restored kecamatanBoundariesLayer');
-          }
-          break;
-        case 'kelurahan':
-          if (this.kelurahanBoundariesLayer) {
-            this.kelurahanBoundariesLayer.addTo(this.map);
-            console.log('👁️ Restored kelurahanBoundariesLayer');
-          }
-          break;
-        case 'blok':
-          if (this.blokBoundariesLayer) {
-            this.blokBoundariesLayer.addTo(this.map);
-            console.log('👁️ Restored blokBoundariesLayer');
-          }
-          break;
-        case 'bidang':
-          if (this.bidangBoundariesLayer) {
-            this.bidangBoundariesLayer.addTo(this.map);
-            console.log('👁️ Restored bidangBoundariesLayer');
-          }
-          break;
+    // Clean up temporary editable layer (created by createEditableLayerFromSelectedItem)
+    const tempLayer = (this as any)._tempEditableLayer as L.GeoJSON | null;
+    if (tempLayer && this.map) {
+      tempLayer.eachLayer((layer: any) => {
+        // Disable Geoman editing if applicable
+        if (layer.pm) layer.pm.disable();
+        layer.off('pm:edit');
+
+        // Disable SingleVertexEditor if applicable
+        if (layer._singleVertexEditor) {
+          (layer._singleVertexEditor as SingleVertexEditor).disable();
+          layer._singleVertexEditor = null;
+        }
+      });
+      this.map.removeLayer(tempLayer);
+      (this as any)._tempEditableLayer = null;
+      console.log('✅ Cleaned up temporary editable layer');
+    }
+
+    // If we were editing kecamatan while at kelurahan level, remove the kecamatan layer
+    // (since user was viewing kelurahan, not all kecamatans)
+    const wasEditingKecamatan = this.editTarget === 'kecamatan';
+    if (wasEditingKecamatan && this.currentLevel === 'kelurahan') {
+      if (this.kecamatanBoundariesLayer && this.map) {
+        this.map.removeLayer(this.kecamatanBoundariesLayer);
+        this.kecamatanBoundariesLayer = null;
+        console.log('✅ Removed kecamatan layer (was editing at kelurahan level)');
       }
     }
 
-    // Reset editTarget
+    // Reset references
     this.editTarget = null;
+    (this as any)._editSourceLayer = null;
+    (this as any)._hiddenLayers = [];
 
-    // Remove event listeners
-    if (this.map) {
-      this.map.off(L.Draw.Event.CREATED);
-      this.map.off(L.Draw.Event.EDITED);
-    }
+    console.log('=== EDIT MODE EXITED ===');
   }
 
   /**
@@ -3216,5 +3780,34 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
         null
       );
     }
+  }
+
+  /**
+   * Validate GeoJSON geometry has no null coordinates
+   * Leaflet-Draw crashes if any coordinate is null/undefined
+   */
+  private isValidGeometry(geometry: any): boolean {
+    if (!geometry || !geometry.type || !geometry.coordinates) {
+      return false;
+    }
+
+    // Recursively check all coordinates
+    const validateCoords = (coords: any): boolean => {
+      if (coords === null || coords === undefined) {
+        return false;
+      }
+
+      if (typeof coords === 'number') {
+        return !isNaN(coords) && isFinite(coords);
+      }
+
+      if (Array.isArray(coords)) {
+        return coords.every(c => validateCoords(c));
+      }
+
+      return false;
+    };
+
+    return validateCoords(geometry.coordinates);
   }
 }
