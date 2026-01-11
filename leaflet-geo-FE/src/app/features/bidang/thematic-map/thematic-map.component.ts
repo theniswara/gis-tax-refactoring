@@ -2144,19 +2144,19 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Get tematik type label for display
+   * API values from legacy: gunaTanah, kelasTanah, gunaBangunan, kelasBangunan, znt, tetapBuku, nilaiIndividu, statusBayar
    */
   getTematikTypeLabel(): string {
     switch (this.selectedTematikType) {
-      case 'penggunaanTanah': return 'Penggunaan Tanah';
+      case 'gunaTanah': return 'Penggunaan Tanah';
       case 'kelasTanah': return 'Kelas Tanah';
-      case 'penggunaanBangunan': return 'Penggunaan Bangunan';
+      case 'gunaBangunan': return 'Penggunaan Bangunan';
       case 'kelasBangunan': return 'Kelas Bangunan';
       case 'znt': return 'ZNT';
-      case 'ketetapanPerBuku': return 'Ketetapan Per Buku';
+      case 'tetapBuku': return 'Ketetapan Per Buku';
       case 'nilaiIndividu': return 'Nilai Individu';
-      case 'statusPembayaran': return 'Status Pembayaran';
-      // Legacy support
-      case 'gunaTanah': return 'Guna Tanah';
+      case 'statusBayar': return 'Status Pembayaran';
+      // Legacy support for old values
       case 'klasifikasi': return 'Klasifikasi';
       case 'zona': return 'Zona Nilai Tanah';
       default: return this.selectedTematikType || 'Tematik';

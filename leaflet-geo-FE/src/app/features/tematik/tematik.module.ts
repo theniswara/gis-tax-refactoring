@@ -12,7 +12,7 @@ const routes: Routes = [
     {
         path: 'penggunaan-tanah',
         component: ThematicMapComponent,
-        data: { tematikType: 'penggunaanTanah', title: 'Penggunaan Tanah' }
+        data: { tematikType: 'gunaTanah', title: 'Penggunaan Tanah' }
     },
     {
         path: 'kelas-tanah',
@@ -22,7 +22,7 @@ const routes: Routes = [
     {
         path: 'penggunaan-bangunan',
         component: ThematicMapComponent,
-        data: { tematikType: 'penggunaanBangunan', title: 'Penggunaan Bangunan' }
+        data: { tematikType: 'gunaBangunan', title: 'Penggunaan Bangunan' }
     },
     {
         path: 'kelas-bangunan',
@@ -37,7 +37,7 @@ const routes: Routes = [
     {
         path: 'ketetapan-per-buku',
         component: ThematicMapComponent,
-        data: { tematikType: 'ketetapanPerBuku', title: 'Ketetapan Per Buku' }
+        data: { tematikType: 'tetapBuku', title: 'Ketetapan Per Buku' }
     },
     {
         path: 'nilai-individu',
@@ -47,7 +47,7 @@ const routes: Routes = [
     {
         path: 'status-pembayaran',
         component: ThematicMapComponent,
-        data: { tematikType: 'statusPembayaran', title: 'Status Pembayaran' }
+        data: { tematikType: 'statusBayar', title: 'Status Pembayaran' }
     }
 ];
 
