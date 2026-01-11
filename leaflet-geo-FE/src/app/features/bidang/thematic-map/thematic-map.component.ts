@@ -133,10 +133,7 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
       if (data['tematikType']) {
         this.selectedTematikType = data['tematikType'];
         console.log('🎨 Tematik type from route:', this.selectedTematikType);
-        // Auto open modal when coming from tematik menu
-        setTimeout(() => {
-          this.showTematikModal = true;
-        }, 500);
+        // Type is pre-selected, user clicks "Setup Filter" to open modal
       }
     });
 
@@ -2150,10 +2147,19 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   getTematikTypeLabel(): string {
     switch (this.selectedTematikType) {
+      case 'penggunaanTanah': return 'Penggunaan Tanah';
+      case 'kelasTanah': return 'Kelas Tanah';
+      case 'penggunaanBangunan': return 'Penggunaan Bangunan';
+      case 'kelasBangunan': return 'Kelas Bangunan';
+      case 'znt': return 'ZNT';
+      case 'ketetapanPerBuku': return 'Ketetapan Per Buku';
+      case 'nilaiIndividu': return 'Nilai Individu';
+      case 'statusPembayaran': return 'Status Pembayaran';
+      // Legacy support
       case 'gunaTanah': return 'Guna Tanah';
       case 'klasifikasi': return 'Klasifikasi';
       case 'zona': return 'Zona Nilai Tanah';
-      default: return this.selectedTematikType;
+      default: return this.selectedTematikType || 'Tematik';
     }
   }
 

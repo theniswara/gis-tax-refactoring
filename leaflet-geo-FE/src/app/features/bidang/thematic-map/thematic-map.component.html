@@ -31,10 +31,7 @@
                     <i class="ri-palette-line me-2"></i>
                     Tematik Filter
                   </h6>
-                  <button
-                    class="btn btn-sm btn-light"
-                    (click)="openTematikModal()"
-                    type="button">
+                  <button class="btn btn-sm btn-light" (click)="openTematikModal()" type="button">
                     <i class="ri-settings-3-line me-1"></i>
                     Setup Filter
                   </button>
@@ -66,9 +63,7 @@
                             <strong>Tahun:</strong> {{ selectedTematikTahun }}
                           </p>
                         </div>
-                        <button
-                          class="btn btn-outline-secondary btn-sm"
-                          (click)="clearTematikData()"
+                        <button class="btn btn-outline-secondary btn-sm" (click)="clearTematikData()"
                           title="Clear Tematik">
                           <i class="ri-close-line"></i>
                         </button>
@@ -97,7 +92,8 @@
                         <i class="ri-home-line me-1"></i>Semua Kecamatan
                       </a>
                     </li>
-                    <li class="breadcrumb-item" *ngIf="currentLevel === 'kelurahan' || currentLevel === 'blok' || currentLevel === 'bidang'">
+                    <li class="breadcrumb-item"
+                      *ngIf="currentLevel === 'kelurahan' || currentLevel === 'blok' || currentLevel === 'bidang'">
                       <span class="text-muted">{{ selectedKecamatanForDrilldown?.nama }}</span>
                     </li>
                     <li class="breadcrumb-item" *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'">
@@ -110,24 +106,15 @@
                 </nav>
               </div>
               <div class="d-flex gap-2">
-                <button
-                  *ngIf="currentLevel === 'kelurahan'"
-                  class="btn btn-outline-primary btn-sm"
-                  (click)="goBack()"
+                <button *ngIf="currentLevel === 'kelurahan'" class="btn btn-outline-primary btn-sm" (click)="goBack()"
                   title="Kembali ke Kecamatan">
                   <i class="ri-arrow-left-line me-1"></i>Kembali ke Kecamatan
                 </button>
-                <button
-                  *ngIf="currentLevel === 'blok'"
-                  class="btn btn-outline-primary btn-sm"
-                  (click)="goBack()"
+                <button *ngIf="currentLevel === 'blok'" class="btn btn-outline-primary btn-sm" (click)="goBack()"
                   title="Kembali ke Kelurahan">
                   <i class="ri-arrow-left-line me-1"></i>Kembali ke Kelurahan
                 </button>
-                <button
-                  *ngIf="currentLevel === 'bidang'"
-                  class="btn btn-outline-primary btn-sm"
-                  (click)="goBack()"
+                <button *ngIf="currentLevel === 'bidang'" class="btn btn-outline-primary btn-sm" (click)="goBack()"
                   title="Kembali ke Blok">
                   <i class="ri-arrow-left-line me-1"></i>Kembali ke Blok
                 </button>
@@ -147,18 +134,13 @@
                 <i class="ri-palette-line me-2"></i>
                 Legend Tematik
               </h6>
-              <button
-                class="btn-legend-close"
-                (click)="toggleLegend()"
-                title="Toggle Legend">
+              <button class="btn-legend-close" (click)="toggleLegend()" title="Toggle Legend">
                 <i class="ri-{{ isLegendVisible ? 'eye-off' : 'eye' }}-line"></i>
               </button>
             </div>
             <div class="legend-body" *ngIf="isLegendVisible">
               <div *ngFor="let layer of tematikLayersArray" class="legend-item">
-                <div
-                  class="legend-color-box"
-                  [style.background-color]="layer.color">
+                <div class="legend-color-box" [style.background-color]="layer.color">
                 </div>
                 <span class="legend-label">{{ layer.label }}</span>
                 <span class="legend-count">({{ layer.data.length }})</span>
@@ -189,9 +171,11 @@
                 <strong>Bidang Data Loaded:</strong> {{ getPaginationInfo() }}
                 <div *ngIf="selectedKecamatan" class="mt-1">
                   <small>
-                    <strong>Kecamatan:</strong> {{ selectedKecamatan.nmKecamatan }} ({{ selectedKecamatan.kdKecamatan }})
+                    <strong>Kecamatan:</strong> {{ selectedKecamatan.nmKecamatan }} ({{ selectedKecamatan.kdKecamatan
+                    }})
                     <span *ngIf="selectedKelurahan">
-                      | <strong>Kelurahan:</strong> {{ selectedKelurahan.nmKelurahan }} ({{ selectedKelurahan.kdKelurahan }})
+                      | <strong>Kelurahan:</strong> {{ selectedKelurahan.nmKelurahan }} ({{
+                      selectedKelurahan.kdKelurahan }})
                     </span>
                   </small>
                 </div>
@@ -232,7 +216,8 @@
 </div>
 
 <!-- Objek Pajak Modal -->
-<div *ngIf="showObjekPajakModal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="showObjekPajakModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+  style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -329,11 +314,13 @@
                     </div>
                     <div class="info-item mb-3">
                       <label class="form-label fw-bold text-muted small">RT/RW</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].rtOp || 'N/A' }}/{{ objekPajakData[0].rwOp || 'N/A' }}</p>
+                      <p class="mb-0 fs-6">{{ objekPajakData[0].rtOp || 'N/A' }}/{{ objekPajakData[0].rwOp || 'N/A' }}
+                      </p>
                     </div>
                     <div class="info-item mb-3">
                       <label class="form-label fw-bold text-muted small">Koordinat</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].latitude || 'N/A' }}, {{ objekPajakData[0].longitude || 'N/A' }}</p>
+                      <p class="mb-0 fs-6">{{ objekPajakData[0].latitude || 'N/A' }}, {{ objekPajakData[0].longitude ||
+                        'N/A' }}</p>
                     </div>
                   </div>
                   <div class="col-md-6">
@@ -390,7 +377,8 @@
                     </div>
                     <div class="info-item mb-3">
                       <label class="form-label fw-bold text-muted small">RT/RW WP</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.rtWp || 'N/A' }}/{{ objekPajakData[0].subjekPajak.rwWp || 'N/A' }}</p>
+                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.rtWp || 'N/A' }}/{{
+                        objekPajakData[0].subjekPajak.rwWp || 'N/A' }}</p>
                     </div>
                     <div class="info-item mb-3">
                       <label class="form-label fw-bold text-muted small">Kelurahan</label>
@@ -406,13 +394,15 @@
                       <div class="col-md-6">
                         <div class="info-item mb-3">
                           <label class="form-label fw-bold text-muted small">Provinsi WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmPropinsi || 'N/A' }}</p>
+                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmPropinsi || 'N/A' }}
+                          </p>
                         </div>
                       </div>
                       <div class="col-md-6">
                         <div class="info-item mb-3">
                           <label class="form-label fw-bold text-muted small">Kabupaten/Kota WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmDati2 || 'N/A' }}</p>
+                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmDati2 || 'N/A' }}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -420,13 +410,15 @@
                       <div class="col-md-6">
                         <div class="info-item mb-3">
                           <label class="form-label fw-bold text-muted small">Kecamatan WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmKecamatan || 'N/A' }}</p>
+                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmKecamatan || 'N/A'
+                            }}</p>
                         </div>
                       </div>
                       <div class="col-md-6">
                         <div class="info-item mb-3">
                           <label class="form-label fw-bold text-muted small">Kelurahan WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmKelurahan || 'N/A' }}</p>
+                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmKelurahan || 'N/A'
+                            }}</p>
                         </div>
                       </div>
                     </div>
@@ -462,7 +454,7 @@
             <div class="row">
               <div *ngFor="let objek of objekPajakData; let i = index" class="col-md-6 mb-3">
                 <div class="card h-100" [class.border-primary]="selectedObjekPajak === objek"
-                     (click)="selectObjekPajak(objek)" style="cursor: pointer;">
+                  (click)="selectObjekPajak(objek)" style="cursor: pointer;">
                   <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
                       <i class="ri-building-line me-1"></i>
@@ -489,7 +481,8 @@
                       <div class="col-12">
                         <p class="mb-1"><strong>Alamat:</strong> {{ objek.jalanOp || 'N/A' }}</p>
                         <p class="mb-1"><strong>RT/RW:</strong> {{ objek.rtOp || 'N/A' }}/{{ objek.rwOp || 'N/A' }}</p>
-                        <p class="mb-1"><strong>Koordinat:</strong> {{ objek.latitude || 'N/A' }}, {{ objek.longitude || 'N/A' }}</p>
+                        <p class="mb-1"><strong>Koordinat:</strong> {{ objek.latitude || 'N/A' }}, {{ objek.longitude ||
+                          'N/A' }}</p>
                       </div>
                     </div>
 
@@ -506,11 +499,13 @@
                             <p class="mb-1"><strong>Nama WP:</strong> {{ objek.subjekPajak.nmWp || 'N/A' }}</p>
                             <p class="mb-1"><strong>NPWP:</strong> {{ objek.subjekPajak.npwp || 'N/A' }}</p>
                             <p class="mb-1"><strong>NPWPD:</strong> {{ objek.subjekPajak.npwpd || 'N/A' }}</p>
-                            <p class="mb-1"><strong>Status Pekerjaan:</strong> {{ objek.subjekPajak.statusPekerjaanWp || 'N/A' }}</p>
+                            <p class="mb-1"><strong>Status Pekerjaan:</strong> {{ objek.subjekPajak.statusPekerjaanWp ||
+                              'N/A' }}</p>
                           </div>
                           <div class="col-6">
                             <p class="mb-1"><strong>Alamat WP:</strong> {{ objek.subjekPajak.jalanWp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>RT/RW WP:</strong> {{ objek.subjekPajak.rtWp || 'N/A' }}/{{ objek.subjekPajak.rwWp || 'N/A' }}</p>
+                            <p class="mb-1"><strong>RT/RW WP:</strong> {{ objek.subjekPajak.rtWp || 'N/A' }}/{{
+                              objek.subjekPajak.rwWp || 'N/A' }}</p>
                             <p class="mb-1"><strong>Kelurahan:</strong> {{ objek.subjekPajak.kelurahanWp || 'N/A' }}</p>
                             <p class="mb-1"><strong>Kota:</strong> {{ objek.subjekPajak.kotaWp || 'N/A' }}</p>
                           </div>
@@ -548,7 +543,8 @@
 </div>
 
 <!-- Bidang Detail Modal -->
-<div class="modal fade" [class.show]="showBidangModal" [style.display]="showBidangModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-labelledby="bidangDetailModalLabel" aria-hidden="true">
+<div class="modal fade" [class.show]="showBidangModal" [style.display]="showBidangModal ? 'block' : 'none'"
+  tabindex="-1" role="dialog" aria-labelledby="bidangDetailModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
@@ -556,7 +552,8 @@
           <i class="ri-building-line me-2"></i>
           Detail Bidang - Info NOP
         </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeBidangDetailModal()" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeBidangDetailModal()"
+          aria-label="Close"></button>
       </div>
 
       <div class="modal-body">
@@ -591,8 +588,10 @@
             </div>
             <div class="col-md-6">
               <p class="mb-2"><strong>Alamat OP:</strong> {{ selectedBidangDetail.alamatOP }}</p>
-              <p class="mb-2"><strong>Luas Tanah:</strong> <span [innerHTML]="selectedBidangDetail.luasTanah"></span></p>
-              <p class="mb-2"><strong>Luas Bangunan:</strong> <span [innerHTML]="selectedBidangDetail.luasBangunan"></span></p>
+              <p class="mb-2"><strong>Luas Tanah:</strong> <span [innerHTML]="selectedBidangDetail.luasTanah"></span>
+              </p>
+              <p class="mb-2"><strong>Luas Bangunan:</strong> <span
+                  [innerHTML]="selectedBidangDetail.luasBangunan"></span></p>
             </div>
             <div class="col-md-6">
               <p class="mb-2"><strong>Jenis Tanah:</strong> {{ selectedBidangDetail.jpt }}</p>
@@ -632,11 +631,14 @@
             <div class="col-md-6">
               <p class="mb-2"><strong>NJOP Bumi:</strong> Rp {{ selectedBidangDetail.njopBumi | number }}</p>
               <p class="mb-2"><strong>NJOP Bangunan:</strong> Rp {{ selectedBidangDetail.njopBangunan | number }}</p>
-              <p class="mb-2"><strong>NJOP Total:</strong> <span class="fw-bold text-primary">Rp {{ selectedBidangDetail.njopTotal | number }}</span></p>
+              <p class="mb-2"><strong>NJOP Total:</strong> <span class="fw-bold text-primary">Rp {{
+                  selectedBidangDetail.njopTotal | number }}</span></p>
             </div>
             <div class="col-md-6">
-              <p class="mb-2"><strong>PBB Terhutang:</strong> <span class="fw-bold text-success">Rp {{ selectedBidangDetail.pbbTerhutang | number }}</span></p>
-              <p class="mb-2"><strong>Status Bayar:</strong> <span [innerHTML]="selectedBidangDetail.statusBayar"></span></p>
+              <p class="mb-2"><strong>PBB Terhutang:</strong> <span class="fw-bold text-success">Rp {{
+                  selectedBidangDetail.pbbTerhutang | number }}</span></p>
+              <p class="mb-2"><strong>Status Bayar:</strong> <span
+                  [innerHTML]="selectedBidangDetail.statusBayar"></span></p>
             </div>
           </div>
         </div>
@@ -659,35 +661,27 @@
 </div>
 
 <!-- Tematik Filter Modal -->
-<div class="modal fade" [class.show]="showTematikModal" [style.display]="showTematikModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-labelledby="tematikModalLabel" aria-hidden="true">
+<div class="modal fade" [class.show]="showTematikModal" [style.display]="showTematikModal ? 'block' : 'none'"
+  tabindex="-1" role="dialog" aria-labelledby="tematikModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-info text-white">
         <h5 class="modal-title" id="tematikModalLabel">
           <i class="ri-palette-line me-2"></i>
-          Setup Filter Tematik
+          Filter Tematik - {{ getTematikTypeLabel() }}
         </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeTematikModal()" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeTematikModal()"
+          aria-label="Close"></button>
       </div>
 
       <div class="modal-body">
         <form>
-          <!-- Jenis Tematik -->
+          <!-- Tematik Type Display -->
           <div class="mb-3">
-            <label for="modalTematikTypeSelect" class="form-label">
+            <div class="alert alert-info">
               <i class="ri-paint-brush-line me-1"></i>
-              Jenis Tematik <span class="text-danger">*</span>
-            </label>
-            <select
-              id="modalTematikTypeSelect"
-              class="form-select"
-              [(ngModel)]="selectedTematikType"
-              name="tematikType">
-              <option value="">-- Pilih Jenis Tematik --</option>
-              <option value="gunaTanah">Guna Tanah</option>
-              <option value="klasifikasi">Klasifikasi</option>
-              <option value="zona">Zona Nilai Tanah</option>
-            </select>
+              <strong>Jenis Tematik:</strong> {{ getTematikTypeLabel() }}
+            </div>
           </div>
 
           <!-- Kecamatan -->
@@ -696,16 +690,10 @@
               <i class="ri-map-pin-line me-1"></i>
               Kecamatan <span class="text-danger">*</span>
             </label>
-            <select
-              id="modalTematikKecamatanSelect"
-              class="form-select"
-              [(ngModel)]="selectedTematikKecamatan"
-              name="tematikKecamatan"
-              (ngModelChange)="onTematikKecamatanChange()">
+            <select id="modalTematikKecamatanSelect" class="form-select" [(ngModel)]="selectedTematikKecamatan"
+              name="tematikKecamatan" (ngModelChange)="onTematikKecamatanChange()">
               <option value="">-- Pilih Kecamatan --</option>
-              <option
-                *ngFor="let kecamatan of kecamatanList"
-                [value]="kecamatan.kdKecamatan">
+              <option *ngFor="let kecamatan of kecamatanList" [value]="kecamatan.kdKecamatan">
                 {{ kecamatan.nmKecamatan }} - {{ kecamatan.jumlahBidang || 0 }} bidang
               </option>
             </select>
@@ -717,16 +705,10 @@
               <i class="ri-home-line me-1"></i>
               Kelurahan <span class="text-danger">*</span>
             </label>
-            <select
-              id="modalTematikKelurahanSelect"
-              class="form-select"
-              [(ngModel)]="selectedTematikKelurahan"
-              name="tematikKelurahan"
-              [disabled]="!selectedTematikKecamatan || isLoadingKelurahan">
+            <select id="modalTematikKelurahanSelect" class="form-select" [(ngModel)]="selectedTematikKelurahan"
+              name="tematikKelurahan" [disabled]="!selectedTematikKecamatan || isLoadingKelurahan">
               <option value="">-- Pilih Kelurahan --</option>
-              <option
-                *ngFor="let kelurahan of kelurahanList"
-                [value]="kelurahan.kdKelurahan">
+              <option *ngFor="let kelurahan of kelurahanList" [value]="kelurahan.kdKelurahan">
                 {{ kelurahan.nmKelurahan }} - {{ kelurahan.jumlahBidang || 0 }} bidang
               </option>
             </select>
@@ -743,11 +725,8 @@
           <i class="ri-close-line me-1"></i>
           Batal
         </button>
-        <button
-          type="button"
-          class="btn btn-info"
-          (click)="loadTematikData()"
-          [disabled]="!selectedTematikType || !selectedTematikKecamatan || !selectedTematikKelurahan || isLoadingTematik">
+        <button type="button" class="btn btn-info" (click)="loadTematikData()"
+          [disabled]="!selectedTematikKecamatan || !selectedTematikKelurahan || isLoadingTematik">
           <i class="ri-palette-line me-1" *ngIf="!isLoadingTematik"></i>
           <i class="ri-loader-4-line spin me-1" *ngIf="isLoadingTematik"></i>
           <span *ngIf="!isLoadingTematik">Load Tematik</span>
