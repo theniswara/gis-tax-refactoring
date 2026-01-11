@@ -224,6 +224,89 @@
             title="Toggle Layer Control">
             <i class="ri-stack-line"></i>
           </button>
+
+          <!-- Edit Toolbar Panel - Shows based on navigation context -->
+          <!-- Only show when user has navigated into a level (not at kecamatan overview) -->
+          <div class="edit-toolbar-panel" *ngIf="currentLevel !== 'kecamatan'">
+            <div class="edit-toolbar-header">
+              <i class="ri-edit-2-line me-1"></i>
+              <span>Edit Tools</span>
+            </div>
+            <div class="edit-toolbar-body">
+              <!-- Edit Kecamatan - Only when viewing kelurahan (have selected a kecamatan) -->
+              <button *ngIf="currentLevel === 'kelurahan' && selectedKecamatanForDrilldown" class="edit-btn"
+                [class.active]="editMode === 'edit' && editTarget === 'kecamatan'"
+                (click)="toggleEditMode('edit', 'kecamatan')" title="Edit batas Kecamatan">
+                <i class="ri-edit-line"></i>
+                <span>Edit Kecamatan</span>
+              </button>
+
+              <!-- Edit Kelurahan - Only when viewing blok (have selected a kelurahan) -->
+              <button *ngIf="currentLevel === 'blok' && selectedKelurahanForDrilldown" class="edit-btn"
+                [class.active]="editMode === 'edit' && editTarget === 'kelurahan'"
+                (click)="toggleEditMode('edit', 'kelurahan')" title="Edit batas Kelurahan">
+                <i class="ri-edit-line"></i>
+                <span>Edit Kelurahan</span>
+              </button>
+
+              <!-- Edit Blok - Only when viewing bidang (have selected a blok) -->
+              <button *ngIf="currentLevel === 'bidang' && selectedBlokForDrilldown" class="edit-btn"
+                [class.active]="editMode === 'edit' && editTarget === 'blok'" (click)="toggleEditMode('edit', 'blok')"
+                title="Edit batas Blok">
+                <i class="ri-edit-line"></i>
+                <span>Edit Blok</span>
+              </button>
+
+              <hr *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'" class="my-2">
+
+              <!-- Draw Button - Only for blok/bidang levels -->
+              <button *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'" class="edit-btn"
+                [class.active]="editMode === 'draw'" (click)="toggleEditMode('draw')" title="Gambar Bidang Baru">
+                <i class="ri-shape-line"></i>
+                <span>Draw Bidang</span>
+              </button>
+
+              <!-- Edit Bidang - Only at bidang level -->
+              <button *ngIf="currentLevel === 'bidang'" class="edit-btn"
+                [class.active]="editMode === 'edit' && editTarget === 'bidang'"
+                (click)="toggleEditMode('edit', 'bidang')" title="Edit Bidang">
+                <i class="ri-edit-line"></i>
+                <span>Edit Bidang</span>
+              </button>
+
+              <!-- Geser Bidang (Move) - Only at bidang level -->
+              <button *ngIf="currentLevel === 'bidang'" class="edit-btn" [class.active]="editMode === 'move'"
+                (click)="toggleEditMode('move')" title="Geser/Pindahkan Bidang">
+                <i class="ri-drag-move-2-line"></i>
+                <span>Geser Bidang</span>
+              </button>
+
+              <!-- Delete Button - Only for bidang level -->
+              <button *ngIf="currentLevel === 'bidang'" class="edit-btn" [class.active]="editMode === 'delete'"
+                (click)="toggleEditMode('delete')" title="Hapus Bidang">
+                <i class="ri-delete-bin-line"></i>
+                <span>Delete</span>
+              </button>
+
+              <hr *ngIf="editMode !== 'none'" class="my-2">
+
+              <!-- Save/Cancel when in edit mode -->
+              <div *ngIf="editMode !== 'none'" class="edit-actions">
+                <button class="btn btn-sm btn-success w-100 mb-2" (click)="saveEditChanges()"
+                  [disabled]="pendingChanges.length === 0">
+                  <i class="ri-save-line me-1"></i>Save
+                </button>
+                <button class="btn btn-sm btn-secondary w-100" (click)="cancelEditMode()">
+                  <i class="ri-close-line me-1"></i>Cancel
+                </button>
+              </div>
+
+              <!-- Pending changes indicator -->
+              <div *ngIf="pendingChanges.length > 0" class="pending-badge">
+                {{ pendingChanges.length }} changes pending
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Loading State -->

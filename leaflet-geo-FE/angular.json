@@ -40,7 +40,8 @@
               "node_modules/slick-carousel/slick/slick-theme.scss",
               "src/assets/scss/config/default/app.scss",
               "src/assets/scss/icons.scss",
-              "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css"
+              "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css",
+              "node_modules/@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
