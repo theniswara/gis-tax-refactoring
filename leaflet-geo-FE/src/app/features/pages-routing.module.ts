@@ -56,6 +56,10 @@ const routes: Routes = [
     path: 'setting',
     loadChildren: () => import('./setting/setting.module').then(m => m.SettingModule),
   },
+  {
+    path: 'tematik',
+    loadChildren: () => import('./tematik/tematik.module').then(m => m.TematikModule),
+  },
 ];
 
 @NgModule({
