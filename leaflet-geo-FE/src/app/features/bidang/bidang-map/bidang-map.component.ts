@@ -124,7 +124,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayer: L.GeoJSON | null = null;
 
   // Layer Legend Control properties
-  showLayerLegend = true;
+  showLayerLegend = false;
   selectedBaseLayer = 'satellite';
   baseLayers: { [key: string]: L.TileLayer } = {};
   currentBaseLayer: L.TileLayer | null = null;

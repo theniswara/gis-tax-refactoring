@@ -734,7 +734,7 @@ h6.text-primary {
     display: flex;
     align-items: center;
     padding: 10px 12px;
-    background: linear-gradient(135deg, #405189 0%, #2a3a5c 100%);
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     color: white;
     border-radius: 8px 8px 0 0;
     font-weight: 600;
@@ -796,7 +796,7 @@ h6.text-primary {
       margin-top: 4px;
 
       &::-webkit-slider-thumb {
-        background: #405189;
+        background: #16a34a;
         width: 14px;
         height: 14px;
       }
@@ -808,8 +808,8 @@ h6.text-primary {
       cursor: pointer;
 
       &:checked {
-        background-color: #405189;
-        border-color: #405189;
+        background-color: #16a34a;
+        border-color: #16a34a;
       }
     }
   }
@@ -838,7 +838,7 @@ h6.text-primary {
 
   i {
     font-size: 20px;
-    color: #405189;
+    color: #16a34a;
   }
 
   &:hover {

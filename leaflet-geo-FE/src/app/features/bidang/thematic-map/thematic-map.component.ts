@@ -108,7 +108,7 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayers: any = {};
   tematikLayersArray: any[] = [];
   tematikLayer: L.GeoJSON | null = null;
-  isLegendVisible: boolean = false; // Control legend visibility (default collapsed)
+  isLegendVisible: boolean = true; // Control legend visibility
 
   constructor(
     private restApiService: RestApiService,
