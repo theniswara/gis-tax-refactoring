@@ -176,6 +176,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -621,7 +622,7 @@ h6.text-primary {
   border-radius: 5px !important;
   font-size: 12px !important;
   line-height: 18px !important;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 
   h4 {
     margin: 0 0 8px 0;
@@ -691,7 +692,7 @@ h6.text-primary {
   padding: 4px 8px !important;
   font-size: 11px !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   white-space: pre-line !important;
   text-align: center !important;
   line-height: 1.2 !important;
@@ -712,7 +713,7 @@ h6.text-primary {
   border: 1px solid #e2e8f0;
 
   .legend-header {
-    background: linear-gradient(135deg, #004f36 0%, #00695c 100%);
+    background: linear-gradient(135deg, #198754 0%, #157347 100%); // Bootstrap Success Green gradient
     color: white;
     padding: 10px 12px;
     display: flex;
