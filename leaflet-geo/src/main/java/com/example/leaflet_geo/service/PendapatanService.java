@@ -5,6 +5,7 @@ import com.example.leaflet_geo.dto.RekeningDetailDTO;
 import com.example.leaflet_geo.dto.TargetRealisasiDTO;
 import com.example.leaflet_geo.dto.TopKontributorDTO;
 import com.example.leaflet_geo.dto.TrendBulananDTO;
+import com.example.leaflet_geo.dto.PajakDataDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -428,5 +429,92 @@ public class PendapatanService {
                 "Juli", "Agustus", "September", "Oktober", "November", "Desember"
         };
         return namaBulan[bulan - 1];
+    }
+
+    /**
+     * Mapping dari nama jenis pajak di database ke nama kategori di frontend
+     * Names must match exactly what's in master-pajak.json
+     */
+    private static final Map<String, String> KATEGORI_MAPPING = Map.of(
+            "Pajak Hotel", "Perhotelan",
+            "Pajak Restoran", "Restoran",
+            "Pajak Hiburan", "Kesenian dan Hiburan",
+            "Pajak Reklame", "Reklame",
+            "Pajak Penerangan Jalan", "Tenaga Listrik",
+            "Pajak Parkir", "Parkir",
+            "Pajak Air Tanah", "Air Tanah",
+            "Pajak Mineral Bukan Logam dan Batuan", "Minerba");
+
+    /**
+     * Get Realisasi Bulanan per Kategori Pajak untuk Dashboard Pajak
+     * Returns data in the same format as master-pajak.json
+     */
+    public List<PajakDataDTO> getRealisasiBulananByKategori(Integer tahun) {
+        String sql = """
+                SELECT
+                    j.s_namajenis AS jenis_pajak,
+                    j.s_order AS urutan,
+                    MONTH(t.t_tglpembayaran) AS bulan,
+                    COALESCE(SUM(t.t_jmlhpembayaran), 0) AS total_realisasi
+                FROM t_transaksi t
+                JOIN s_jenisobjek j ON t.t_jenispajak = j.s_idjenis
+                WHERE YEAR(t.t_tglpembayaran) = ?
+                GROUP BY j.s_namajenis, j.s_order, MONTH(t.t_tglpembayaran)
+                ORDER BY j.s_order, bulan
+                """;
+
+        List<PajakDataDTO> results = executeSafely(() -> mysqlJdbcTemplate.query(sql, (rs, rowNum) -> {
+            PajakDataDTO dto = new PajakDataDTO();
+
+            // Map database jenis pajak name to frontend kategori name
+            String jenisPajak = rs.getString("jenis_pajak");
+            String kategori = KATEGORI_MAPPING.getOrDefault(jenisPajak, jenisPajak);
+
+            dto.setKategori(kategori);
+            dto.setTahun(tahun);
+            dto.setBulan(getNamaBulan(rs.getInt("bulan")));
+            dto.setValue(rs.getBigDecimal("total_realisasi"));
+            return dto;
+        }, tahun), new ArrayList<>(), "MySQL Pajak Bulanan");
+
+        System.out.println("✅ MySQL Pajak Bulanan returned " + results.size() + " records for year " + tahun);
+
+        // Add BPHTB monthly data from PostgreSQL
+        try {
+            List<Map<String, Object>> bphtbData = bphtbService.getRealisasiBulanan(tahun);
+            if (bphtbData != null) {
+                for (Map<String, Object> row : bphtbData) {
+                    PajakDataDTO dto = new PajakDataDTO();
+                    dto.setKategori("BPHTB");
+                    dto.setTahun(tahun);
+                    int bulanNum = ((Number) row.get("bulan")).intValue();
+                    dto.setBulan(getNamaBulan(bulanNum));
+                    dto.setValue(new BigDecimal(row.get("realisasi").toString()));
+                    results.add(dto);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Could not fetch BPHTB monthly data: " + e.getMessage());
+        }
+
+        // Add PBB P2 monthly data from Oracle SISMIOP
+        try {
+            List<Map<String, Object>> pbbData = sismiopService.getRealisasiPbbBulanan(tahun.toString());
+            if (pbbData != null) {
+                for (Map<String, Object> row : pbbData) {
+                    PajakDataDTO dto = new PajakDataDTO();
+                    dto.setKategori("PBB-P2");
+                    dto.setTahun(tahun);
+                    int bulanNum = ((Number) row.get("BULAN")).intValue();
+                    dto.setBulan(getNamaBulan(bulanNum));
+                    dto.setValue(new BigDecimal(row.get("REALISASI").toString()));
+                    results.add(dto);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Could not fetch PBB P2 monthly data: " + e.getMessage());
+        }
+
+        return results;
     }
 }
