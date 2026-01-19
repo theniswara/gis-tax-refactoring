@@ -43,6 +43,19 @@ export interface BlokData {
     updated_at?: string;
 }
 
+export interface AnggaranData {
+    tahun_anggaran: number;
+    jenis_pajak: string;
+    nilai_anggaran: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface JenisPajakOption {
+    value: string;
+    label: string;
+}
+
 export interface PaginatedResponse<T> {
     items: T[];
     totalCount: number;
@@ -241,5 +254,64 @@ export class SettingService {
      */
     recoverBlok(id: string): Observable<any> {
         return this.http.patch(`${this.apiUrl}/api/blok/${id}/recover`, {});
+    }
+
+    // ============ ANGGARAN ============
+
+    /**
+     * Get paginated list of anggaran
+     */
+    getAnggaranPaginated(
+        page: number = 0,
+        size: number = 10,
+        filters?: { tahun_anggaran?: number; jenis_pajak?: string }
+    ): Observable<PaginatedResponse<AnggaranData>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        if (filters?.tahun_anggaran) {
+            params = params.set('tahun_anggaran', filters.tahun_anggaran.toString());
+        }
+        if (filters?.jenis_pajak) {
+            params = params.set('jenis_pajak', filters.jenis_pajak);
+        }
+
+        return this.http.get<PaginatedResponse<AnggaranData>>(`${this.apiUrl}/api/anggaran`, { params });
+    }
+
+    /**
+     * Get jenis pajak options for dropdown
+     */
+    getJenisPajakOptions(): Observable<JenisPajakOption[]> {
+        return this.http.get<JenisPajakOption[]>(`${this.apiUrl}/api/anggaran/jenis-pajak`);
+    }
+
+    /**
+     * Get single anggaran by composite key
+     */
+    getAnggaranById(tahun: number, jenis: string): Observable<AnggaranData> {
+        return this.http.get<AnggaranData>(`${this.apiUrl}/api/anggaran/${tahun}/${jenis}`);
+    }
+
+    /**
+     * Create new anggaran
+     */
+    createAnggaran(data: AnggaranData): Observable<any> {
+        return this.http.post(`${this.apiUrl}/api/anggaran`, data);
+    }
+
+    /**
+     * Update anggaran
+     */
+    updateAnggaran(tahun: number, jenis: string, data: AnggaranData): Observable<any> {
+        return this.http.put(`${this.apiUrl}/api/anggaran/${tahun}/${jenis}`, data);
+    }
+
+    /**
+     * Delete anggaran
+     */
+    deleteAnggaran(tahun: number, jenis: string): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/api/anggaran/${tahun}/${jenis}`);
     }
 }
