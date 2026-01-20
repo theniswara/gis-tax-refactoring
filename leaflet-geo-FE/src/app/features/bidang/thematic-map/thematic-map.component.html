@@ -1,7 +1,8 @@
 <div class="row mb-10">
   <div class="col-12">
     <!-- Card dengan background hijau muda penuh seperti gambar -->
-    <div class="card border-0 h-100" style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); min-height: 80vh;">
+    <div class="card border-0 h-100"
+      style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); min-height: 80vh;">
 
       <!-- Header: Judul kiri, tombol hijau tua kanan -->
       <div class="card-header border-0 p-3" style="background: transparent;">
@@ -21,8 +22,8 @@
             </span>
             <!-- Tombol Setup Filter hijau tua -->
             <button class="btn btn-sm py-2 px-4 fw-bold" (click)="openTematikModal()" type="button"
-                    title="Buka Filter Tematik"
-                    style="background-color: #2d5016; border-color: #2d5016; color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(45,80,22,0.3);">
+              title="Buka Filter Tematik"
+              style="background-color: #2d5016; border-color: #2d5016; color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(45,80,22,0.3);">
               <i class="ri-settings-3-line me-1"></i>
               Setup Filter
             </button>
@@ -37,7 +38,8 @@
         </div>
 
         <!-- Map Container penuh layar dengan floating elements -->
-        <div class="map-container position-relative w-100 h-100" style="min-height: 70vh; background: #f8f9fa; position: relative;">
+        <div class="map-container position-relative w-100 h-100"
+          style="min-height: 70vh; background: #f8f9fa; position: relative;">
           <div #mapContainer class="leaflet-container w-100 h-120"></div>
 
           <!-- Floating Title Top-Left -->
@@ -49,11 +51,7 @@
           </div>
 
           <!-- Floating Filter Button Top-Right -->
-          <button
-            class="floating-filter-btn"
-            *ngIf="isFullscreen"
-            type="button"
-            title="Buka Filter Tematik"
+          <button class="floating-filter-btn" *ngIf="isFullscreen" type="button" title="Buka Filter Tematik"
             (click)="openTematikModal()">
             <i class="ri-settings-3-line me-1"></i>
             Setup Filter
@@ -61,16 +59,32 @@
 
           <!-- Floating Fullscreen Button (posisi bottom-right seperti gambar) -->
           <button class="floating-fullscreen-btn position-absolute"
-                  style="bottom: 20px; right: 20px; z-index: 1050; background: #155034 !important; border: none; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(45,80,22,0.4); transition: all 0.3s ease;"
-                  (click)="toggleSidebarAndNavbar()" type="button" [class.fullscreen-active]="isFullscreen"
-                  title="Toggle Fullscreen Mode">
+            style="bottom: 20px; right: 20px; z-index: 1050; background: #155034 !important; border: none; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(45,80,22,0.4); transition: all 0.3s ease;"
+            (click)="toggleSidebarAndNavbar()" type="button" [class.fullscreen-active]="isFullscreen"
+            title="Toggle Fullscreen Mode">
             <i [class]="isFullscreen ? 'ri-fullscreen-exit-line text-white' : 'ri-fullscreen-line text-white'"
-               style="font-size: 20px;"></i>
+              style="font-size: 20px;"></i>
           </button>
 
-          <!-- Floating Legend (tetap sama) -->
-          <div *ngIf="hasTematikLayers" class="floating-legend position-absolute" style="top: 20px; right: 20px; z-index: 1040;">
-            <!-- ... kode legend Anda tetap sama ... -->
+          <!-- Floating Legend on Map -->
+          <div *ngIf="hasTematikLayers" class="floating-legend">
+            <div class="legend-header">
+              <h6 class="mb-0 text-white">
+                <i class="ri-palette-line me-2"></i>
+                Legend Tematik
+              </h6>
+              <button class="btn-legend-close" (click)="toggleLegend()" title="Toggle Legend">
+                <i class="ri-{{ isLegendVisible ? 'eye-off' : 'eye' }}-line"></i>
+              </button>
+            </div>
+            <div class="legend-body" *ngIf="isLegendVisible">
+              <div *ngFor="let layer of tematikLayersArray" class="legend-item">
+                <div class="legend-color-box" [style.background-color]="layer.color">
+                </div>
+                <span class="legend-label">{{ layer.label }}</span>
+                <span class="legend-count">({{ layer.count ?? layer.data?.length ?? 0 }})</span>
+              </div>
+            </div>
           </div>
         </div>
 
