@@ -892,7 +892,7 @@ public class BprdProxyController {
                     processedLayers.put(layerKey, processedLayer);
                 }
 
-                // Calculate unclassified bidang and get their geometries from local PostgreSQL
+                // Calculate unclassified bidang count from local PostgreSQL
                 try {
                     String kdKec = (String) tematikRequest.get("id_kecamatan");
                     @SuppressWarnings("unchecked")
@@ -912,100 +912,20 @@ public class BprdProxyController {
                                 ", Classified: " + totalClassifiedBidang +
                                 ", Unclassified: " + unclassifiedCount);
 
-                        // Add unclassified layer with actual geometries if there are unclassified
-                        // bidang
+                        // Add unclassified layer if there are unclassified bidang
                         if (unclassifiedCount > 0) {
-                            // Collect all classified NOP values to exclude
-                            List<String> classifiedNops = new ArrayList<>();
-                            for (Map.Entry<String, Map<String, Object>> entry : processedLayers.entrySet()) {
-                                @SuppressWarnings("unchecked")
-                                List<Map<String, Object>> layerData = (List<Map<String, Object>>) entry.getValue()
-                                        .get("data");
-                                if (layerData != null) {
-                                    for (Map<String, Object> item : layerData) {
-                                        if (item.get("nop") != null) {
-                                            classifiedNops.add((String) item.get("nop"));
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Query unclassified bidang with their geometries
-                            List<Map<String, Object>> unclassifiedData = new ArrayList<>();
-                            try {
-                                String sql;
-                                List<Map<String, Object>> rows;
-
-                                if (classifiedNops.isEmpty()) {
-                                    // No classified bidang, get all bidang as unclassified
-                                    sql = "SELECT nop, ST_AsGeoJSON(geom) as geojson FROM sig.bidang " +
-                                            "WHERE kd_kec = ? AND kd_kel = ? AND is_active = true AND geom IS NOT NULL "
-                                            +
-                                            "LIMIT 1000";
-                                    rows = postgresJdbcTemplate.queryForList(sql, kdKec, kdKel);
-                                } else {
-                                    // Get bidang that are NOT in the classified list
-                                    StringBuilder nopPlaceholders = new StringBuilder();
-                                    for (int i = 0; i < classifiedNops.size(); i++) {
-                                        if (i > 0)
-                                            nopPlaceholders.append(", ");
-                                        nopPlaceholders.append("?");
-                                    }
-
-                                    sql = "SELECT nop, ST_AsGeoJSON(geom) as geojson FROM sig.bidang " +
-                                            "WHERE kd_kec = ? AND kd_kel = ? AND is_active = true AND geom IS NOT NULL "
-                                            +
-                                            "AND nop NOT IN (" + nopPlaceholders + ") LIMIT 1000";
-
-                                    // Build parameters array
-                                    Object[] params = new Object[2 + classifiedNops.size()];
-                                    params[0] = kdKec;
-                                    params[1] = kdKel;
-                                    for (int i = 0; i < classifiedNops.size(); i++) {
-                                        params[i + 2] = classifiedNops.get(i);
-                                    }
-
-                                    rows = postgresJdbcTemplate.queryForList(sql, params);
-                                }
-
-                                System.out.println("🔍 Found " + rows.size() + " unclassified bidang with geometries");
-
-                                for (Map<String, Object> row : rows) {
-                                    String geojsonStr = (String) row.get("geojson");
-                                    String nop = (String) row.get("nop");
-
-                                    if (geojsonStr != null) {
-                                        try {
-                                            Map<String, Object> geometry = objectMapper.readValue(geojsonStr,
-                                                    Map.class);
-                                            Map<String, Object> item = new HashMap<>();
-                                            item.put("nop", nop);
-                                            item.put("geometry", geometry);
-                                            unclassifiedData.add(item);
-                                        } catch (Exception parseEx) {
-                                            System.err.println("⚠️ Failed to parse geometry for NOP: " + nop);
-                                        }
-                                    }
-                                }
-                            } catch (Exception queryEx) {
-                                System.err
-                                        .println("⚠️ Error querying unclassified geometries: " + queryEx.getMessage());
-                            }
-
                             Map<String, Object> unclassifiedLayer = new HashMap<>();
                             unclassifiedLayer.put("label", "Tidak Terklasifikasi");
                             unclassifiedLayer.put("color", "RGB(128,128,128)"); // Gray color
-                            unclassifiedLayer.put("data", unclassifiedData); // Actual geometry data
-                            unclassifiedLayer.put("count", unclassifiedCount); // Count for legend display
+                            unclassifiedLayer.put("data", new ArrayList<>()); // Empty data - just for legend count
+                            unclassifiedLayer.put("count", unclassifiedCount); // Add count for legend display
 
                             processedLayers.put("unclassified", unclassifiedLayer);
-                            System.out.println("➕ Added unclassified layer with " + unclassifiedData.size()
-                                    + " geometries (count: " + unclassifiedCount + ")");
+                            System.out.println("➕ Added unclassified layer with " + unclassifiedCount + " bidang");
                         }
                     }
                 } catch (Exception e) {
                     System.err.println("⚠️ Could not calculate unclassified bidang: " + e.getMessage());
-                    e.printStackTrace();
                     // Continue without unclassified layer
                 }
 
