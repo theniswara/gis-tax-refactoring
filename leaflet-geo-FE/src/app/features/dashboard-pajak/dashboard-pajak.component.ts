@@ -31,9 +31,12 @@ export class DashboardPajakComponent implements OnInit {
   selectedChartOptions: Partial<ChartOptions> | null = null;
   showModal: boolean = false;
 
-  // Filter tahun
-  selectedYear: number = 2025;
-  availableYears: number[] = [2022, 2023, 2024, 2025];
+  // Filter tahun - dynamic to current year
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = Array.from(
+    { length: new Date().getFullYear() - 2022 + 1 },
+    (_, i) => 2022 + i
+  );
 
   // Loading and error states
   isLoading: boolean = false;
