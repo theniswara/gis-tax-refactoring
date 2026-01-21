@@ -299,14 +299,12 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   formatCurrency(value: number): string {
-    if (value >= 1000000000) {
-      return 'Rp ' + (value / 1000000000).toFixed(2) + ' M';
-    } else if (value >= 1000000) {
-      return 'Rp ' + (value / 1000000).toFixed(2) + ' Jt';
-    } else if (value >= 1000) {
-      return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
-    }
-    return 'Rp ' + value.toFixed(0);
+    // Format with Indonesian locale: periods for thousands, comma for decimal
+    // Show full number with 2 decimal places
+    return 'Rp ' + value.toLocaleString('id-ID', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 
   adjustColor(color: string, amount: number): string {
