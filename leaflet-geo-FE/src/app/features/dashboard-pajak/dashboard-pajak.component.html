@@ -34,7 +34,7 @@
   </div>
 
   <div class="row g-3 mb-4" *ngIf="!isLoading">
-    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let kategori of kategoris; let i = index">
+    <div class="col-xl-4 col-lg-4 col-md-6" *ngFor="let kategori of kategoris; let i = index">
       <div class="summary-card" [attr.data-index]="i">
         <div class="summary-card-icon" [ngClass]="'bg-gradient-' + (i % 5 + 1)">
           <i [class]="getCategoryIcon(kategori)"></i>
