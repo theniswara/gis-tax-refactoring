@@ -219,6 +219,9 @@ export class AnggaranComponent implements OnInit, OnDestroy {
         this.isEdit = false;
         this.editKey = { tahun: 0, jenis: '' };
         this.fg.reset();
+        // Re-enable fields that might have been disabled during edit mode
+        this.fg.get('tahun_anggaran')?.enable();
+        this.fg.get('jenis_pajak')?.enable();
         this.submitted = false;
         this.modalService.open(this.addEditModal!, {
             centered: true,
