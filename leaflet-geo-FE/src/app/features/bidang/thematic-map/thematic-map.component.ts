@@ -717,8 +717,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kecamatanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click: Load kelurahan boundaries (drill-down)
+                dblclick: (e) => {
+                  // Double click: Load kelurahan boundaries (drill-down)
                   L.DomEvent.stopPropagation(e); // Prevent zoom
 
                   const kdKec = props.kd_kec;
@@ -928,16 +928,12 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentLevel = 'kelurahan';
           this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
 
-          // Hide kecamatan labels temporarily
-          const wasShowingLabels = this.showKecamatanLabels;
-          if (wasShowingLabels) {
-            this.showKecamatanLabels = false;
-            // Refresh kecamatan layer without labels (no API call)
-            if (this.kecamatanBoundariesLayer && this.map) {
-              this.map.removeLayer(this.kecamatanBoundariesLayer);
-              this.kecamatanBoundariesLayer = null;
-              this.recreateKecamatanLayerFromCache();
-            }
+          // Hide ALL kecamatan boundaries when drilling down (like bidang-map)
+          this.showKecamatanLabels = false;
+          if (this.kecamatanBoundariesLayer && this.map) {
+            this.map.removeLayer(this.kecamatanBoundariesLayer);
+            this.kecamatanBoundariesLayer = null;
+            // Do NOT recreate - keep it hidden until user navigates back
           }
 
           // Create kelurahan boundaries layer
@@ -981,8 +977,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click kelurahan: Load blok boundaries
+                dblclick: (e) => {
+                  // Double click kelurahan: Load blok boundaries
                   L.DomEvent.stopPropagation(e); // Prevent zoom
 
                   const kdKec = props.kd_kec;
@@ -1168,15 +1164,12 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentLevel = 'kelurahan';
           this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
 
-          // Hide kecamatan labels temporarily
-          const wasShowingLabels = this.showKecamatanLabels;
-          if (wasShowingLabels) {
-            this.showKecamatanLabels = false;
-            if (this.kecamatanBoundariesLayer && this.map) {
-              this.map.removeLayer(this.kecamatanBoundariesLayer);
-              this.kecamatanBoundariesLayer = null;
-              this.recreateKecamatanLayerFromCache();
-            }
+          // Hide ALL kecamatan boundaries when drilling down (like bidang-map)
+          this.showKecamatanLabels = false;
+          if (this.kecamatanBoundariesLayer && this.map) {
+            this.map.removeLayer(this.kecamatanBoundariesLayer);
+            this.kecamatanBoundariesLayer = null;
+            // Do NOT recreate - keep it hidden until user navigates back
           }
 
           // Create count map for easy lookup based on kd_kel
@@ -1270,7 +1263,7 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
+                dblclick: (e) => {
                   L.DomEvent.stopPropagation(e);
                   console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading blok boundaries...`);
                   // Load blok boundaries for this kelurahan
@@ -1589,8 +1582,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.blokBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click blok: Load bidang boundaries
+                dblclick: (e) => {
+                  // Double click blok: Load bidang boundaries
                   L.DomEvent.stopPropagation(e); // Prevent zoom
 
                   const kdKec = props.kd_kec;
@@ -2144,10 +2137,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.isFullscreen) {
       // Enter fullscreen mode: Hide everything except map
-      
+
       // Hide sidebar
       document.documentElement.setAttribute('data-sidebar-size', 'sm');
-      
+
       // Hide topbar (app-topbar component)
       const topbar = document.querySelector('app-topbar');
       if (topbar) {
@@ -2180,10 +2173,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     } else {
       // Exit fullscreen mode: Show everything
-      
+
       // Restore sidebar
       document.documentElement.setAttribute('data-sidebar-size', 'lg');
-      
+
       // Show topbar (app-topbar component)
       const topbar = document.querySelector('app-topbar');
       if (topbar) {
