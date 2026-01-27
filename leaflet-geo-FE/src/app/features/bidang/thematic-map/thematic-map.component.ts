@@ -110,6 +110,14 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayer: L.GeoJSON | null = null;
   isLegendVisible: boolean = true; // Control legend visibility
 
+  // Thematic Sidebar Modal properties
+  showCariNopModal = false;
+  showKoordinatModal = false;
+  nopSearch = '';
+  namaSearch = '';
+  latitude = '';
+  longitude = '';
+
   // Fullscreen mode
   isFullscreen = false;
 
@@ -2144,10 +2152,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.isFullscreen) {
       // Enter fullscreen mode: Hide everything except map
-      
+
       // Hide sidebar
       document.documentElement.setAttribute('data-sidebar-size', 'sm');
-      
+
       // Hide topbar (app-topbar component)
       const topbar = document.querySelector('app-topbar');
       if (topbar) {
@@ -2180,10 +2188,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     } else {
       // Exit fullscreen mode: Show everything
-      
+
       // Restore sidebar
       document.documentElement.setAttribute('data-sidebar-size', 'lg');
-      
+
       // Show topbar (app-topbar component)
       const topbar = document.querySelector('app-topbar');
       if (topbar) {
@@ -2593,5 +2601,58 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   toggleLegend(): void {
     this.isLegendVisible = !this.isLegendVisible;
+  }
+
+  /**
+   * Handle actions from thematic sidebar
+   */
+  onThematicAction(action: string) {
+    switch (action) {
+      case 'cari-nop':
+        this.showCariNopModal = true;
+        break;
+      case 'lokasi-koordinat':
+        this.showKoordinatModal = true;
+        break;
+      case 'kembali':
+        // Close all modals
+        this.showCariNopModal = false;
+        this.showKoordinatModal = false;
+        break;
+    }
+  }
+
+  /**
+   * Search NOP
+   */
+  searchNop() {
+    console.log('Search NOP:', this.nopSearch, this.namaSearch);
+    this.closeCariNopModal();
+  }
+
+  /**
+   * Set Koordinat and fly to location
+   */
+  setKoordinat() {
+    if (this.map && this.latitude && this.longitude) {
+      const lat = parseFloat(this.latitude);
+      const lng = parseFloat(this.longitude);
+      this.map.flyTo([lat, lng], 18);
+    }
+    this.closeKoordinatModal();
+  }
+
+  /**
+   * Close Cari NOP Modal
+   */
+  closeCariNopModal() {
+    this.showCariNopModal = false;
+  }
+
+  /**
+   * Close Koordinat Modal
+   */
+  closeKoordinatModal() {
+    this.showKoordinatModal = false;
   }
 }

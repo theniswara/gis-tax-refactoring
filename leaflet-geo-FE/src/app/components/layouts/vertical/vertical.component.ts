@@ -1,47 +1,74 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { EventService } from '../../../services/event.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { getSidebarSize } from 'src/app/store/layouts/layout-selector';
 import { RootReducerState } from 'src/app/store';
 import { Store } from '@ngrx/store';
+import { SidebarStateService } from '../../../services/sidebar-state.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vertical',
   templateUrl: './vertical.component.html',
   styleUrls: ['./vertical.component.scss']
 })
-export class VerticalComponent implements OnInit {
+export class VerticalComponent implements OnInit, OnDestroy {
 
   isCondensed = false;
   getsize: any;
+  sidebarType: 'main' | 'thematic' = 'main';
+  private destroy$ = new Subject<void>();
 
-  constructor(private eventService: EventService, private router: Router, private activatedRoute: ActivatedRoute, private store: Store<RootReducerState>) {
+  constructor(
+    private eventService: EventService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private store: Store<RootReducerState>,
+    private sidebarStateService: SidebarStateService
+  ) {
   }
 
   ngOnInit(): void {
+    // Subscribe to sidebar state changes
+    this.sidebarStateService.sidebarType$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(type => {
+        this.sidebarType = type;
+      });
 
-    this.router.events.subscribe((event: any) => {
-      if (document.documentElement.getAttribute('data-preloader') == 'enable') {
+    // Check route on navigation
+    this.router.events
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event: any) => {
         if (event instanceof NavigationEnd) {
-          const preloader = document.getElementById("preloader");
-          if (!preloader) return;
-          // Update the attribute state based on the current route or any other conditions
-          if (event.url !== '/disabled-route') {
-            preloader.style.opacity = "1";
-            preloader.style.visibility = "";
-            setTimeout(() => {
-              if (preloader) {
-                preloader.style.opacity = "0";
-                preloader.style.visibility = "hidden";
-              }
-            }, 1000);
+          // Check if we're on tematik route
+          const isTematikRoute = event.url.includes('/tematik');
+          if (isTematikRoute) {
+            this.sidebarStateService.setSidebarType('thematic');
           } else {
-            preloader.style.opacity = "0";
-            preloader.style.visibility = "hidden";
+            this.sidebarStateService.setSidebarType('main');
+          }
+
+          if (document.documentElement.getAttribute('data-preloader') == 'enable') {
+            const preloader = document.getElementById("preloader");
+            if (!preloader) return;
+            if (event.url !== '/disabled-route') {
+              preloader.style.opacity = "1";
+              preloader.style.visibility = "";
+              setTimeout(() => {
+                if (preloader) {
+                  preloader.style.opacity = "0";
+                  preloader.style.visibility = "hidden";
+                }
+              }, 1000);
+            } else {
+              preloader.style.opacity = "0";
+              preloader.style.visibility = "hidden";
+            }
           }
         }
-      }
-    });
+      });
 
     this.handlePreloader(this.activatedRoute.snapshot.routeConfig?.path);
     if (document.documentElement.getAttribute('data-sidebar-size') == 'lg') {
@@ -67,6 +94,12 @@ export class VerticalComponent implements OnInit {
       })
     }
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private handlePreloader(route: any) {
     const preloader = document.getElementById("preloader");
     if (!preloader) return;
@@ -84,7 +117,6 @@ export class VerticalComponent implements OnInit {
       preloader.style.visibility = "hidden";
     }
   }
-
 
   /**
    * On mobile toggle button clicked
@@ -130,6 +162,15 @@ export class VerticalComponent implements OnInit {
         document.body.classList.remove('vertical-sidebar-enable');
       }
     }
+  }
+
+  /**
+   * Handle actions emitted from thematic sidebar
+   */
+  onThematicAction(action: any) {
+    console.log('Thematic action:', action);
+    // Handle specific thematic actions here if needed
+    // For example, open modals, navigate to specific themes, etc.
   }
 
 }

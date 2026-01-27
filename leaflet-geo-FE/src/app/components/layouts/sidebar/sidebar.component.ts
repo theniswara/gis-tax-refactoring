@@ -10,13 +10,14 @@ import { RestApiService } from 'src/app/services/rest-api.service';
 import { Store } from '@ngrx/store';
 import { selectMenuItems } from 'src/app/store/menu/menu.selector';
 import { cloneDeep } from 'lodash';
+import { SidebarStateService } from 'src/app/services/sidebar-state.service';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarMainComponent implements OnInit {
 
   menu: any;
   toggle: any = true;
@@ -24,7 +25,7 @@ export class SidebarComponent implements OnInit {
   @ViewChild('sideMenu') sideMenu!: ElementRef;
   @Output() mobileMenuButtonClicked = new EventEmitter();
 
-  constructor(private router: Router, public translate: TranslateService, private restApiService: RestApiService, private store: Store) {
+  constructor(private router: Router, public translate: TranslateService, private restApiService: RestApiService, private store: Store, private sidebarStateService: SidebarStateService) {
     translate.setDefaultLang('en');
   }
 
@@ -149,6 +150,18 @@ export class SidebarComponent implements OnInit {
   }
 
   updateActive(event: any) {
+    // Check if menu item is tematik (id=10)
+    const menuItem = event.target.closest('[data-parent]');
+    if (menuItem) {
+      const parentId = menuItem.getAttribute('data-parent');
+      if (parentId === '10') {
+        // Navigate to tematik and set sidebar type to thematic
+        this.sidebarStateService.setSidebarType('thematic');
+        this.router.navigate(['/tematik']);
+        return;
+      }
+    }
+
     const ul = document.getElementById("navbar-nav");
     if (ul) {
       const items = Array.from(ul.querySelectorAll("a.nav-link"));
@@ -211,9 +224,14 @@ export class SidebarComponent implements OnInit {
   }
   /**
    * Returns true or false if given menu item has child or not
+   * Special case: Menu Tematik (id=10) should not show submenu in main sidebar
    * @param item menuItem
    */
   hasItems(item: MenuItem) {
+    // Special handling for Tematik menu - no submenu in main sidebar
+    if (item.id === 10) {
+      return false;
+    }
     return item.subItems !== undefined ? item.subItems.length > 0 : false;
   }
 
@@ -236,5 +254,13 @@ export class SidebarComponent implements OnInit {
    */
   SidebarHide() {
     document.body.classList.remove('vertical-sidebar-enable');
+  }
+
+  /**
+   * Navigate to tematik and switch sidebar
+   */
+  navigateToTematik() {
+    this.sidebarStateService.setSidebarType('thematic');
+    this.router.navigate(['/tematik']);
   }
 }
