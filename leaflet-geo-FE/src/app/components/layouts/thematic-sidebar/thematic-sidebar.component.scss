@@ -1,0 +1,49 @@
+.thematic-sidebar {
+  background: linear-gradient(180deg, #004f36 0%, #05683f 100%);
+  color: white;
+
+  .nav-link {
+    color: rgba(255,255,255,0.9);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 4px 12px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      transform: translateX(4px);
+    }
+
+    &.active {
+      background: rgba(255,255,255,0.2);
+    }
+  }
+
+  .submenu-tematik {
+    background: rgba(255,255,255,0.1);
+    margin: 8px 16px;
+    border-radius: 8px;
+    padding: 8px 0;
+
+    .nav-link {
+      padding: 8px 24px;
+      font-size: 14px;
+      margin: 0;
+
+      &:hover {
+        background: rgba(255,255,255,0.25);
+      }
+    }
+  }
+
+  .has-arrow {
+    .ri-arrow-down-s-line {
+      transition: transform 0.3s ease;
+    }
+
+    &.collapsed .ri-arrow-down-s-line {
+      transform: rotate(-90deg);
+    }
+  }
+}

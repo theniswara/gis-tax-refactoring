@@ -643,3 +643,62 @@
     </div>
   </div>
 </div>
+
+
+<!-- Modal Cari NOP -->
+<div class="modal fade" [class.show]="showCariNopModal" [style.display]="showCariNopModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="ri-search-eye-line me-2"></i>Cari NOP / Nama
+        </h5>
+        <button class="btn-close btn-close-white" (click)="closeCariNopModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">NOP</label>
+          <input type="text" class="form-control" [(ngModel)]="nopSearch" placeholder="Masukkan NOP">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nama WP</label>
+          <input type="text" class="form-control" [(ngModel)]="namaSearch" placeholder="Masukkan nama">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeCariNopModal()">Batal</button>
+        <button class="btn btn-primary" (click)="searchNop()">Cari</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Koordinat -->
+<div class="modal fade" [class.show]="showKoordinatModal" [style.display]="showKoordinatModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="ri-map-pin-line me-2"></i>Set Koordinat
+        </h5>
+        <button class="btn-close btn-close-white" (click)="closeKoordinatModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Latitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="latitude" placeholder="-8.12345">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Longitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="longitude" placeholder="113.12345">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeKoordinatModal()">Cancel</button>
+        <button class="btn btn-info" (click)="setKoordinat()" [disabled]="!latitude || !longitude">
+          Set Koordinat
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

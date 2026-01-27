@@ -114,12 +114,25 @@
               </ul>
             </div>
             }@else {
+            <!-- Menu items without submenu -->
+            @if(item.id === 10){
+            <!-- Tematik menu - navigate to thematic sidebar -->
+            <a href="javascript:void(0);" class="side-nav-link-ref nav-link menu-link"
+              (click)="navigateToTematik()">
+              @if(item.icon){<i class="bx {{ item.icon }} icon nav-icon" class=""></i>}
+              <span class=""> {{ item.label | translate }} </span>
+              @if(item.badge){<span class="badge {{item.badge.variant}} float-end">{{item.badge.text |
+                translate}}</span>}
+            </a>
+            }@else {
+            <!-- Other menu items -->
             <a [routerLink]="item.link" routerLinkActive="active" class="side-nav-link-ref nav-link menu-link">
               @if(item.icon){<i class="bx {{ item.icon }} icon nav-icon" class=""></i>}
               <span class=""> {{ item.label | translate }} </span>
               @if(item.badge){<span class="badge {{item.badge.variant}} float-end">{{item.badge.text |
                 translate}}</span>}
             </a>
+            }
             }
           </li>
           }

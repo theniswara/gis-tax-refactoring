@@ -1,0 +1,134 @@
+<!-- ========== Thematic Sidebar2 ========== -->
+<div class="app-menu navbar-menu thematic-sidebar">
+  <!-- LOGO (sama seperti sidebar utama) -->
+  <div class="navbar-brand-box">
+    <a routerLink="/" class="logo logo-dark">
+      <span class="logo-sm">
+        <img src="assets/images/logo-sm.png" alt="" height="22">
+      </span>
+      <span class="logo-lg">
+        <img src="assets/images/logo-dark.png" alt="" height="100" class="mt-2">
+      </span>
+    </a>
+  </div>
+
+  <div id="scrollbar">
+    <div class="container-fluid">
+      <ngx-simplebar class="sidebar-menu-scroll" style="max-height: calc(100vh - 150px)">
+        <ul class="metismenu list-unstyled navbar-nav" id="thematic-navbar-nav">
+          <!-- 1. Cari NOP -->
+          <li class="nav-item">
+            <a class="nav-link menu-link" (click)="openCariNopModal()" title="Cari NOP">
+              <i class="ri-search-eye-line nav-icon"></i>
+              <span>Cari NOP</span>
+            </a>
+          </li>
+
+          <!-- 2. Lokasi Koordinat -->
+          <li class="nav-item">
+            <a class="nav-link menu-link" (click)="openKoordinatModal()" title="Set Koordinat">
+              <i class="ri-map-pin-line nav-icon"></i>
+              <span>Lokasi Koordinat</span>
+            </a>
+          </li>
+
+          <!-- 3. Tematik (dengan submenu dinamis) -->
+          <li class="nav-item">
+            <a href="javascript:void(0);" class="nav-link menu-link has-arrow"
+               [class.collapsed]="!isTematikExpanded" (click)="toggleTematik()">
+              <i class="ri-palette-line nav-icon"></i>
+              <span>Tematik</span>
+              <i class="ri-arrow-down-s-line ms-auto"></i>
+            </a>
+            <div class="collapse submenu-tematik" [class.show]="isTematikExpanded">
+              <ul class="nav nav-sm flex-column">
+                <!-- Submenu dinamis dari menu.ts -->
+                <li class="nav-item" *ngFor="let subitem of tematikMenuItems">
+                  <a [routerLink]="subitem.link"
+                     routerLinkActive="active"
+                     class="nav-link"
+                     [title]="subitem.label"
+                     (click)="isTematikExpanded = false">
+                    <i [ngClass]="subitem.icon" class="me-2"></i>{{ subitem.label | translate }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <!-- 4. Kembali -->
+          <li class="nav-item mt-auto">
+            <a class="nav-link menu-link" (click)="goBackToMain()" title="Kembali ke Menu Utama">
+              <i class="ri-arrow-left-line nav-icon"></i>
+              <span>Kembali</span>
+            </a>
+          </li>
+        </ul>
+      </ngx-simplebar>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Modal Cari NOP ========== -->
+<div class="modal fade" id="cariNopModal" tabindex="-1" [class.show]="showCariNopModal" 
+     [style.display]="showCariNopModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="ri-search-eye-line me-2"></i>Cari NOP
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCariNopModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Nomor Objek Pajak (NOP)</label>
+          <input type="text" class="form-control" [(ngModel)]="nopSearch" placeholder="Masukkan NOP">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nama Subjek Pajak</label>
+          <input type="text" class="form-control" [(ngModel)]="namaSearch" placeholder="Masukkan Nama">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCariNopModal()">Batal</button>
+        <button type="button" class="btn btn-primary" (click)="searchNop()">Cari</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" *ngIf="showCariNopModal" [class.show]="showCariNopModal"></div>
+
+<!-- ========== Modal Lokasi Koordinat ========== -->
+<div class="modal fade" id="koordinatModal" tabindex="-1" [class.show]="showKoordinatModal" 
+     [style.display]="showKoordinatModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="ri-map-pin-line me-2"></i>Set Lokasi Koordinat
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeKoordinatModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Latitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="latitude" placeholder="-8.12345">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Longitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="longitude" placeholder="113.12345">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeKoordinatModal()">Batal</button>
+        <button type="button" class="btn btn-info" (click)="setKoordinat()" [disabled]="!latitude || !longitude">
+          Set Lokasi
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" *ngIf="showKoordinatModal" [class.show]="showKoordinatModal"></div>
+
+

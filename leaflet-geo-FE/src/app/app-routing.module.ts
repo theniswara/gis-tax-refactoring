@@ -4,17 +4,18 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './components/layouts/layout.component';
 
 // Auth
-import { AuthGuard } from './guards/auth.guard';
+// import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    canActivate: [AuthGuard],  // Added AuthGuard here
+    canActivate: [],  // Added AuthGuard here
     children: [
       { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./features/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
       { path: 'dashboard-pendapatan', loadComponent: () => import('./features/dashboard-pendapatan/dashboard-pendapatan.component').then(m => m.DashboardPendapatanComponent) },
+      { path: 'tematik', loadChildren: () => import('./features/pages.module').then(m => m.PagesModule) },
       { path: '', loadChildren: () => import('./features/pages.module').then(m => m.PagesModule) }
     ]
   },
@@ -25,7 +26,7 @@ const routes: Routes = [
     loadChildren: () => import('./features/countdown-display/countdown-display.module').then(m => m.CountdownDisplayModule)
     // No layout component - standalone fullscreen display
   },
-  { path: '**', redirectTo: '/pages/error' }, // Redirect unknown routes to error page
+  { path: '', redirectTo: 'dashboard-pajak' }, // Redirect unknown routes to dashboard-pajak
 ];
 
 @NgModule({

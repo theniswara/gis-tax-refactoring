@@ -110,6 +110,8 @@ export const MENU: MenuItem[] = [
     parentId: 0,
     isLayout: false,
   },
+
+
   {
     id: 10,
     label: 'MENUITEMS.TEMATIK.TEXT',

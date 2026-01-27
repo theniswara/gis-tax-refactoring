@@ -1,8 +1,13 @@
 <div id="layout-wrapper" (window:resize)="onResize($event)">
     <!-- Top Bar -->
     <app-topbar (mobileMenuButtonClicked)="onToggleMobileMenu()"></app-topbar>
-    <!-- Side Bar -->
-    <app-sidebar></app-sidebar>
+    <!-- Side Bar - Conditional rendering -->
+    <ng-container *ngIf="sidebarType === 'main'">
+      <app-sidebar></app-sidebar>
+    </ng-container>
+    <ng-container *ngIf="sidebarType === 'thematic'">
+      <app-thematic-sidebar (thematicAction)="onThematicAction($event)"></app-thematic-sidebar>
+    </ng-container>
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">

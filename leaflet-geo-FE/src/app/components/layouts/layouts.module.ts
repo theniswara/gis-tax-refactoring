@@ -13,13 +13,14 @@ import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { LayoutComponent } from './layout.component';
 import { VerticalComponent } from './vertical/vertical.component';
 import { TopbarComponent } from './topbar/topbar.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
+import { SidebarMainComponent } from './sidebar/sidebar.component';
 import { FooterComponent } from './footer/footer.component';
 import { RightsidebarComponent } from './rightsidebar/rightsidebar.component';
 import { HorizontalComponent } from './horizontal/horizontal.component';
 import { HorizontalTopbarComponent } from './horizontal-topbar/horizontal-topbar.component';
 import { TwoColumnComponent } from './two-column/two-column.component';
 import { TwoColumnSidebarComponent } from './two-column-sidebar/two-column-sidebar.component';
+import { ThematicSidebarComponent } from './thematic-sidebar/thematic-sidebar.component';
 
 
 
@@ -28,13 +29,14 @@ import { TwoColumnSidebarComponent } from './two-column-sidebar/two-column-sideb
     LayoutComponent,
     VerticalComponent,
     TopbarComponent,
-    SidebarComponent,
+    SidebarMainComponent,
     FooterComponent,
     RightsidebarComponent,
     HorizontalComponent,
     HorizontalTopbarComponent,
     TwoColumnComponent,
     TwoColumnSidebarComponent,
+    ThematicSidebarComponent,
 
   ],
   imports: [
