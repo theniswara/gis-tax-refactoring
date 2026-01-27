@@ -302,6 +302,9 @@ public class PendapatanService {
                     });
         }
 
+        // Remove Pajak Sarang Burung Walet (urutan 9) - tidak ada target
+        results.removeIf(dto -> dto.getUrutan() != null && dto.getUrutan() == 9);
+
         return results;
     }
 

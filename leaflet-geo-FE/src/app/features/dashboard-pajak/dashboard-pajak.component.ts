@@ -31,9 +31,12 @@ export class DashboardPajakComponent implements OnInit {
   selectedChartOptions: Partial<ChartOptions> | null = null;
   showModal: boolean = false;
 
-  // Filter tahun
-  selectedYear: number = 2025;
-  availableYears: number[] = [2022, 2023, 2024, 2025];
+  // Filter tahun - dynamic to current year
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = Array.from(
+    { length: new Date().getFullYear() - 2022 + 1 },
+    (_, i) => 2022 + i
+  );
 
   // Loading and error states
   isLoading: boolean = false;
@@ -299,14 +302,12 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   formatCurrency(value: number): string {
-    if (value >= 1000000000) {
-      return 'Rp ' + (value / 1000000000).toFixed(2) + ' M';
-    } else if (value >= 1000000) {
-      return 'Rp ' + (value / 1000000).toFixed(2) + ' Jt';
-    } else if (value >= 1000) {
-      return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
-    }
-    return 'Rp ' + value.toFixed(0);
+    // Format with Indonesian locale: periods for thousands, comma for decimal
+    // Show full number with 2 decimal places
+    return 'Rp ' + value.toLocaleString('id-ID', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 
   adjustColor(color: string, amount: number): string {
